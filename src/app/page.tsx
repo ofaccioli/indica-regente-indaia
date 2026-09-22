@@ -1,69 +1,187 @@
-import Image from "next/image";
+"use client";
+
+import React, { useEffect, useState, useMemo } from "react";
+import { Header } from "@/components/Header";
+import { CategoryFilter } from "@/components/CategoryFilter";
+import { SortTabs } from "@/components/SortTabs";
+import { ServiceCard } from "@/components/ServiceCard";
+import { BottomNav } from "@/components/BottomNav";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { Servico, TipoOrdenacao } from "@/types";
+import { listarServicos } from "@/lib/supabase";
+import { ordenarServicos } from "@/lib/ranking";
+import { Sparkles, PlusCircle, Award, RefreshCw } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
+  const [servicos, setServicos] = useState<Servico[]>([]);
+  const [carregando, setCarregando] = useState(true);
+  const [busca, setBusca] = useState("");
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState("Todos");
+  const [ordenacao, setOrdenacao] = useState<TipoOrdenacao>("melhores");
+
+  // Carrega serviços
+  const carregarDados = async () => {
+    setCarregando(true);
+    try {
+      const dados = await listarServicos();
+      setServicos(dados);
+    } catch (err) {
+      console.error("Erro ao carregar serviços:", err);
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
+  // Contagem de serviços por categoria
+  const contagemPorCategoria = useMemo(() => {
+    const mapa: Record<string, number> = { _total: servicos.length };
+    servicos.forEach((s) => {
+      mapa[s.categoria] = (mapa[s.categoria] || 0) + 1;
+    });
+    return mapa;
+  }, [servicos]);
+
+  // Filtra por categoria e texto de busca
+  const servicosFiltrados = useMemo(() => {
+    const termo = busca.toLowerCase().trim();
+
+    return servicos.filter((item) => {
+      const atendeCategoria =
+        categoriaSelecionada === "Todos" || item.categoria === categoriaSelecionada;
+
+      if (!atendeCategoria) return false;
+
+      if (!termo) return true;
+
+      const nome = item.nome.toLowerCase();
+      const categoria = item.categoria.toLowerCase();
+      const cidade = item.cidade_bairro.toLowerCase();
+      const desc = (item.descricao || "").toLowerCase();
+      const quem = (item.quem_indicou || "").toLowerCase();
+      const telefone = item.telefone_numeros || "";
+
+      return (
+        nome.includes(termo) ||
+        categoria.includes(termo) ||
+        cidade.includes(termo) ||
+        desc.includes(termo) ||
+        quem.includes(termo) ||
+        telefone.includes(termo)
+      );
+    });
+  }, [servicos, categoriaSelecionada, busca]);
+
+  // Aplica inteligência de ordenação
+  const servicosOrdenados = useMemo(() => {
+    return ordenarServicos(servicosFiltrados, ordenacao);
+  }, [servicosFiltrados, ordenacao]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gray-50 flex flex-col pb-20">
+      {/* Banner de instalação PWA */}
+      <PWAInstallPrompt />
+
+      {/* Header com pesquisa */}
+      <Header
+        busca={busca}
+        onBuscaChange={setBusca}
+        totalServicos={servicos.length}
+      />
+
+      {/* Carrossel de Categorias */}
+      <CategoryFilter
+        categoriaSelecionada={categoriaSelecionada}
+        onSelecionarCategoria={setCategoriaSelecionada}
+        contagemPorCategoria={contagemPorCategoria}
+      />
+
+      {/* Abas de Ordenação Inteligente */}
+      <SortTabs
+        ordenacaoAtual={ordenacao}
+        onMudarOrdenacao={setOrdenacao}
+      />
+
+      {/* Destaque Inteligente para "Top Avaliados" */}
+      {ordenacao === "melhores" && !busca && (
+        <div className="mx-4 mt-3 p-3 bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-amber-500/10 border border-amber-200/80 rounded-2xl flex items-center gap-2.5 text-xs text-amber-950 shadow-2xs">
+          <div className="w-8 h-8 rounded-full bg-amber-400 text-amber-950 flex items-center justify-center flex-shrink-0 font-black shadow-xs">
+            ⭐
+          </div>
+          <div>
+            <p className="font-bold text-gray-900 leading-tight flex items-center gap-1">
+              <span>Classificação Inteligente da Comunidade</span>
+              <span className="text-[10px] bg-amber-200 text-amber-900 px-1.5 py-0.2 rounded-full font-bold">
+                Algoritmo Ativo
+              </span>
+            </p>
+            <p className="text-[11px] text-gray-600 mt-0.5">
+              Prioriza profissionais com maior índice de recomendações reais e satisfação comprovada pelos vizinhos.
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      )}
+
+      {/* Feed Principal de Serviços */}
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 pt-3">
+        {carregando ? (
+          <div className="py-16 text-center flex flex-col items-center justify-center text-gray-400">
+            <RefreshCw className="w-8 h-8 animate-spin text-emerald-600 mb-2" />
+            <p className="text-xs font-medium">Carregando recomendações da comunidade...</p>
+          </div>
+        ) : servicosOrdenados.length === 0 ? (
+          /* Estado Vazio */
+          <div className="py-14 text-center px-4 bg-white rounded-2xl border border-gray-200/70 shadow-xs my-4">
+            <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
+              <Sparkles className="w-7 h-7" />
+            </div>
+            <h3 className="text-base font-bold text-gray-900">
+              Nenhuma indicação encontrada
+            </h3>
+            <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+              Não encontramos nenhum serviço para &ldquo;{busca || categoriaSelecionada}&rdquo;. Seja o primeiro a indicar um bom profissional!
+            </p>
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2">
+              <Link
+                href="/cadastrar"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>Indicar esse contato agora</span>
+              </Link>
+              {(busca || categoriaSelecionada !== "Todos") && (
+                <button
+                  onClick={() => {
+                    setBusca("");
+                    setCategoriaSelecionada("Todos");
+                  }}
+                  className="text-xs text-gray-500 hover:text-gray-900 underline py-1"
+                >
+                  Limpar filtros
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Lista de Cards */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
+            {servicosOrdenados.map((item) => (
+              <ServiceCard
+                key={item.id}
+                servico={item}
+                onAtualizar={carregarDados}
+              />
+            ))}
+          </div>
+        )}
       </main>
+
+      {/* Barra de Navegação Inferior Mobile */}
+      <BottomNav onFiltroTopAvaliados={() => setOrdenacao("melhores")} />
     </div>
   );
 }
