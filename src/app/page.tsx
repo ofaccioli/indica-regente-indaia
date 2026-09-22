@@ -177,6 +177,15 @@ export default function Home() {
     return ordenarServicos(servicosFiltrados, ordenacao);
   }, [servicosFiltrados, ordenacao]);
 
+  // Força retorno ao Guia de Serviços ao clicar no logo ou em Início
+  const irParaGuiaServicos = () => {
+    setAbaPrincipal("catalogo");
+    setBusca("");
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col pb-20">
       {/* Banner de instalação PWA */}
@@ -187,6 +196,7 @@ export default function Home() {
         busca={busca}
         onBuscaChange={setBusca}
         onAbrirDivulgacao={() => setModalDivulgacaoAberto(true)}
+        onLogoClick={irParaGuiaServicos}
       />
 
       {/* Alternador de Modo: Catálogo de Serviços vs. Mural "Alguém Indica?" */}
@@ -415,7 +425,10 @@ export default function Home() {
       />
 
       {/* Barra de Navegação Inferior Mobile */}
-      <BottomNav onFiltroTopAvaliados={() => setOrdenacao("melhores")} />
+      <BottomNav
+        onFiltroTopAvaliados={() => setOrdenacao("melhores")}
+        onIrParaInicio={irParaGuiaServicos}
+      />
     </div>
   );
 }

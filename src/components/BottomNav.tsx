@@ -7,9 +7,10 @@ import { Home, Star, PlusCircle, HelpCircle } from "lucide-react";
 
 interface BottomNavProps {
   onFiltroTopAvaliados?: () => void;
+  onIrParaInicio?: () => void;
 }
 
-export function BottomNav({ onFiltroTopAvaliados }: BottomNavProps) {
+export function BottomNav({ onFiltroTopAvaliados, onIrParaInicio }: BottomNavProps) {
   const pathname = usePathname();
 
   return (
@@ -18,6 +19,9 @@ export function BottomNav({ onFiltroTopAvaliados }: BottomNavProps) {
         {/* Início */}
         <Link
           href="/"
+          onClick={() => {
+            if (onIrParaInicio) onIrParaInicio();
+          }}
           className={`flex flex-col items-center gap-0.5 py-1 px-3 text-[11px] font-medium transition-colors ${
             pathname === "/" ? "text-emerald-700 font-bold" : "text-gray-500 hover:text-gray-900"
           }`}

@@ -9,15 +9,22 @@ interface HeaderProps {
   busca: string;
   onBuscaChange: (novaBusca: string) => void;
   onAbrirDivulgacao?: () => void;
+  onLogoClick?: () => void;
 }
 
-export function Header({ busca, onBuscaChange, onAbrirDivulgacao }: HeaderProps) {
+export function Header({ busca, onBuscaChange, onAbrirDivulgacao, onLogoClick }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-md border-b border-emerald-700/40 backdrop-blur-md">
       <div className="max-w-4xl mx-auto px-4 pt-3.5 pb-3">
         {/* Topo do Header: Logo e Botões de Ação */}
         <div className="flex items-center justify-between gap-3 mb-3">
-          <Link href="/" className="flex items-center gap-2.5 group">
+          <Link
+            href="/"
+            onClick={() => {
+              if (onLogoClick) onLogoClick();
+            }}
+            className="flex items-center gap-2.5 group"
+          >
             <div className="relative w-11 h-11 rounded-2xl overflow-hidden shadow-md border-2 border-amber-300/80 group-active:scale-95 transition-transform flex-shrink-0 bg-emerald-950 ring-2 ring-emerald-500/20">
               <Image
                 src="/logo.png"
