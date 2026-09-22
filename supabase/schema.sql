@@ -176,3 +176,16 @@ CREATE POLICY "Permitir cadastro público de respostas_mural"
 CREATE POLICY "Permitir exclusão de respostas_mural"
   ON public.respostas_mural FOR DELETE
   USING (true);
+
+-- ==============================================================================
+-- 6. MIGRAÇÃO INCREMENTAL (Execute este bloco se você já tinha o banco criado antes)
+-- ==============================================================================
+ALTER TABLE public.servicos 
+ADD COLUMN IF NOT EXISTS horario_funcionamento TEXT,
+ADD COLUMN IF NOT EXISTS oferta_vizinho TEXT;
+
+ALTER TABLE public.pedidos_mural 
+ADD COLUMN IF NOT EXISTS tipo_post TEXT DEFAULT 'pedido',
+ADD COLUMN IF NOT EXISTS valor_desapego TEXT,
+ADD COLUMN IF NOT EXISTS foto_url TEXT;
+
