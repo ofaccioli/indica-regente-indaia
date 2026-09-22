@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Phone,
   MessageCircle,
@@ -18,6 +18,7 @@ import { Servico } from "@/types";
 import { WhatsAppOptionsModal } from "./WhatsAppOptionsModal";
 import { RatingModal } from "./RatingModal";
 import { gerarLinkLigacao } from "@/lib/utils";
+import { isFavorite, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
 
 interface ServiceCardProps {
   servico: Servico;
@@ -46,15 +47,30 @@ export function ServiceCard({
   salvo = false,
   onToggleFavorito,
 }: ServiceCardProps) {
+  const [salvoLocal, setSalvoLocal] = useState(salvo);
   const [modalZapAberto, setModalZapAberto] = useState(false);
   const [modalAvaliacaoAberto, setModalAvaliacaoAberto] = useState(false);
   const [modalLigarAberto, setModalLigarAberto] = useState(false);
   const [copiado, setCopiado] = useState(false);
 
+  // Sincroniza estado de favorito com props e localStorage
+  useEffect(() => {
+    setSalvoLocal(salvo || isFavorite(servico.id));
+
+    const handleSync = () => {
+      setSalvoLocal(isFavorite(servico.id));
+    };
+
+    window.addEventListener(FAVORITES_EVENT, handleSync);
+    return () => window.removeEventListener(FAVORITES_EVENT, handleSync);
+  }, [salvo, servico.id]);
+
   const ligarUrl = gerarLinkLigacao(servico.telefone);
 
   const handleToggleFavorito = (e: React.MouseEvent) => {
     e.stopPropagation();
+    const novoStatus = toggleFavorite(servico.id);
+    setSalvoLocal(novoStatus);
     if (onToggleFavorito) {
       onToggleFavorito(servico.id);
     }
@@ -181,15 +197,15 @@ export function ServiceCard({
                   )}
                   <button
                     onClick={handleToggleFavorito}
-                    aria-label={salvo ? "Remover dos favoritos" : "Salvar contato"}
-                    title={salvo ? "Salvo nos seus favoritos" : "Salvar nos favoritos"}
+                    aria-label={salvoLocal ? "Remover dos favoritos" : "Salvar contato"}
+                    title={salvoLocal ? "Salvo nos seus favoritos" : "Salvar nos favoritos"}
                     className={`p-1.5 rounded-full transition-all active:scale-90 cursor-pointer ${
-                      salvo
+                      salvoLocal
                         ? "text-rose-500 bg-rose-50 hover:bg-rose-100"
                         : "text-gray-400 hover:text-rose-500 hover:bg-gray-100"
                     }`}
                   >
-                    <Heart className={`w-4 h-4 ${salvo ? "fill-rose-500" : ""}`} />
+                    <Heart className={`w-4 h-4 ${salvoLocal ? "fill-rose-500 text-rose-500" : ""}`} />
                   </button>
                 </div>
               </div>

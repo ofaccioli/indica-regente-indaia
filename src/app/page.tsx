@@ -13,7 +13,7 @@ import { MuralView } from "@/components/MuralView";
 import { Servico, TipoOrdenacao, PedidoMural } from "@/types";
 import { listarServicos, listarPedidosMural } from "@/lib/supabase";
 import { ordenarServicos } from "@/lib/ranking";
-import { getFavorites, FAVORITES_EVENT } from "@/lib/favorites";
+import { getFavorites, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
 import {
   Sparkles,
   PlusCircle,
@@ -416,6 +416,8 @@ export default function Home() {
                   <ServiceCard
                     key={item.id}
                     servico={item}
+                    salvo={favoritosIds.includes(item.id)}
+                    onToggleFavorito={(id) => toggleFavorite(id)}
                     onAtualizar={carregarDados}
                   />
                 ))}
