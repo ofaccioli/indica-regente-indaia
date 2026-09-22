@@ -85,7 +85,7 @@ export function PWAInstallPrompt() {
           <Smartphone className="w-4 h-4" />
         </div>
         <div>
-          <p className="font-bold leading-tight">Instalar IndicaRegenteIndaia</p>
+          <p className="font-bold leading-tight">Instalar Indica Jd.Regente</p>
           <p className="text-[11px] text-emerald-200">
             Acesso rápido direto da tela do seu celular!
           </p>

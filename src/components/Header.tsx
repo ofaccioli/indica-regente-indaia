@@ -20,12 +20,13 @@ export function Header({ busca, onBuscaChange }: HeaderProps) {
               ⭐
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-lg font-black tracking-tight text-white drop-shadow-2xs">
-                  Indica<span className="text-amber-300">RegenteIndaia</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-base sm:text-lg font-black tracking-tight text-white drop-shadow-2xs leading-tight">
+                  Indica <span className="text-amber-300">Jd.Regente</span>{" "}
+                  <span className="text-emerald-100/90 text-xs sm:text-sm font-bold">- Indaiatuba</span>
                 </span>
               </div>
-              <p className="text-[11px] text-emerald-100/90 font-medium">
+              <p className="text-[11px] text-emerald-100/80 font-medium">
                 Guia de Serviços e Recomendações
               </p>
             </div>

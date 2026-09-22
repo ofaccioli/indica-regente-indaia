@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "IndicaRegenteIndaia - Guia de Recomendações e Serviços",
+  title: "Indica Jd.Regente - Indaiatuba | Guia de Recomendações e Serviços",
   description:
-    "Encontre os melhores profissionais e serviços recomendados pela comunidade em Regente Feijó e Indaiatuba com WhatsApp direto.",
+    "Encontre os melhores profissionais e serviços recomendados pela comunidade no Jardim Regente e Indaiatuba com WhatsApp direto.",
   manifest: "/manifest.json",
   icons: {
     icon: "/icon.svg",
@@ -24,9 +24,9 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "IndicaRegenteIndaia",
+    title: "Indica Jd.Regente",
   },
-  applicationName: "IndicaRegenteIndaia",
+  applicationName: "Indica Jd.Regente - Indaiatuba",
 };
 
 export const viewport: Viewport = {

@@ -1,7 +1,7 @@
 {
-  "name": "IndicaRegenteIndaia - Guia de Recomendações",
-  "short_name": "IndicaRegente",
-  "description": "Encontre e recomende serviços e profissionais de confiança da nossa comunidade",
+  "name": "Indica Jd.Regente - Indaiatuba | Guia de Recomendações",
+  "short_name": "Indica Jd.Regente",
+  "description": "Encontre e recomende serviços e profissionais de confiança da nossa comunidade no Jd. Regente e Indaiatuba",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#064e3b",
