@@ -76,10 +76,18 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
       <article className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all relative overflow-hidden flex flex-col justify-between">
         {/* Faixa superior do card */}
         <div>
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60">
-              {servico.categoria}
-            </span>
+          <div className="flex items-start justify-between gap-2 mb-2 flex-wrap">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+                {servico.categoria}
+              </span>
+
+              {servico.verificado_admin && (
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+                  ✓ Verificado
+                </span>
+              )}
+            </div>
 
             {/* Selo Top Recomendado */}
             {servico.selo_destaque && (

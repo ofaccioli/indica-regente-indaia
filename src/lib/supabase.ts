@@ -367,3 +367,146 @@ export async function registrarAvaliacao(
 
   return { sucesso: true };
 }
+
+/**
+ * Atualiza dados de um serviço existente (Ação do Admin)
+ */
+export async function atualizarServico(
+  id: string,
+  dados: Partial<Servico>
+): Promise<{ sucesso: boolean; erro?: string; servico?: Servico }> {
+  const dadosParaAtualizar: Partial<Servico> = { ...dados };
+  if (dados.telefone) {
+    dadosParaAtualizar.telefone_numeros = limparTelefone(dados.telefone);
+  }
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("servicos")
+        .update(dadosParaAtualizar)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (!error && data) {
+        return { sucesso: true, servico: data as Servico };
+      }
+    } catch (err) {
+      console.warn("Erro ao atualizar no Supabase:", err);
+    }
+  }
+
+  // Fallback local
+  const index = localServicos.findIndex((s) => s.id === id);
+  if (index !== -1) {
+    localServicos[index] = { ...localServicos[index], ...dadosParaAtualizar };
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("indica_servicos", JSON.stringify(localServicos));
+      } catch {}
+    }
+    return { sucesso: true, servico: localServicos[index] };
+  }
+
+  return { sucesso: false, erro: "Serviço não encontrado" };
+}
+
+/**
+ * Exclui um serviço e suas avaliações (Ação do Admin)
+ */
+export async function excluirServico(id: string): Promise<{ sucesso: boolean; erro?: string }> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { error } = await supabase.from("servicos").delete().eq("id", id);
+      if (!error) {
+        return { sucesso: true };
+      }
+    } catch (err) {
+      console.warn("Erro ao excluir no Supabase:", err);
+    }
+  }
+
+  // Fallback local
+  localServicos = localServicos.filter((s) => s.id !== id);
+  localAvaliacoes = localAvaliacoes.filter((a) => a.servico_id !== id);
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem("indica_servicos", JSON.stringify(localServicos));
+      localStorage.setItem("indica_avaliacoes", JSON.stringify(localAvaliacoes));
+    } catch {}
+  }
+
+  return { sucesso: true };
+}
+
+/**
+ * Exclui uma avaliação e recalcula a nota média (Ação do Admin)
+ */
+export async function excluirAvaliacao(
+  avaliacaoId: string,
+  servicoId: string
+): Promise<{ sucesso: boolean; erro?: string }> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { error } = await supabase.from("avaliacoes").delete().eq("id", avaliacaoId);
+      if (!error) {
+        return { sucesso: true };
+      }
+    } catch (err) {
+      console.warn("Erro ao excluir avaliação no Supabase:", err);
+    }
+  }
+
+  // Fallback local
+  localAvaliacoes = localAvaliacoes.filter((a) => a.id !== avaliacaoId);
+
+  const avaliacoesRestantes = localAvaliacoes.filter((a) => a.servico_id === servicoId);
+  const total = avaliacoesRestantes.length;
+  const servicoIndex = localServicos.findIndex((s) => s.id === servicoId);
+
+  if (servicoIndex !== -1) {
+    const novaMedia =
+      total === 0
+        ? 5.0
+        : Number((avaliacoesRestantes.reduce((acc, cur) => acc + cur.nota, 0) / total).toFixed(2));
+
+    localServicos[servicoIndex] = {
+      ...localServicos[servicoIndex],
+      nota_media: novaMedia,
+      total_avaliacoes: Math.max(1, total),
+    };
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("indica_servicos", JSON.stringify(localServicos));
+        localStorage.setItem("indica_avaliacoes", JSON.stringify(localAvaliacoes));
+      } catch {}
+    }
+  }
+
+  return { sucesso: true };
+}
+
+/**
+ * Lista todas as avaliações para a área de moderação
+ */
+export async function listarTodasAvaliacoes(): Promise<Avaliacao[]> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("avaliacoes")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        return data as Avaliacao[];
+      }
+    } catch (err) {
+      console.warn("Erro ao buscar avaliações no Supabase:", err);
+    }
+  }
+
+  return [...localAvaliacoes];
+}
+

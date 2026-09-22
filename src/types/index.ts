@@ -12,6 +12,7 @@ export interface Servico {
   total_avaliacoes: number;
   pontuacao_inteligente?: number;
   selo_destaque?: boolean;
+  verificado_admin?: boolean;
   created_at: string;
 }
 

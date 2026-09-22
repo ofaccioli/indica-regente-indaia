@@ -116,6 +116,25 @@ export default function SobrePage() {
             </li>
           </ol>
         </div>
+
+        {/* Área de Moderação Administrativa */}
+        <div className="bg-gray-900 text-white rounded-2xl p-5 shadow-sm flex items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-amber-400 font-bold text-sm mb-1">
+              <ShieldCheck className="w-5 h-5" />
+              <h3>Área de Moderação da Comunidade</h3>
+            </div>
+            <p className="text-xs text-gray-400">
+              Espaço reservado para administradores gerenciarem contatos, editarem informações e moderarem avaliações.
+            </p>
+          </div>
+          <Link
+            href="/admin/login"
+            className="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-gray-950 font-bold text-xs whitespace-nowrap shadow transition-all active:scale-95"
+          >
+            Acessar Admin
+          </Link>
+        </div>
       </main>
 
       <BottomNav />

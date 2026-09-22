@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS public.servicos (
   instagram TEXT,
   nota_media NUMERIC(3, 2) DEFAULT 5.0,
   total_avaliacoes INTEGER DEFAULT 1,
+  verificado_admin BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -79,6 +80,10 @@ CREATE POLICY "Permitir atualização de servicos"
   ON public.servicos FOR UPDATE
   USING (true);
 
+CREATE POLICY "Permitir exclusão de servicos"
+  ON public.servicos FOR DELETE
+  USING (true);
+
 CREATE POLICY "Permitir leitura pública de avaliacoes"
   ON public.avaliacoes FOR SELECT
   USING (true);
@@ -86,6 +91,10 @@ CREATE POLICY "Permitir leitura pública de avaliacoes"
 CREATE POLICY "Permitir cadastro público de avaliacoes"
   ON public.avaliacoes FOR INSERT
   WITH CHECK (true);
+
+CREATE POLICY "Permitir exclusão de avaliacoes"
+  ON public.avaliacoes FOR DELETE
+  USING (true);
 
 -- 5. DADOS INICIAIS DE EXEMPLO PARA A COMUNIDADE INDICA REGENTE INDAIÁ
 INSERT INTO public.servicos (nome, categoria, telefone, telefone_numeros, cidade_bairro, descricao, quem_indicou, nota_media, total_avaliacoes)
