@@ -18,8 +18,8 @@ export const metadata: Metadata = {
     "Encontre os melhores profissionais e serviços recomendados pela comunidade no Jardim Regente e Indaiatuba com WhatsApp direto.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
+    icon: "/logo.jpg",
+    apple: "/logo.jpg",
   },
   appleWebApp: {
     capable: true,
@@ -48,8 +48,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icon.svg" />
+        <link rel="icon" href="/logo.jpg" />
+        <link rel="apple-touch-icon" href="/logo.jpg" />
       </head>
       <body className="min-h-full flex flex-col bg-gray-50 text-gray-900 font-sans select-none sm:select-auto">
         {children}

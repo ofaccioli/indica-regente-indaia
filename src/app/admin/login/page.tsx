@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ShieldCheck, Lock, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
@@ -45,14 +46,19 @@ export default function AdminLoginPage() {
           className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-900 mb-6 font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Voltar para o IndicaRegenteIndaia</span>
+          <span>Voltar para o Indica Jd.Regente</span>
         </Link>
 
         {/* Card do Login */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200/80 p-6">
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-200/80 p-6">
           <div className="text-center mb-6">
-            <div className="w-12 h-12 bg-gray-900 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow">
-              <ShieldCheck className="w-7 h-7" />
+            <div className="relative w-16 h-16 rounded-2xl overflow-hidden mx-auto mb-3 shadow-md border border-amber-300/50">
+              <Image
+                src="/logo.jpg"
+                alt="Logo Indica Jd.Regente"
+                fill
+                className="object-cover"
+              />
             </div>
             <h1 className="text-lg font-black text-gray-900">Acesso Administrativo</h1>
             <p className="text-xs text-gray-500 mt-1">

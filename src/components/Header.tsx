@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { Search, X, Sparkles, Plus } from "lucide-react";
 import Link from "next/link";
 
@@ -16,8 +17,14 @@ export function Header({ busca, onBuscaChange }: HeaderProps) {
         {/* Topo do Header: Logo e Botão de Ação */}
         <div className="flex items-center justify-between gap-3 mb-3">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-300 text-emerald-950 flex items-center justify-center font-black text-xl shadow-sm group-active:scale-95 transition-transform">
-              ⭐
+            <div className="relative w-11 h-11 rounded-2xl overflow-hidden shadow-md border border-amber-300/40 group-active:scale-95 transition-transform flex-shrink-0 bg-emerald-900">
+              <Image
+                src="/logo.jpg"
+                alt="Logo Indica Jd.Regente"
+                fill
+                className="object-cover"
+                priority
+              />
             </div>
             <div>
               <div className="flex items-center gap-1.5 flex-wrap">
