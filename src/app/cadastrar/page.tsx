@@ -307,7 +307,7 @@ export default function CadastrarPage() {
                 required
                 value={cidadeBairro}
                 onChange={(e) => setCidadeBairro(e.target.value)}
-                placeholder="Ex: Regente Feijó - Centro ou Indaiatuba - Morada do Sol"
+                placeholder="Ex: Indaiatuba - Jd. Regente ou Morada do Sol"
                 className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
               />
             </div>

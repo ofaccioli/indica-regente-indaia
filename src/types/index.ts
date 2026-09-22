@@ -56,7 +56,7 @@ export const BAIRROS_INDAIATUBA = [
   "Parque Ecológico",
   "Jd. Esplanada",
   "Jd. Bela Vista",
-  "Regente Feijó",
+  "Parque Real",
   "Outro Bairro",
 ] as const;
 

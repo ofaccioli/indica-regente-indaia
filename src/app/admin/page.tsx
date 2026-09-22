@@ -254,7 +254,7 @@ export default function AdminDashboardPage() {
             </span>
             <span className="font-semibold text-emerald-400">Comunidade Ativa</span>
             <span className="text-gray-500">•</span>
-            <span className="text-gray-300">Regente Feijó & Indaiatuba</span>
+            <span className="text-gray-300">Jd. Regente - Indaiatuba</span>
           </div>
 
           <div className="flex items-center gap-3 text-[11px] text-gray-400">

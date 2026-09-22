@@ -249,7 +249,7 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                       <a
                         href={gerarLinkWhatsApp(
                           pedido.whatsapp_contato,
-                          `Olá ${pedido.morador_nome}, vi seu pedido no Mural do Indica Regente ("${pedido.titulo}") e gostaria de te ajudar!`
+                          `Olá ${pedido.morador_nome}, vi seu pedido no Mural do Indica Jd. Regente ("${pedido.titulo}") e gostaria de te ajudar!`
                         )}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -333,7 +333,7 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                                 <a
                                   href={gerarLinkWhatsApp(
                                     servicoIndicado.telefone,
-                                    `Olá ${servicoIndicado.nome}, vi sua indicação no Mural do Indica Regente!`
+                                    `Olá ${servicoIndicado.nome}, vi sua indicação no Mural do Indica Jd. Regente!`
                                   )}
                                   target="_blank"
                                   rel="noopener noreferrer"

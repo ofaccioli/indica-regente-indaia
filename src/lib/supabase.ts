@@ -174,7 +174,7 @@ const SEED_PEDIDOS_MURAL: PedidoMural[] = [
   {
     id: "ped-1",
     titulo: "Procuro pintor para sala e fachada",
-    descricao: "Preciso de indicação de pintor caprichoso para pintar a sala e a frente de casa aqui no Regente Feijó. Preferência que tenha boas recomendações!",
+    descricao: "Preciso de indicação de pintor caprichoso para pintar a sala e a frente de casa aqui no Jd. Regente. Preferência que tenha boas recomendações!",
     categoria: "Pintor / Gesso",
     morador_nome: "Patrícia",
     bairro: "Jd. Regente",
@@ -235,8 +235,11 @@ export async function listarServicos(): Promise<Servico[]> {
         .select("*")
         .order("nota_media", { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         return data as Servico[];
+      }
+      if (error) {
+        console.error("Erro ao buscar serviços no Supabase:", error);
       }
     } catch (err) {
       console.warn("Supabase indisponível, usando dados locais:", err);
@@ -529,11 +532,23 @@ export async function excluirServico(id: string): Promise<{ sucesso: boolean; er
   if (isSupabaseConfigured && supabase) {
     try {
       const { error } = await supabase.from("servicos").delete().eq("id", id);
-      if (!error) {
-        return { sucesso: true };
+      if (error) {
+        console.error("Erro ao excluir serviço no Supabase:", error);
+        return { sucesso: false, erro: error.message };
       }
-    } catch (err) {
-      console.warn("Erro ao excluir no Supabase:", err);
+      // Limpa também do cache local se existir
+      localServicos = localServicos.filter((s) => s.id !== id);
+      localAvaliacoes = localAvaliacoes.filter((a) => a.servico_id !== id);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("indica_servicos", JSON.stringify(localServicos));
+          localStorage.setItem("indica_avaliacoes", JSON.stringify(localAvaliacoes));
+        } catch {}
+      }
+      return { sucesso: true };
+    } catch (err: any) {
+      console.error("Erro ao excluir no Supabase:", err);
+      return { sucesso: false, erro: err?.message || "Falha ao excluir serviço no banco de dados" };
     }
   }
 
@@ -560,11 +575,13 @@ export async function excluirAvaliacao(
   if (isSupabaseConfigured && supabase) {
     try {
       const { error } = await supabase.from("avaliacoes").delete().eq("id", avaliacaoId);
-      if (!error) {
-        return { sucesso: true };
+      if (error) {
+        console.error("Erro ao excluir avaliação no Supabase:", error);
+        return { sucesso: false, erro: error.message };
       }
-    } catch (err) {
-      console.warn("Erro ao excluir avaliação no Supabase:", err);
+    } catch (err: any) {
+      console.error("Erro ao excluir avaliação no Supabase:", err);
+      return { sucesso: false, erro: err?.message || "Falha ao excluir avaliação" };
     }
   }
 
@@ -631,8 +648,11 @@ export async function listarPedidosMural(): Promise<PedidoMural[]> {
         .select("*, respostas:respostas_mural(*)")
         .order("created_at", { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         return data as PedidoMural[];
+      }
+      if (error) {
+        console.error("Erro ao listar mural no Supabase:", error);
       }
     } catch (err) {
       console.warn("Supabase indisponível para mural, usando dados locais:", err);
@@ -793,11 +813,17 @@ export async function resolverPedidoMural(pedidoId: string): Promise<{ sucesso: 
 /**
  * Exclui um pedido do Mural (Ação de Moderação)
  */
-export async function excluirPedidoMural(pedidoId: string): Promise<{ sucesso: boolean }> {
+export async function excluirPedidoMural(pedidoId: string): Promise<{ sucesso: boolean; erro?: string }> {
   if (isSupabaseConfigured && supabase) {
     try {
-      await supabase.from("pedidos_mural").delete().eq("id", pedidoId);
-    } catch {}
+      const { error } = await supabase.from("pedidos_mural").delete().eq("id", pedidoId);
+      if (error) {
+        console.error("Erro ao excluir pedido no Supabase:", error);
+        return { sucesso: false, erro: error.message };
+      }
+    } catch (err: any) {
+      return { sucesso: false, erro: err?.message || "Falha ao excluir pedido" };
+    }
   }
 
   localPedidosMural = localPedidosMural.filter((p) => p.id !== pedidoId);

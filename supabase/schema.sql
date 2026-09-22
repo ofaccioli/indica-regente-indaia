@@ -46,21 +46,34 @@ CREATE INDEX IF NOT EXISTS idx_avaliacoes_servico_id ON public.avaliacoes(servic
 -- 3. TRIGGER PARA ATUALIZAR NOTA MÉDIA E TOTAL AUTOMATICAMENTE NO SUPABASE
 CREATE OR REPLACE FUNCTION public.atualizar_nota_servico()
 RETURNS TRIGGER AS $$
+DECLARE
+  target_id UUID;
 BEGIN
+  IF TG_OP = 'DELETE' THEN
+    target_id := OLD.servico_id;
+  ELSE
+    target_id := NEW.servico_id;
+  END IF;
+
   UPDATE public.servicos
   SET 
     nota_media = COALESCE((
       SELECT ROUND(AVG(nota)::numeric, 2)
       FROM public.avaliacoes
-      WHERE servico_id = NEW.servico_id
+      WHERE servico_id = target_id
     ), 5.0),
     total_avaliacoes = COALESCE((
       SELECT COUNT(*)
       FROM public.avaliacoes
-      WHERE servico_id = NEW.servico_id
+      WHERE servico_id = target_id
     ), 0)
-  WHERE id = NEW.servico_id;
-  RETURN NEW;
+  WHERE id = target_id;
+
+  IF TG_OP = 'DELETE' THEN
+    RETURN OLD;
+  ELSE
+    RETURN NEW;
+  END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -158,14 +171,3 @@ CREATE POLICY "Permitir cadastro público de respostas_mural"
 CREATE POLICY "Permitir exclusão de respostas_mural"
   ON public.respostas_mural FOR DELETE
   USING (true);
-
--- 5. DADOS INICIAIS DE EXEMPLO PARA A COMUNIDADE INDICA REGENTE INDAIÁ
-INSERT INTO public.servicos (nome, categoria, telefone, telefone_numeros, cidade_bairro, descricao, quem_indicou, nota_media, total_avaliacoes)
-VALUES 
-  ('Carlos Roberto Eletricista', 'Eletricista', '(18) 99712-4040', '18997124040', 'Regente Feijó - Centro', 'Instalação de padrão, fiação completa, quadro de disjuntores e chuveiros. Atende finais de semana.', 'Ricardo do Grupo', 4.95, 18),
-  ('Dona Luíza Diarista e Passadeira', 'Diarista / Limpeza', '(19) 98844-3322', '19988443322', 'Indaiatuba - Morada do Sol', 'Faxina pesada, limpeza pós-obra e cuidado impecável com roupas. Muito pontual e de confiança.', 'Ana Paula Condomínio', 5.0, 24),
-  ('Mecânica do Beto - Auto & Moto', 'Mecânico', '(18) 99655-1122', '18996551122', 'Regente Feijó - Vila Nova', 'Injeção eletrônica, suspensão, freios e troca de óleo rápida. Preço justo e honestidade.', 'Marcos Mecânico', 4.80, 15),
-  ('Dr. Fernando Veterinário 24h', 'Pet / Veterinário', '(19) 99123-9988', '19991239988', 'Indaiatuba - Vila Avai', 'Consultas, vacinas em domicílio, cirurgias e plantão de emergência para cães e gatos.', 'Juliana Santos', 4.90, 21),
-  ('Marcos Encanador & Caça Vazamentos', 'Encanador', '(18) 99877-6655', '18998776655', 'Regente Feijó - Jd das Flores', 'Localização de vazamentos ocultos sem quebrar parede à toa, troca de torneiras e caixas d água.', 'Seu Zé do Mercado', 4.85, 12),
-  ('Pizzaria & Forno Artesanal Sabor da Vila', 'Restaurante / Lanche', '(19) 99766-5544', '19997665544', 'Indaiatuba - Centro', 'Melhor pizza com massa de fermentação natural, forno a lenha e entrega super rápida.', 'Família Ribeiro', 4.75, 30)
-ON CONFLICT (telefone_numeros) DO NOTHING;
