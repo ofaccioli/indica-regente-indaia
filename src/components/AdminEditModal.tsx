@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Check, ShieldCheck, Loader2 } from "lucide-react";
+import { X, Check, ShieldCheck, Loader2, Camera, Trash2 } from "lucide-react";
 import { Servico, CATEGORIAS_DISPONIVEIS, BAIRROS_INDAIATUBA } from "@/types";
-import { formatarTelefoneBR, limparTelefone } from "@/lib/utils";
+import { formatarTelefoneBR, limparTelefone, comprimirImagemArquivo } from "@/lib/utils";
 
 interface AdminEditModalProps {
   servico: Servico | null;
@@ -26,6 +26,9 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
   const [ehMorador, setEhMorador] = useState(false);
   const [tipoAtendimento, setTipoAtendimento] = useState<"domicilio" | "local" | "ambos">("ambos");
   const [horarioFuncionamento, setHorarioFuncionamento] = useState("");
+  const [fotoUrl, setFotoUrl] = useState("");
+  const [fotosTrabalhos, setFotosTrabalhos] = useState<string[]>([]);
+  const [carregandoFoto, setCarregandoFoto] = useState(false);
   const [verificadoAdmin, setVerificadoAdmin] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
@@ -41,6 +44,8 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
       setInstagram(servico.instagram || "");
       setOfertaVizinho(servico.oferta_vizinho || "");
       setHorarioFuncionamento(servico.horario_funcionamento || "");
+      setFotoUrl(servico.foto_url || "");
+      setFotosTrabalhos(servico.fotos_trabalhos || []);
       setAtendeFimDeSemana(Boolean(servico.atende_fim_de_semana));
       setEhMorador(Boolean(servico.eh_morador));
       setTipoAtendimento(servico.tipo_atendimento || "ambos");
@@ -49,6 +54,38 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
   }, [servico]);
 
   if (!isOpen || !servico) return null;
+
+  const handleUploadFotoPerfil = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setCarregandoFoto(true);
+      const compressed = await comprimirImagemArquivo(file, 400, 0.8);
+      setFotoUrl(compressed);
+    } catch {
+      alert("Erro ao comprimir imagem.");
+    } finally {
+      setCarregandoFoto(false);
+    }
+  };
+
+  const handleAddFotoTrabalho = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (fotosTrabalhos.length >= 3) {
+      alert("Máximo de 3 fotos.");
+      return;
+    }
+    try {
+      setCarregandoFoto(true);
+      const compressed = await comprimirImagemArquivo(file, 800, 0.75);
+      setFotosTrabalhos((prev) => [...prev, compressed]);
+    } catch {
+      alert("Erro ao comprimir imagem.");
+    } finally {
+      setCarregandoFoto(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +110,8 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
             instagram: instagram.trim() || null,
             oferta_vizinho: ofertaVizinho.trim() || null,
             horario_funcionamento: horarioFuncionamento.trim() || null,
+            foto_url: fotoUrl.trim() || null,
+            fotos_trabalhos: fotosTrabalhos.length > 0 ? fotosTrabalhos : null,
             atende_fim_de_semana: atendeFimDeSemana,
             eh_morador: ehMorador,
             tipo_atendimento: tipoAtendimento,
@@ -239,6 +278,84 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
               placeholder="Ex: Seg a Sex: 08h às 18h / 24h"
               className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
             />
+          </div>
+
+          {/* Fotos de Perfil e Trabalhos */}
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-3">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                Foto de Perfil ou Logotipo (Avatar)
+              </label>
+              <div className="flex items-center gap-3">
+                {fotoUrl ? (
+                  <div className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={fotoUrl}
+                      alt="Perfil"
+                      className="w-12 h-12 rounded-xl object-cover border border-slate-300 shadow-xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFotoUrl("")}
+                      className="absolute -top-1.5 -right-1.5 bg-rose-600 hover:bg-rose-700 text-white p-0.5 rounded-full"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-dashed border-slate-300 hover:border-emerald-500 rounded-lg text-xs font-bold text-slate-700 cursor-pointer transition">
+                    <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{carregandoFoto ? "..." : "Enviar foto/logo"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleUploadFotoPerfil}
+                      disabled={carregandoFoto}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-200">
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                Fotos de Trabalhos Realizados ({fotosTrabalhos.length}/3)
+              </label>
+              <div className="flex items-center gap-2 flex-wrap">
+                {fotosTrabalhos.map((f, idx) => (
+                  <div key={idx} className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={f}
+                      alt={`Trabalho ${idx + 1}`}
+                      className="w-12 h-12 rounded-lg object-cover border border-slate-300 shadow-xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFotosTrabalhos((prev) => prev.filter((_, i) => i !== idx))}
+                      className="absolute -top-1.5 -right-1.5 bg-rose-600 hover:bg-rose-700 text-white p-0.5 rounded-full"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                {fotosTrabalhos.length < 3 && (
+                  <label className="w-12 h-12 rounded-lg border border-dashed border-slate-300 hover:border-emerald-500 flex flex-col items-center justify-center gap-0.5 cursor-pointer text-slate-400 hover:text-emerald-700 bg-white">
+                    <Camera className="w-3.5 h-3.5" />
+                    <span className="text-[9px] font-bold">+</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAddFotoTrabalho}
+                      disabled={carregandoFoto}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Tipo de Atendimento */}

@@ -18,6 +18,8 @@ import {
   AlertCircle,
   Navigation,
   Clock,
+  Camera,
+  Trash2,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -36,6 +38,7 @@ import {
   limparTelefone,
   isTelefoneValido,
   detectarBairroPorGPS,
+  comprimirImagemArquivo,
 } from "@/lib/utils";
 import {
   verificarTelefoneExistente,
@@ -63,6 +66,42 @@ export default function CadastrarPage() {
   const [ehMorador, setEhMorador] = useState(false);
   const [tipoAtendimento, setTipoAtendimento] = useState<"domicilio" | "local" | "ambos">("ambos");
   const [horarioFuncionamento, setHorarioFuncionamento] = useState("");
+  const [fotoPerfil, setFotoPerfil] = useState("");
+  const [carregandoFotoPerfil, setCarregandoFotoPerfil] = useState(false);
+  const [fotosTrabalhos, setFotosTrabalhos] = useState<string[]>([]);
+  const [carregandoFotosTrabalhos, setCarregandoFotosTrabalhos] = useState(false);
+
+  const handleFotoPerfil = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setCarregandoFotoPerfil(true);
+      const dataUrl = await comprimirImagemArquivo(file, 400, 0.8);
+      setFotoPerfil(dataUrl);
+    } catch {
+      alert("Erro ao carregar a foto de perfil. Tente outro arquivo.");
+    } finally {
+      setCarregandoFotoPerfil(false);
+    }
+  };
+
+  const handleAddFotoTrabalho = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (fotosTrabalhos.length >= 3) {
+      alert("Você pode adicionar no máximo 3 fotos de trabalhos.");
+      return;
+    }
+    try {
+      setCarregandoFotosTrabalhos(true);
+      const dataUrl = await comprimirImagemArquivo(file, 800, 0.75);
+      setFotosTrabalhos((prev) => [...prev, dataUrl]);
+    } catch {
+      alert("Erro ao carregar a foto do trabalho.");
+    } finally {
+      setCarregandoFotosTrabalhos(false);
+    }
+  };
 
   // Handler para detectar bairro via GPS
   const handleDetectarGps = async () => {
@@ -164,6 +203,8 @@ export default function CadastrarPage() {
         eh_morador: ehMorador,
         tipo_atendimento: tipoAtendimento,
         horario_funcionamento: horarioFuncionamento.trim() || undefined,
+        foto_url: fotoPerfil || undefined,
+        fotos_trabalhos: fotosTrabalhos.length > 0 ? fotosTrabalhos : undefined,
       });
 
       if (res.sucesso) {
@@ -492,6 +533,109 @@ export default function CadastrarPage() {
               <p className="text-[11px] text-gray-400 mt-1">
                 Os moradores poderão ver fotos de serviços realizados diretamente no Instagram dele.
               </p>
+            </div>
+
+            {/* Fotos: Perfil/Logo e Fotos de Trabalhos Realizados */}
+            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs space-y-4">
+              {/* 1. Foto de Perfil / Logo */}
+              <div>
+                <label className="block text-xs font-bold text-gray-800 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Foto de Perfil ou Logotipo <span className="text-gray-400 font-normal">(opcional)</span></span>
+                  </span>
+                </label>
+
+                {fotoPerfil ? (
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={fotoPerfil}
+                        alt="Perfil ou Logotipo"
+                        className="w-14 h-14 rounded-2xl object-cover border border-slate-300 shadow-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFotoPerfil("")}
+                        className="absolute -top-1.5 -right-1.5 bg-rose-600 hover:bg-rose-700 text-white p-1 rounded-full shadow-xs"
+                        title="Remover foto"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                    <span className="text-xs text-emerald-700 font-semibold">
+                      ✓ Foto de perfil anexada
+                    </span>
+                  </div>
+                ) : (
+                  <label className="flex items-center justify-center gap-2 py-2.5 px-3 bg-slate-50 border border-dashed border-slate-300 hover:border-emerald-500 rounded-xl cursor-pointer text-slate-700 hover:text-emerald-700 text-xs font-bold transition">
+                    <Camera className="w-4 h-4 text-emerald-600" />
+                    <span>{carregandoFotoPerfil ? "Comprimindo..." : "Escolher foto ou logotipo"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFotoPerfil}
+                      disabled={carregandoFotoPerfil}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+                <p className="text-[10px] text-gray-400 mt-1">
+                  💡 Aparece dentro do avatar do profissional. Se não colocar, usamos a inicial estilizada.
+                </p>
+              </div>
+
+              {/* 2. Fotos de Trabalhos Realizados (Até 3) */}
+              <div className="pt-2 border-t border-slate-100">
+                <label className="block text-xs font-bold text-gray-800 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Fotos de Trabalhos / Serviços <span className="text-gray-400 font-normal">(opcional - até 3 fotos)</span></span>
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500">{fotosTrabalhos.length}/3</span>
+                </label>
+
+                <div className="flex items-center gap-2.5 flex-wrap mt-1">
+                  {fotosTrabalhos.map((foto, index) => (
+                    <div key={index} className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={foto}
+                        alt={`Trabalho ${index + 1}`}
+                        className="w-16 h-16 rounded-xl object-cover border border-slate-300 shadow-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFotosTrabalhos((prev) => prev.filter((_, i) => i !== index))}
+                        className="absolute -top-1.5 -right-1.5 bg-rose-600 hover:bg-rose-700 text-white p-1 rounded-full shadow-xs"
+                        title="Remover foto"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {fotosTrabalhos.length < 3 && (
+                    <label className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 hover:border-emerald-500 flex flex-col items-center justify-center gap-1 cursor-pointer transition text-slate-500 hover:text-emerald-700">
+                      <Camera className="w-4 h-4" />
+                      <span className="text-[9px] font-bold">
+                        {carregandoFotosTrabalhos ? "..." : "+ Foto"}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAddFotoTrabalho}
+                        disabled={carregandoFotosTrabalhos}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+                <p className="text-[10px] text-gray-400 mt-1">
+                  💡 Os moradores poderão clicar em um botão no card para ver essas fotos em tela cheia.
+                </p>
+              </div>
             </div>
 
             {/* Tipo de Atendimento */}

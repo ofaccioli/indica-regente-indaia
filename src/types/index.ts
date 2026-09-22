@@ -20,6 +20,8 @@ export interface Servico {
   eh_morador?: boolean;
   tipo_atendimento?: "domicilio" | "local" | "ambos";
   horario_funcionamento?: string;
+  foto_url?: string;
+  fotos_trabalhos?: string[];
   created_at: string;
 }
 

@@ -444,6 +444,8 @@ export async function cadastrarServico(dados: Omit<Servico, "id" | "created_at" 
           tipo_atendimento: novoServico.tipo_atendimento || "ambos",
           oferta_vizinho: novoServico.oferta_vizinho || null,
           horario_funcionamento: novoServico.horario_funcionamento || null,
+          foto_url: novoServico.foto_url || null,
+          fotos_trabalhos: novoServico.fotos_trabalhos || null,
           nota_media: 5.0,
           total_avaliacoes: 1,
         }])

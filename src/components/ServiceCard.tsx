@@ -14,11 +14,13 @@ import {
   CheckCircle2,
   Award,
   Clock,
+  Camera,
 } from "lucide-react";
 import { Servico } from "@/types";
 import { WhatsAppOptionsModal } from "./WhatsAppOptionsModal";
 import { RatingModal } from "./RatingModal";
 import { VerAvaliacoesModal } from "./VerAvaliacoesModal";
+import { FotosTrabalhosModal } from "./FotosTrabalhosModal";
 import { gerarLinkLigacao, verificarAbertoAgora } from "@/lib/utils";
 import { isFavorite, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
 
@@ -53,6 +55,7 @@ export function ServiceCard({
   const [modalZapAberto, setModalZapAberto] = useState(false);
   const [modalAvaliacaoAberto, setModalAvaliacaoAberto] = useState(false);
   const [modalVerAvaliacoesAberto, setModalVerAvaliacoesAberto] = useState(false);
+  const [modalFotosAberto, setModalFotosAberto] = useState(false);
   const [modalLigarAberto, setModalLigarAberto] = useState(false);
   const [copiado, setCopiado] = useState(false);
 
@@ -184,6 +187,18 @@ export function ServiceCard({
                   {statusAberto.texto}
                 </span>
               )}
+
+              {servico.fotos_trabalhos && servico.fotos_trabalhos.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setModalFotosAberto(true)}
+                  className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 transition cursor-pointer"
+                  title="Ver fotos dos serviços realizados"
+                >
+                  <Camera className="w-3 h-3 text-emerald-600" />
+                  <span>Fotos ({servico.fotos_trabalhos.length})</span>
+                </button>
+              )}
             </div>
 
             {/* Selo Top Recomendado */}
@@ -195,11 +210,25 @@ export function ServiceCard({
             )}
           </div>
 
-          {/* Cabeçalho com Avatar de Iniciais, Nome e Ações Rápidas */}
+          {/* Cabeçalho com Avatar de Iniciais ou Foto de Perfil, Nome e Ações Rápidas */}
           <div className="flex items-start gap-3 mb-2.5">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center font-black text-base flex-shrink-0 shadow-sm border border-emerald-500/30">
-              {inicial}
-            </div>
+            {servico.foto_url ? (
+              <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-sm border border-emerald-500/30 flex-shrink-0 bg-slate-100">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={servico.foto_url}
+                  alt={servico.nome}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = "none";
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center font-black text-base flex-shrink-0 shadow-sm border border-emerald-500/30">
+                {inicial}
+              </div>
+            )}
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-1">
@@ -391,6 +420,16 @@ export function ServiceCard({
         onClose={() => setModalVerAvaliacoesAberto(false)}
         onAvaliarClick={() => setModalAvaliacaoAberto(true)}
       />
+
+      {/* Modal para Visualizar Fotos de Trabalhos */}
+      {servico.fotos_trabalhos && servico.fotos_trabalhos.length > 0 && (
+        <FotosTrabalhosModal
+          isOpen={modalFotosAberto}
+          onClose={() => setModalFotosAberto(false)}
+          nomeProfissional={servico.nome}
+          fotos={servico.fotos_trabalhos}
+        />
+      )}
 
       {/* Modal para Escolha de Telefone para Ligação */}
       {modalLigarAberto && servico.telefone_secundario && (

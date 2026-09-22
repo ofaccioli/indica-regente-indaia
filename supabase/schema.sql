@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS public.servicos (
   tipo_atendimento TEXT DEFAULT 'ambos',
   oferta_vizinho TEXT,
   horario_funcionamento TEXT,
+  foto_url TEXT,
+  fotos_trabalhos TEXT[],
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -182,7 +184,9 @@ CREATE POLICY "Permitir exclusão de respostas_mural"
 -- ==============================================================================
 ALTER TABLE public.servicos 
 ADD COLUMN IF NOT EXISTS horario_funcionamento TEXT,
-ADD COLUMN IF NOT EXISTS oferta_vizinho TEXT;
+ADD COLUMN IF NOT EXISTS oferta_vizinho TEXT,
+ADD COLUMN IF NOT EXISTS foto_url TEXT,
+ADD COLUMN IF NOT EXISTS fotos_trabalhos TEXT[];
 
 ALTER TABLE public.pedidos_mural 
 ADD COLUMN IF NOT EXISTS tipo_post TEXT DEFAULT 'pedido',
