@@ -433,6 +433,16 @@ export default function Home() {
         onClose={() => setModalDivulgacaoAberto(false)}
       />
 
+      {/* Footer */}
+      <footer className="w-full text-center py-6 text-xs text-gray-500 border-t border-gray-200/70 mt-8 mb-4">
+        <p className="font-semibold text-gray-700">
+          Desenvolvido por Otavio Faccioli - 2026
+        </p>
+        <p className="text-[11px] text-gray-400 mt-0.5">
+          Indica Jd. Regente • Indaiatuba - SP
+        </p>
+      </footer>
+
       {/* Barra de Navegação Inferior Mobile */}
       <BottomNav
         onFiltroTopAvaliados={() => setOrdenacao("melhores")}
