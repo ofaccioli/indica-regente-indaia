@@ -74,3 +74,86 @@ export function gerarTextoCompartilhamento(nome: string, categoria: string, tele
     `📱 WhatsApp: ${telefone}\n\n` +
     `👉 Veja mais e recomende também no IndicaRegenteIndaia!`;
 }
+
+/**
+ * Tenta detectar o bairro em Indaiatuba via GPS do navegador
+ */
+export async function detectarBairroPorGPS(
+  bairrosDisponiveis?: readonly string[]
+): Promise<{ bairro?: string; erro?: string }> {
+  if (typeof window === "undefined" || !navigator.geolocation) {
+    return { erro: "Seu navegador não suporta geolocalização." };
+  }
+
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=16&addressdetails=1`;
+          const res = await fetch(url, {
+            headers: { "Accept-Language": "pt-BR" },
+          });
+
+          if (!res.ok) {
+            resolve({ erro: "Não foi possível identificar o bairro pelo mapa." });
+            return;
+          }
+
+          const data = await res.json();
+          const addr = data.address || {};
+          const rawBairro =
+            addr.suburb ||
+            addr.neighbourhood ||
+            addr.residential ||
+            addr.quarter ||
+            addr.city_district ||
+            "";
+
+          if (!rawBairro) {
+            resolve({ erro: "Bairro não identificado nas coordenadas." });
+            return;
+          }
+
+          // Se fornecida a lista de bairros, tenta fazer correspondência inteligente
+          if (bairrosDisponiveis && bairrosDisponiveis.length > 0) {
+            const clean = (str: string) =>
+              str
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/^jardim\s+/i, "jd. ")
+                .replace(/^parque\s+/i, "pq. ")
+                .replace(/^vila\s+/i, "vl. ")
+                .trim();
+
+            const rawClean = clean(rawBairro);
+            const encontrado = bairrosDisponiveis.find((b) => {
+              const bClean = clean(b);
+              return bClean === rawClean || rawClean.includes(bClean) || bClean.includes(rawClean);
+            });
+
+            if (encontrado) {
+              resolve({ bairro: encontrado });
+              return;
+            }
+          }
+
+          resolve({ bairro: rawBairro });
+        } catch {
+          resolve({ erro: "Erro de conexão ao buscar localização." });
+        }
+      },
+      (err) => {
+        if (err.code === 1) {
+          resolve({ erro: "Permissão de localização foi recusada no navegador." });
+        } else if (err.code === 2) {
+          resolve({ erro: "Posição de GPS indisponível no momento." });
+        } else {
+          resolve({ erro: "Tempo limite atingido ao obter GPS." });
+        }
+      },
+      { timeout: 7000, enableHighAccuracy: true }
+    );
+  });
+}

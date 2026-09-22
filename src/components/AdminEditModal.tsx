@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { X, Check, ShieldCheck, Loader2 } from "lucide-react";
-import { Servico, CATEGORIAS_DISPONIVEIS } from "@/types";
+import { Servico, CATEGORIAS_DISPONIVEIS, BAIRROS_INDAIATUBA } from "@/types";
 import { formatarTelefoneBR, limparTelefone } from "@/lib/utils";
 
 interface AdminEditModalProps {
@@ -165,10 +165,17 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
             <input
               type="text"
               required
+              list="admin-bairros-list"
               value={cidadeBairro}
               onChange={(e) => setCidadeBairro(e.target.value)}
+              placeholder="Indaiatuba - Jd. Regente"
               className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
             />
+            <datalist id="admin-bairros-list">
+              {BAIRROS_INDAIATUBA.filter((b) => b !== "Todos os Bairros" && b !== "Outro Bairro").map((b) => (
+                <option key={b} value={`Indaiatuba - ${b}`} />
+              ))}
+            </datalist>
           </div>
 
           <div>

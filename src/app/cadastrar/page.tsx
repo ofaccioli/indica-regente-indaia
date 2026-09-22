@@ -15,6 +15,7 @@ import {
   Sparkles,
   Loader2,
   AlertCircle,
+  Navigation,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -27,11 +28,12 @@ function InstagramIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
     </svg>
   );
 }
-import { CATEGORIAS_DISPONIVEIS, Servico } from "@/types";
+import { CATEGORIAS_DISPONIVEIS, BAIRROS_INDAIATUBA, Servico } from "@/types";
 import {
   formatarTelefoneBR,
   limparTelefone,
   isTelefoneValido,
+  detectarBairroPorGPS,
 } from "@/lib/utils";
 import {
   verificarTelefoneExistente,
@@ -48,13 +50,32 @@ export default function CadastrarPage() {
   const [categoria, setCategoria] = useState<string>("Eletricista");
   const [telefone, setTelefone] = useState("");
   const [telefoneSecundario, setTelefoneSecundario] = useState("");
-  const [cidadeBairro, setCidadeBairro] = useState("Indaiatuba - Jd. Regente");
+  const [bairroSelecionado, setBairroSelecionado] = useState<string>("Jd. Regente");
+  const [outroBairroNome, setOutroBairroNome] = useState("");
+  const [detectandoGps, setDetectandoGps] = useState(false);
   const [descricao, setDescricao] = useState("");
   const [quemIndicou, setQuemIndicou] = useState("");
   const [instagram, setInstagram] = useState("");
   const [atendeFimDeSemana, setAtendeFimDeSemana] = useState(false);
   const [ehMorador, setEhMorador] = useState(false);
   const [tipoAtendimento, setTipoAtendimento] = useState<"domicilio" | "local" | "ambos">("ambos");
+
+  // Handler para detectar bairro via GPS
+  const handleDetectarGps = async () => {
+    setDetectandoGps(true);
+    const res = await detectarBairroPorGPS(BAIRROS_INDAIATUBA);
+    setDetectandoGps(false);
+    if (res.bairro) {
+      if (BAIRROS_INDAIATUBA.includes(res.bairro as any)) {
+        setBairroSelecionado(res.bairro);
+      } else {
+        setBairroSelecionado("Outro Bairro");
+        setOutroBairroNome(res.bairro);
+      }
+    } else if (res.erro) {
+      alert(res.erro);
+    }
+  };
 
   // Estados de validação e feedback
   const [verificandoTelefone, setVerificandoTelefone] = useState(false);
@@ -105,8 +126,8 @@ export default function CadastrarPage() {
       return;
     }
 
-    if (!cidadeBairro.trim()) {
-      alert("Por favor, informe a cidade ou bairro atendido.");
+    if (bairroSelecionado === "Outro Bairro" && !outroBairroNome.trim()) {
+      alert("Por favor, informe o nome do outro bairro.");
       return;
     }
 
@@ -117,6 +138,12 @@ export default function CadastrarPage() {
 
     setSalvando(true);
 
+    const bairroFinal =
+      bairroSelecionado === "Outro Bairro" && outroBairroNome.trim()
+        ? outroBairroNome.trim()
+        : bairroSelecionado;
+    const cidadeBairroFinal = `Indaiatuba - ${bairroFinal}`;
+
     try {
       const res = await cadastrarServico({
         nome: nome.trim(),
@@ -124,7 +151,7 @@ export default function CadastrarPage() {
         telefone,
         telefone_numeros: limparTelefone(telefone),
         telefone_secundario: telefoneSecundario.trim() || undefined,
-        cidade_bairro: cidadeBairro.trim(),
+        cidade_bairro: cidadeBairroFinal,
         descricao: descricao.trim(),
         quem_indicou: quemIndicou.trim() || "Vizinho da Comunidade",
         instagram: instagram.trim() ? (instagram.startsWith("@") ? instagram : `@${instagram.trim()}`) : undefined,
@@ -296,20 +323,62 @@ export default function CadastrarPage() {
               </p>
             </div>
 
-            {/* Cidade / Bairro */}
+            {/* Bairro em Indaiatuba */}
             <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
-              <label className="block text-xs font-bold text-gray-800 mb-1.5 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Cidade e Bairro atendido *</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={cidadeBairro}
-                onChange={(e) => setCidadeBairro(e.target.value)}
-                placeholder="Ex: Indaiatuba - Jd. Regente ou Morada do Sol"
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
-              />
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Bairro atendido em Indaiatuba *</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={handleDetectarGps}
+                  disabled={detectandoGps}
+                  className="text-[11px] text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200 transition-colors disabled:opacity-50 cursor-pointer"
+                  title="Detectar bairro automaticamente pelo GPS"
+                >
+                  {detectandoGps ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin text-emerald-600" />
+                      <span>Detectando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Navigation className="w-3 h-3 text-emerald-600" />
+                      <span>Usar GPS</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <select
+                value={bairroSelecionado}
+                onChange={(e) => setBairroSelecionado(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white font-medium"
+              >
+                {BAIRROS_INDAIATUBA.filter((b) => b !== "Todos os Bairros").map((b) => (
+                  <option key={b} value={b}>
+                    {b === "Jd. Regente" ? "⭐ Jd. Regente (Principal)" : b}
+                  </option>
+                ))}
+              </select>
+
+              {bairroSelecionado === "Outro Bairro" && (
+                <div className="mt-2.5">
+                  <input
+                    type="text"
+                    required
+                    value={outroBairroNome}
+                    onChange={(e) => setOutroBairroNome(e.target.value)}
+                    placeholder="Digite o nome do bairro..."
+                    className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                  />
+                </div>
+              )}
+
+              <p className="text-[11px] text-gray-500 mt-1.5">
+                Cidade: <span className="font-semibold text-gray-700">Indaiatuba - SP</span>. Selecione o bairro principal de atendimento na lista.
+              </p>
             </div>
 
             {/* Descrição / O que ele faz de melhor */}
