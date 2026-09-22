@@ -4,6 +4,8 @@ export interface Servico {
   categoria: string;
   telefone: string;
   telefone_numeros: string;
+  telefone_secundario?: string;
+  telefone_secundario_numeros?: string;
   cidade_bairro: string;
   descricao?: string;
   quem_indicou?: string;

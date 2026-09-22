@@ -58,6 +58,8 @@ const SEED_SERVICOS: Servico[] = [
     categoria: "Mecânico",
     telefone: "(19) 99655-1122",
     telefone_numeros: "19996551122",
+    telefone_secundario: "(19) 3875-1010",
+    telefone_secundario_numeros: "1938751010",
     cidade_bairro: "Indaiatuba - Itaici",
     descricao: "Injeção eletrônica, suspensão, freios e troca de óleo rápida. Preço justo e honestidade.",
     quem_indicou: "Marcos Mecânico",
@@ -75,6 +77,8 @@ const SEED_SERVICOS: Servico[] = [
     categoria: "Pet / Veterinário",
     telefone: "(19) 99123-9988",
     telefone_numeros: "19991239988",
+    telefone_secundario: "(19) 3894-2200",
+    telefone_secundario_numeros: "1938942200",
     cidade_bairro: "Indaiatuba - Vila Avaí",
     descricao: "Consultas, vacinas em domicílio, cirurgias e plantão de emergência 24h para cães e gatos.",
     quem_indicou: "Juliana Santos",
@@ -301,7 +305,7 @@ export async function verificarTelefoneExistente(telefone: string): Promise<Serv
       const { data, error } = await supabase
         .from("servicos")
         .select("*")
-        .eq("telefone_numeros", digitos)
+        .or(`telefone_numeros.eq.${digitos},telefone_secundario_numeros.eq.${digitos}`)
         .maybeSingle();
 
       if (!error && data) {
@@ -313,7 +317,11 @@ export async function verificarTelefoneExistente(telefone: string): Promise<Serv
   }
 
   const encontrado = localServicos.find(
-    (s) => s.telefone_numeros === digitos || limparTelefone(s.telefone) === digitos
+    (s) =>
+      s.telefone_numeros === digitos ||
+      limparTelefone(s.telefone) === digitos ||
+      s.telefone_secundario_numeros === digitos ||
+      (s.telefone_secundario && limparTelefone(s.telefone_secundario) === digitos)
   );
 
   return encontrado || null;
@@ -324,8 +332,9 @@ export async function verificarTelefoneExistente(telefone: string): Promise<Serv
  */
 export async function cadastrarServico(dados: Omit<Servico, "id" | "created_at" | "nota_media" | "total_avaliacoes">): Promise<{ sucesso: boolean; servico?: Servico; erro?: string }> {
   const digitos = limparTelefone(dados.telefone);
+  const digitosSecundario = dados.telefone_secundario ? limparTelefone(dados.telefone_secundario) : undefined;
 
-  // 1. Checa se o telefone já existe
+  // 1. Checa se o telefone principal já existe
   const existente = await verificarTelefoneExistente(digitos);
   if (existente) {
     return {
@@ -335,10 +344,23 @@ export async function cadastrarServico(dados: Omit<Servico, "id" | "created_at" 
     };
   }
 
+  // 2. Se informou telefone secundário, checa se já existe
+  if (digitosSecundario) {
+    const existenteSec = await verificarTelefoneExistente(digitosSecundario);
+    if (existenteSec) {
+      return {
+        sucesso: false,
+        erro: `O telefone secundário já está cadastrado no perfil de: "${existenteSec.nome}" (${existenteSec.categoria}).`,
+        servico: existenteSec,
+      };
+    }
+  }
+
   const novoServico: Servico = {
     ...dados,
     id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
     telefone_numeros: digitos,
+    telefone_secundario_numeros: digitosSecundario,
     nota_media: 5.0,
     total_avaliacoes: 1,
     created_at: new Date().toISOString(),
@@ -353,6 +375,8 @@ export async function cadastrarServico(dados: Omit<Servico, "id" | "created_at" 
           categoria: novoServico.categoria,
           telefone: novoServico.telefone,
           telefone_numeros: novoServico.telefone_numeros,
+          telefone_secundario: novoServico.telefone_secundario || null,
+          telefone_secundario_numeros: novoServico.telefone_secundario_numeros || null,
           cidade_bairro: novoServico.cidade_bairro,
           descricao: novoServico.descricao,
           quem_indicou: novoServico.quem_indicou,
@@ -459,6 +483,11 @@ export async function atualizarServico(
   const dadosParaAtualizar: Partial<Servico> = { ...dados };
   if (dados.telefone) {
     dadosParaAtualizar.telefone_numeros = limparTelefone(dados.telefone);
+  }
+  if (dados.telefone_secundario !== undefined) {
+    dadosParaAtualizar.telefone_secundario_numeros = dados.telefone_secundario
+      ? limparTelefone(dados.telefone_secundario)
+      : undefined;
   }
 
   if (isSupabaseConfigured && supabase) {

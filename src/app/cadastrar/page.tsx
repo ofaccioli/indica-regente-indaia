@@ -47,6 +47,7 @@ export default function CadastrarPage() {
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState<string>("Eletricista");
   const [telefone, setTelefone] = useState("");
+  const [telefoneSecundario, setTelefoneSecundario] = useState("");
   const [cidadeBairro, setCidadeBairro] = useState("Indaiatuba - Jd. Regente");
   const [descricao, setDescricao] = useState("");
   const [quemIndicou, setQuemIndicou] = useState("");
@@ -122,6 +123,7 @@ export default function CadastrarPage() {
         categoria,
         telefone,
         telefone_numeros: limparTelefone(telefone),
+        telefone_secundario: telefoneSecundario.trim() || undefined,
         cidade_bairro: cidadeBairro.trim(),
         descricao: descricao.trim(),
         quem_indicou: quemIndicou.trim() || "Vizinho da Comunidade",
@@ -273,6 +275,25 @@ export default function CadastrarPage() {
                   />
                 </div>
               )}
+            </div>
+
+            {/* Telefone Secundário / Fixo / Outro WhatsApp */}
+            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+              <label className="block text-xs font-bold text-gray-800 mb-1.5 flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-gray-400" />
+                <span>2º Telefone / Fixo / Outro WhatsApp <span className="text-gray-400 font-normal">(opcional)</span></span>
+              </label>
+              <input
+                type="tel"
+                value={telefoneSecundario}
+                onChange={(e) => setTelefoneSecundario(formatarTelefoneBR(e.target.value))}
+                placeholder="(19) 3875-1234 ou (19) 98888-7777"
+                maxLength={15}
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              />
+              <p className="text-[11px] text-gray-400 mt-1">
+                Útil para estabelecimentos com telefone fixo ou profissionais com mais de um número.
+              </p>
             </div>
 
             {/* Cidade / Bairro */}

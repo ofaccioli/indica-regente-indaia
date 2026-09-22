@@ -41,6 +41,7 @@ interface ServiceCardProps {
 export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
   const [modalAvaliacaoAberto, setModalAvaliacaoAberto] = useState(false);
   const [modalZapAberto, setModalZapAberto] = useState(false);
+  const [modalLigarAberto, setModalLigarAberto] = useState(false);
   const [copiado, setCopiado] = useState(false);
   const [salvo, setSalvo] = useState(false);
 
@@ -219,6 +220,20 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
             <span className="truncate font-medium">{servico.cidade_bairro}</span>
           </div>
 
+          {/* Telefones */}
+          <div className="flex items-center gap-1.5 text-[11px] text-gray-500 mb-2.5 flex-wrap">
+            <span className="font-semibold text-gray-700 flex items-center gap-1">
+              <Phone className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+              {servico.telefone}
+            </span>
+            {servico.telefone_secundario && (
+              <>
+                <span className="text-gray-300">•</span>
+                <span className="text-gray-600">2º Tel: <strong>{servico.telefone_secundario}</strong></span>
+              </>
+            )}
+          </div>
+
           {/* Descrição dos Serviços */}
           {servico.descricao && (
             <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3 bg-gray-50/80 p-2 rounded-xl border border-gray-100">
@@ -251,13 +266,24 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
 
           {/* Linha de botões secundários */}
           <div className="grid grid-cols-3 gap-1.5 text-xs">
-            <a
-              href={ligarUrl}
-              className="py-1.5 px-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium flex items-center justify-center gap-1 transition-colors text-[11px]"
-            >
-              <Phone className="w-3 h-3 text-emerald-600" />
-              <span>Ligar</span>
-            </a>
+            {servico.telefone_secundario ? (
+              <button
+                type="button"
+                onClick={() => setModalLigarAberto(true)}
+                className="py-1.5 px-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium flex items-center justify-center gap-1 transition-colors text-[11px] cursor-pointer"
+              >
+                <Phone className="w-3 h-3 text-emerald-600" />
+                <span>Ligar (2)</span>
+              </button>
+            ) : (
+              <a
+                href={ligarUrl}
+                className="py-1.5 px-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium flex items-center justify-center gap-1 transition-colors text-[11px]"
+              >
+                <Phone className="w-3 h-3 text-emerald-600" />
+                <span>Ligar</span>
+              </a>
+            )}
 
             <button
               type="button"
@@ -294,6 +320,47 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
         onClose={() => setModalAvaliacaoAberto(false)}
         onAvaliacaoSalva={onAtualizar}
       />
+
+      {/* Modal para Escolha de Telefone para Ligação */}
+      {modalLigarAberto && servico.telefone_secundario && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white w-full max-w-xs rounded-3xl shadow-2xl p-5 text-center border border-gray-100">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-2 font-bold">
+              <Phone className="w-5 h-5" />
+            </div>
+            <h4 className="font-black text-sm text-gray-900 mb-0.5">Para qual número deseja ligar?</h4>
+            <p className="text-xs text-gray-500 mb-4 truncate">{servico.nome}</p>
+
+            <div className="space-y-2 mb-3">
+              <a
+                href={ligarUrl}
+                onClick={() => setModalLigarAberto(false)}
+                className="w-full py-2.5 px-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Principal: {servico.telefone}</span>
+              </a>
+
+              <a
+                href={gerarLinkLigacao(servico.telefone_secundario)}
+                onClick={() => setModalLigarAberto(false)}
+                className="w-full py-2.5 px-3 rounded-2xl bg-gray-900 hover:bg-black text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>2º Número: {servico.telefone_secundario}</span>
+              </a>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setModalLigarAberto(false)}
+              className="text-xs text-gray-500 hover:text-gray-800 font-semibold cursor-pointer py-1"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

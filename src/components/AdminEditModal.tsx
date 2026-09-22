@@ -16,6 +16,7 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [telefoneSecundario, setTelefoneSecundario] = useState("");
   const [cidadeBairro, setCidadeBairro] = useState("");
   const [descricao, setDescricao] = useState("");
   const [quemIndicou, setQuemIndicou] = useState("");
@@ -31,6 +32,7 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
       setNome(servico.nome || "");
       setCategoria(servico.categoria || "Outros");
       setTelefone(servico.telefone || "");
+      setTelefoneSecundario(servico.telefone_secundario || "");
       setCidadeBairro(servico.cidade_bairro || "");
       setDescricao(servico.descricao || "");
       setQuemIndicou(servico.quem_indicou || "");
@@ -59,6 +61,8 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
             categoria,
             telefone,
             telefone_numeros: limparTelefone(telefone),
+            telefone_secundario: telefoneSecundario.trim() || null,
+            telefone_secundario_numeros: telefoneSecundario.trim() ? limparTelefone(telefoneSecundario) : null,
             cidade_bairro: cidadeBairro.trim(),
             descricao: descricao.trim(),
             quem_indicou: quemIndicou.trim(),
@@ -132,7 +136,7 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Telefone / WhatsApp</label>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Telefone Principal (WhatsApp)</label>
               <input
                 type="text"
                 required
@@ -141,6 +145,19 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
                 className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1">
+              2º Telefone / Fixo / Outro WhatsApp <span className="text-gray-400 font-normal">(opcional)</span>
+            </label>
+            <input
+              type="text"
+              value={telefoneSecundario}
+              onChange={(e) => setTelefoneSecundario(formatarTelefoneBR(e.target.value))}
+              placeholder="(19) 3875-1234"
+              className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+            />
           </div>
 
           <div>

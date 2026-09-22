@@ -17,10 +17,17 @@ export function WhatsAppOptionsModal({
   onClose,
 }: WhatsAppOptionsModalProps) {
   const [opcaoSelecionada, setOpcaoSelecionada] = useState<"orcamento" | "urgente" | "duvida">("orcamento");
+  const [telefoneEscolhido, setTelefoneEscolhido] = useState<string>(servico.telefone);
+
+  // Sincroniza telefone quando o servico mudar
+  React.useEffect(() => {
+    setTelefoneEscolhido(servico.telefone);
+  }, [servico]);
 
   if (!isOpen) return null;
 
-  let digitos = limparTelefone(servico.telefone);
+  const telFinal = telefoneEscolhido || servico.telefone;
+  let digitos = limparTelefone(telFinal);
   if (!digitos.startsWith("55")) {
     digitos = `55${digitos}`;
   }
@@ -67,6 +74,42 @@ export function WhatsAppOptionsModal({
 
         {/* Corpo com Opções */}
         <div className="p-4 space-y-3">
+          {/* Seletor de Telefone (se houver 2 telefones) */}
+          {servico.telefone_secundario && (
+            <div className="bg-gray-50 p-2.5 rounded-2xl border border-gray-200">
+              <label className="block text-[11px] font-bold text-gray-700 mb-1.5">
+                Enviar WhatsApp para qual número?
+              </label>
+              <div className="grid grid-cols-2 gap-1.5 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setTelefoneEscolhido(servico.telefone)}
+                  className={`py-1.5 px-2 rounded-xl font-bold border transition-all text-center ${
+                    telefoneEscolhido === servico.telefone
+                      ? "bg-emerald-700 text-white border-emerald-700 shadow-2xs"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                  }`}
+                >
+                  <span className="block text-[10px] opacity-80">Principal</span>
+                  <span className="truncate">{servico.telefone}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setTelefoneEscolhido(servico.telefone_secundario!)}
+                  className={`py-1.5 px-2 rounded-xl font-bold border transition-all text-center ${
+                    telefoneEscolhido === servico.telefone_secundario
+                      ? "bg-emerald-700 text-white border-emerald-700 shadow-2xs"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                  }`}
+                >
+                  <span className="block text-[10px] opacity-80">2º Número</span>
+                  <span className="truncate">{servico.telefone_secundario}</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           <p className="text-xs text-gray-500 font-medium">
             Escolha como prefere iniciar a conversa:
           </p>

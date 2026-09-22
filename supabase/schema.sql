@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS public.servicos (
   categoria TEXT NOT NULL,
   telefone TEXT NOT NULL,
   telefone_numeros TEXT NOT NULL,
+  telefone_secundario TEXT,
+  telefone_secundario_numeros TEXT,
   cidade_bairro TEXT NOT NULL,
   descricao TEXT,
   quem_indicou TEXT,
@@ -23,8 +25,9 @@ CREATE TABLE IF NOT EXISTS public.servicos (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Índice único no telefone (apenas números) para prevenir duplicidades na base
+-- Índices nos telefones (apenas números) para prevenir duplicidades e acelerar buscas
 CREATE UNIQUE INDEX IF NOT EXISTS idx_servicos_telefone_numeros ON public.servicos(telefone_numeros);
+CREATE INDEX IF NOT EXISTS idx_servicos_telefone_secundario ON public.servicos(telefone_secundario_numeros);
 CREATE INDEX IF NOT EXISTS idx_servicos_categoria ON public.servicos(categoria);
 CREATE INDEX IF NOT EXISTS idx_servicos_nota_media ON public.servicos(nota_media DESC);
 
