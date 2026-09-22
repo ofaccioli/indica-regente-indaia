@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { BAIRROS_INDAIATUBA, BAIRROS_DESTAQUE } from "@/types";
+import { BAIRROS_INDAIATUBA, BAIRROS_DESTAQUE, GRUPOS_BAIRROS } from "@/types";
 import { AlertCircle, Check, Navigation, Loader2 } from "lucide-react";
 import { detectarBairroPorGPS } from "@/lib/utils";
 
@@ -106,11 +106,21 @@ export function NeighborhoodFilter({
               <option value="" disabled className="bg-emerald-950 text-white font-medium">
                 {!isDestaque ? `📍 ${bairroSelecionado}` : "+ Outros Bairros..."}
               </option>
-              {bairrosOutros.map((b) => (
-                <option key={b} value={b} className="bg-emerald-950 text-white">
-                  {b}
-                </option>
-              ))}
+              {GRUPOS_BAIRROS.map((grupo) => {
+                const bairrosDoGrupo = grupo.bairros.filter(
+                  (b) => !(BAIRROS_DESTAQUE as readonly string[]).includes(b)
+                );
+                if (bairrosDoGrupo.length === 0) return null;
+                return (
+                  <optgroup key={grupo.nome} label={grupo.nome} className="bg-emerald-950 text-emerald-300 font-bold">
+                    {bairrosDoGrupo.map((b) => (
+                      <option key={b} value={b} className="bg-emerald-950 text-white font-normal">
+                        {b}
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              })}
             </select>
           </div>
         </div>

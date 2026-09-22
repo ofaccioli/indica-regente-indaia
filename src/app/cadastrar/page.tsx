@@ -28,7 +28,7 @@ function InstagramIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
     </svg>
   );
 }
-import { CATEGORIAS_DISPONIVEIS, BAIRROS_INDAIATUBA, Servico } from "@/types";
+import { CATEGORIAS_DISPONIVEIS, BAIRROS_INDAIATUBA, GRUPOS_BAIRROS, Servico } from "@/types";
 import {
   formatarTelefoneBR,
   limparTelefone,
@@ -356,10 +356,14 @@ export default function CadastrarPage() {
                 onChange={(e) => setBairroSelecionado(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white font-medium"
               >
-                {BAIRROS_INDAIATUBA.filter((b) => b !== "Todos os Bairros").map((b) => (
-                  <option key={b} value={b}>
-                    {b === "Jd. Regente" ? "⭐ Jd. Regente (Principal)" : b}
-                  </option>
+                {GRUPOS_BAIRROS.map((grupo) => (
+                  <optgroup key={grupo.nome} label={grupo.nome}>
+                    {grupo.bairros.map((b) => (
+                      <option key={b} value={b}>
+                        {b === "Jd. Regente" ? "⭐ Jd. Regente (Principal)" : b}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
 

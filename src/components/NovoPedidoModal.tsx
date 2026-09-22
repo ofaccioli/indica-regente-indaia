@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { X, Send, Megaphone, AlertCircle, Loader2 } from "lucide-react";
-import { CATEGORIAS_DISPONIVEIS, BAIRROS_INDAIATUBA, PedidoMural } from "@/types";
+import { CATEGORIAS_DISPONIVEIS, BAIRROS_INDAIATUBA, GRUPOS_BAIRROS, PedidoMural } from "@/types";
 import { formatarTelefoneBR } from "@/lib/utils";
 import { criarPedidoMural } from "@/lib/supabase";
 
@@ -130,10 +130,14 @@ export function NovoPedidoModal({ isOpen, onClose, onPedidoCriado }: NovoPedidoM
                 onChange={(e) => setBairro(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs focus:ring-2 focus:ring-emerald-500 outline-none bg-white font-medium"
               >
-                {BAIRROS_INDAIATUBA.filter((b) => b !== "Todos os Bairros").map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
+                {GRUPOS_BAIRROS.map((grupo) => (
+                  <optgroup key={grupo.nome} label={grupo.nome}>
+                    {grupo.bairros.map((b) => (
+                      <option key={b} value={b}>
+                        {b === "Jd. Regente" ? "⭐ Jd. Regente (Principal)" : b}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
