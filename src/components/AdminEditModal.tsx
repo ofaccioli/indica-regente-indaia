@@ -19,6 +19,8 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
   const [cidadeBairro, setCidadeBairro] = useState("");
   const [descricao, setDescricao] = useState("");
   const [quemIndicou, setQuemIndicou] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [atendeFimDeSemana, setAtendeFimDeSemana] = useState(false);
   const [verificadoAdmin, setVerificadoAdmin] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
@@ -30,6 +32,8 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
       setCidadeBairro(servico.cidade_bairro || "");
       setDescricao(servico.descricao || "");
       setQuemIndicou(servico.quem_indicou || "");
+      setInstagram(servico.instagram || "");
+      setAtendeFimDeSemana(Boolean(servico.atende_fim_de_semana));
       setVerificadoAdmin(Boolean(servico.verificado_admin));
     }
   }, [servico]);
@@ -54,6 +58,8 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
             cidade_bairro: cidadeBairro.trim(),
             descricao: descricao.trim(),
             quem_indicou: quemIndicou.trim(),
+            instagram: instagram.trim() || null,
+            atende_fim_de_semana: atendeFimDeSemana,
             verificado_admin: verificadoAdmin,
           },
         }),
@@ -162,16 +168,41 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
             />
           </div>
 
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1">Instagram (@usuario)</label>
+            <input
+              type="text"
+              value={instagram}
+              onChange={(e) => setInstagram(e.target.value)}
+              placeholder="Ex: @carlos.eletrica"
+              className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+            />
+          </div>
+
+          {/* Checkbox de Atende Fim de Semana */}
+          <div className="bg-amber-50/70 p-3 rounded-xl border border-amber-200 flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="atende_fds_admin"
+              checked={atendeFimDeSemana}
+              onChange={(e) => setAtendeFimDeSemana(e.target.checked)}
+              className="w-4 h-4 text-amber-600 rounded cursor-pointer accent-amber-600"
+            />
+            <label htmlFor="atende_fds_admin" className="text-xs text-amber-950 font-semibold cursor-pointer">
+              🚨 Atende emergências e finais de semana / plantão
+            </label>
+          </div>
+
           {/* Checkbox de Selo Verificado pelo Admin */}
-          <div className="bg-amber-50 p-3 rounded-xl border border-amber-200 flex items-center gap-3">
+          <div className="bg-blue-50/70 p-3 rounded-xl border border-blue-200 flex items-center gap-3">
             <input
               type="checkbox"
               id="verificado_admin"
               checked={verificadoAdmin}
               onChange={(e) => setVerificadoAdmin(e.target.checked)}
-              className="w-4 h-4 text-emerald-600 rounded cursor-pointer"
+              className="w-4 h-4 text-blue-600 rounded cursor-pointer accent-blue-600"
             />
-            <label htmlFor="verificado_admin" className="text-xs text-amber-950 font-semibold cursor-pointer">
+            <label htmlFor="verificado_admin" className="text-xs text-blue-950 font-semibold cursor-pointer">
               Selo &ldquo;Verificado pela Moderação&rdquo; (destaca o profissional com selo oficial)
             </label>
           </div>

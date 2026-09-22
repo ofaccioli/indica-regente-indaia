@@ -14,8 +14,19 @@ import {
   UserCheck,
   Sparkles,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
 import confetti from "canvas-confetti";
+
+function InstagramIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
 import { CATEGORIAS_DISPONIVEIS, Servico } from "@/types";
 import {
   formatarTelefoneBR,
@@ -36,9 +47,11 @@ export default function CadastrarPage() {
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState<string>("Eletricista");
   const [telefone, setTelefone] = useState("");
-  const [cidadeBairro, setCidadeBairro] = useState("");
+  const [cidadeBairro, setCidadeBairro] = useState("Indaiatuba - Jd. Regente");
   const [descricao, setDescricao] = useState("");
   const [quemIndicou, setQuemIndicou] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [atendeFimDeSemana, setAtendeFimDeSemana] = useState(false);
 
   // Estados de validação e feedback
   const [verificandoTelefone, setVerificandoTelefone] = useState(false);
@@ -110,6 +123,8 @@ export default function CadastrarPage() {
         cidade_bairro: cidadeBairro.trim(),
         descricao: descricao.trim(),
         quem_indicou: quemIndicou.trim() || "Vizinho da Comunidade",
+        instagram: instagram.trim() ? (instagram.startsWith("@") ? instagram : `@${instagram.trim()}`) : undefined,
+        atende_fim_de_semana: atendeFimDeSemana,
       });
 
       if (res.sucesso) {
@@ -303,6 +318,38 @@ export default function CadastrarPage() {
               <p className="text-[11px] text-gray-400 mt-1">
                 Isso dá muita credibilidade para quem for contratar o serviço!
               </p>
+            </div>
+
+            {/* Instagram / Redes Sociais */}
+            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+              <label className="block text-xs font-bold text-gray-800 mb-1.5 flex items-center gap-1.5">
+                <InstagramIcon className="w-3.5 h-3.5 text-pink-600" />
+                <span>Instagram do Profissional <span className="text-gray-400 font-normal">(opcional)</span></span>
+              </label>
+              <input
+                type="text"
+                value={instagram}
+                onChange={(e) => setInstagram(e.target.value)}
+                placeholder="Ex: @carlos.eletrica ou link do perfil"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              />
+              <p className="text-[11px] text-gray-400 mt-1">
+                Os moradores poderão ver fotos de serviços realizados diretamente no Instagram dele.
+              </p>
+            </div>
+
+            {/* Checkbox de Atendimento em Fins de Semana / Plantão */}
+            <div className="bg-amber-50/70 border border-amber-200/80 p-3.5 rounded-2xl flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="atende_fim_de_semana"
+                checked={atendeFimDeSemana}
+                onChange={(e) => setAtendeFimDeSemana(e.target.checked)}
+                className="w-4 h-4 text-amber-600 rounded cursor-pointer accent-amber-600"
+              />
+              <label htmlFor="atende_fim_de_semana" className="text-xs text-amber-950 font-bold cursor-pointer">
+                🚨 Atende emergências e finais de semana / plantão (sábado e domingo)
+              </label>
             </div>
 
             {/* Botão de Envio */}

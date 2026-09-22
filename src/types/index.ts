@@ -13,8 +13,24 @@ export interface Servico {
   pontuacao_inteligente?: number;
   selo_destaque?: boolean;
   verificado_admin?: boolean;
+  atende_fim_de_semana?: boolean;
   created_at: string;
 }
+
+export const BAIRROS_INDAIATUBA = [
+  "Todos os Bairros",
+  "Jd. Regente",
+  "Morada do Sol",
+  "Itaici",
+  "Centro",
+  "Vila Avaí",
+  "Jd. Pau Preto",
+  "Parque Ecológico",
+  "Jd. Esplanada",
+  "Jd. Bela Vista",
+  "Regente Feijó",
+  "Outro Bairro",
+] as const;
 
 export interface Avaliacao {
   id: string;

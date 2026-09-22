@@ -2,20 +2,21 @@
 
 import React from "react";
 import Image from "next/image";
-import { Search, X, Sparkles, Plus } from "lucide-react";
+import { Search, X, Sparkles, Plus, Share } from "lucide-react";
 import Link from "next/link";
 
 interface HeaderProps {
   busca: string;
   onBuscaChange: (novaBusca: string) => void;
+  onAbrirDivulgacao?: () => void;
 }
 
-export function Header({ busca, onBuscaChange }: HeaderProps) {
+export function Header({ busca, onBuscaChange, onAbrirDivulgacao }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 bg-gradient-to-b from-emerald-800 via-emerald-700 to-emerald-700 text-white shadow-sm border-b border-emerald-600/30">
       <div className="max-w-4xl mx-auto px-4 pt-3.5 pb-3">
         {/* Topo do Header: Logo e Botão de Ação */}
-        <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="flex items-center justify-between gap-2 mb-3">
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="relative w-11 h-11 rounded-2xl overflow-hidden shadow-sm border-2 border-amber-300/60 group-active:scale-95 transition-transform flex-shrink-0 bg-emerald-800">
               <Image
@@ -39,13 +40,27 @@ export function Header({ busca, onBuscaChange }: HeaderProps) {
             </div>
           </Link>
 
-          <Link
-            href="/cadastrar"
-            className="inline-flex items-center gap-1.5 bg-white hover:bg-emerald-50 text-emerald-900 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all border border-emerald-100"
-          >
-            <Plus className="w-3.5 h-3.5 text-emerald-700 stroke-[2.5]" />
-            <span>Indicar</span>
-          </Link>
+          <div className="flex items-center gap-1.5">
+            {onAbrirDivulgacao && (
+              <button
+                type="button"
+                onClick={onAbrirDivulgacao}
+                className="inline-flex items-center gap-1 bg-emerald-800/80 hover:bg-emerald-800 text-amber-300 px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all border border-emerald-600/50 cursor-pointer"
+                title="Divulgar e ver QR Code"
+              >
+                <Share className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">Divulgar</span>
+              </button>
+            )}
+
+            <Link
+              href="/cadastrar"
+              className="inline-flex items-center gap-1.5 bg-white hover:bg-emerald-50 text-emerald-900 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all border border-emerald-100"
+            >
+              <Plus className="w-3.5 h-3.5 text-emerald-700 stroke-[2.5]" />
+              <span>Indicar</span>
+            </Link>
+          </div>
         </div>
 
         {/* Barra de Pesquisa Moderna */}

@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS public.servicos (
   nota_media NUMERIC(3, 2) DEFAULT 5.0,
   total_avaliacoes INTEGER DEFAULT 1,
   verificado_admin BOOLEAN DEFAULT false,
+  atende_fim_de_semana BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

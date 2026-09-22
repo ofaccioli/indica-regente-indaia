@@ -3,14 +3,16 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { CategoryFilter } from "@/components/CategoryFilter";
+import { NeighborhoodFilter } from "@/components/NeighborhoodFilter";
 import { SortTabs } from "@/components/SortTabs";
 import { ServiceCard } from "@/components/ServiceCard";
 import { BottomNav } from "@/components/BottomNav";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { ShareCommunityModal } from "@/components/ShareCommunityModal";
 import { Servico, TipoOrdenacao } from "@/types";
 import { listarServicos } from "@/lib/supabase";
 import { ordenarServicos } from "@/lib/ranking";
-import { Sparkles, PlusCircle, Award, RefreshCw } from "lucide-react";
+import { Sparkles, PlusCircle, RefreshCw, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -18,7 +20,10 @@ export default function Home() {
   const [carregando, setCarregando] = useState(true);
   const [busca, setBusca] = useState("");
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("Todos");
+  const [bairroSelecionado, setBairroSelecionado] = useState("Todos os Bairros");
+  const [apenasFimDeSemana, setApenasFimDeSemana] = useState(false);
   const [ordenacao, setOrdenacao] = useState<TipoOrdenacao>("melhores");
+  const [modalDivulgacaoAberto, setModalDivulgacaoAberto] = useState(false);
 
   // Carrega serviços
   const carregarDados = async () => {
@@ -46,16 +51,35 @@ export default function Home() {
     return mapa;
   }, [servicos]);
 
-  // Filtra por categoria e texto de busca
+  // Filtra por categoria, bairro, plantão e busca
   const servicosFiltrados = useMemo(() => {
     const termo = busca.toLowerCase().trim();
 
     return servicos.filter((item) => {
+      // Filtro de Categoria
       const atendeCategoria =
         categoriaSelecionada === "Todos" || item.categoria === categoriaSelecionada;
-
       if (!atendeCategoria) return false;
 
+      // Filtro de Plantão / Fim de Semana
+      if (apenasFimDeSemana && !item.atende_fim_de_semana) {
+        return false;
+      }
+
+      // Filtro de Bairro
+      if (bairroSelecionado !== "Todos os Bairros") {
+        const termoBairro = bairroSelecionado
+          .toLowerCase()
+          .replace("jd. ", "")
+          .replace("parque ", "")
+          .replace("vila ", "");
+        const local = item.cidade_bairro.toLowerCase();
+        if (!local.includes(termoBairro)) {
+          return false;
+        }
+      }
+
+      // Filtro de Texto de Busca
       if (!termo) return true;
 
       const nome = item.nome.toLowerCase();
@@ -74,7 +98,7 @@ export default function Home() {
         telefone.includes(termo)
       );
     });
-  }, [servicos, categoriaSelecionada, busca]);
+  }, [servicos, categoriaSelecionada, bairroSelecionado, apenasFimDeSemana, busca]);
 
   // Aplica inteligência de ordenação
   const servicosOrdenados = useMemo(() => {
@@ -86,10 +110,11 @@ export default function Home() {
       {/* Banner de instalação PWA */}
       <PWAInstallPrompt />
 
-      {/* Header com pesquisa */}
+      {/* Header com pesquisa e botão divulgar */}
       <Header
         busca={busca}
         onBuscaChange={setBusca}
+        onAbrirDivulgacao={() => setModalDivulgacaoAberto(true)}
       />
 
       {/* Carrossel de Categorias */}
@@ -99,29 +124,33 @@ export default function Home() {
         contagemPorCategoria={contagemPorCategoria}
       />
 
+      {/* Barra de Filtro de Bairros e Plantão de Fim de Semana */}
+      <NeighborhoodFilter
+        bairroSelecionado={bairroSelecionado}
+        onSelecionarBairro={setBairroSelecionado}
+        apenasFimDeSemana={apenasFimDeSemana}
+        onToggleFimDeSemana={() => setApenasFimDeSemana(!apenasFimDeSemana)}
+      />
+
       {/* Abas de Ordenação Inteligente */}
       <SortTabs
         ordenacaoAtual={ordenacao}
         onMudarOrdenacao={setOrdenacao}
       />
 
-      {/* Destaque Inteligente para "Top Avaliados" */}
-      {ordenacao === "melhores" && !busca && (
-        <div className="mx-4 mt-3 p-3 bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-amber-500/10 border border-amber-200/80 rounded-2xl flex items-center gap-2.5 text-xs text-amber-950 shadow-2xs">
-          <div className="w-8 h-8 rounded-full bg-amber-400 text-amber-950 flex items-center justify-center flex-shrink-0 font-black shadow-xs">
-            ⭐
+      {/* Destaque Ativo de Plantão de Emergência */}
+      {apenasFimDeSemana && (
+        <div className="mx-4 mt-2.5 p-2.5 bg-amber-100 border border-amber-300 rounded-2xl flex items-center justify-between text-xs text-amber-950 shadow-2xs">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0" />
+            <span className="font-bold">Filtrando apenas profissionais com atendimento em fins de semana e emergência</span>
           </div>
-          <div>
-            <p className="font-bold text-gray-900 leading-tight flex items-center gap-1">
-              <span>Classificação Inteligente da Comunidade</span>
-              <span className="text-[10px] bg-amber-200 text-amber-900 px-1.5 py-0.2 rounded-full font-bold">
-                Algoritmo Ativo
-              </span>
-            </p>
-            <p className="text-[11px] text-gray-600 mt-0.5">
-              Prioriza profissionais com maior índice de recomendações reais e satisfação comprovada pelos vizinhos.
-            </p>
-          </div>
+          <button
+            onClick={() => setApenasFimDeSemana(false)}
+            className="text-[11px] underline font-bold text-amber-900 cursor-pointer ml-2"
+          >
+            Limpar
+          </button>
         </div>
       )}
 
@@ -130,11 +159,11 @@ export default function Home() {
         {carregando ? (
           <div className="py-16 text-center flex flex-col items-center justify-center text-gray-400">
             <RefreshCw className="w-8 h-8 animate-spin text-emerald-600 mb-2" />
-            <p className="text-xs font-medium">Carregando recomendações da comunidade...</p>
+            <p className="text-xs font-medium">Carregando recomendações do Jd. Regente...</p>
           </div>
         ) : servicosOrdenados.length === 0 ? (
           /* Estado Vazio */
-          <div className="py-14 text-center px-4 bg-white rounded-2xl border border-gray-200/70 shadow-xs my-4">
+          <div className="py-14 text-center px-4 bg-white rounded-3xl border border-gray-200/70 shadow-xs my-4">
             <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
               <Sparkles className="w-7 h-7" />
             </div>
@@ -142,7 +171,7 @@ export default function Home() {
               Nenhuma indicação encontrada
             </h3>
             <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
-              Não encontramos nenhum serviço para &ldquo;{busca || categoriaSelecionada}&rdquo;. Seja o primeiro a indicar um bom profissional!
+              Não encontramos nenhum serviço com os filtros selecionados. Seja o primeiro a indicar um bom profissional!
             </p>
             <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2">
               <Link
@@ -152,17 +181,17 @@ export default function Home() {
                 <PlusCircle className="w-4 h-4" />
                 <span>Indicar esse contato agora</span>
               </Link>
-              {(busca || categoriaSelecionada !== "Todos") && (
-                <button
-                  onClick={() => {
-                    setBusca("");
-                    setCategoriaSelecionada("Todos");
-                  }}
-                  className="text-xs text-gray-500 hover:text-gray-900 underline py-1"
-                >
-                  Limpar filtros
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  setBusca("");
+                  setCategoriaSelecionada("Todos");
+                  setBairroSelecionado("Todos os Bairros");
+                  setApenasFimDeSemana(false);
+                }}
+                className="text-xs text-gray-500 hover:text-gray-900 underline py-1 cursor-pointer"
+              >
+                Limpar todos os filtros
+              </button>
             </div>
           </div>
         ) : (
@@ -178,6 +207,12 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* Modal de Divulgação Comunitária com QR Code */}
+      <ShareCommunityModal
+        isOpen={modalDivulgacaoAberto}
+        onClose={() => setModalDivulgacaoAberto(false)}
+      />
 
       {/* Barra de Navegação Inferior Mobile */}
       <BottomNav onFiltroTopAvaliados={() => setOrdenacao("melhores")} />

@@ -12,13 +12,24 @@ import {
   UserCheck,
   Award,
   CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import {
-  gerarLinkWhatsApp,
   gerarLinkLigacao,
   gerarTextoCompartilhamento,
 } from "@/lib/utils";
 import { RatingModal } from "./RatingModal";
+import { WhatsAppOptionsModal } from "./WhatsAppOptionsModal";
+
+function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
 
 interface ServiceCardProps {
   servico: Servico;
@@ -27,13 +38,8 @@ interface ServiceCardProps {
 
 export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
   const [modalAvaliacaoAberto, setModalAvaliacaoAberto] = useState(false);
+  const [modalZapAberto, setModalZapAberto] = useState(false);
   const [copiado, setCopiado] = useState(false);
-
-  const whatsappUrl = gerarLinkWhatsApp(
-    servico.telefone,
-    servico.nome,
-    servico.categoria
-  );
 
   const ligarUrl = gerarLinkLigacao(servico.telefone);
 
@@ -73,12 +79,15 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
   // Inicial do profissional para avatar visual
   const inicial = servico.nome ? servico.nome.trim().charAt(0).toUpperCase() : "S";
 
+  // URL do Instagram limpa
+  const instagramUser = servico.instagram ? servico.instagram.replace(/^@/, "").trim() : null;
+
   return (
     <>
       <article className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md border border-gray-200/70 transition-all duration-200 flex flex-col justify-between relative overflow-hidden group">
         <div>
           {/* Topo: Categoria + Badges */}
-          <div className="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
+          <div className="flex items-center justify-between gap-1.5 mb-2.5 flex-wrap">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/50">
                 {servico.categoria}
@@ -88,6 +97,13 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/70">
                   <CheckCircle2 className="w-3 h-3 text-blue-600" />
                   Verificado
+                </span>
+              )}
+
+              {servico.atende_fim_de_semana && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-300">
+                  <AlertCircle className="w-3 h-3 text-amber-600" />
+                  🚨 Fim de Semana
                 </span>
               )}
             </div>
@@ -108,9 +124,22 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
             </div>
 
             <div className="flex-1 min-w-0">
-              <h3 className="text-base font-bold text-gray-900 leading-snug truncate">
-                {servico.nome}
-              </h3>
+              <div className="flex items-center justify-between gap-1">
+                <h3 className="text-base font-bold text-gray-900 leading-snug truncate">
+                  {servico.nome}
+                </h3>
+                {instagramUser && (
+                  <a
+                    href={`https://instagram.com/${instagramUser}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-pink-600 hover:text-pink-700 p-1 rounded-full hover:bg-pink-50 transition-colors flex-shrink-0"
+                    title={`Instagram: @${instagramUser}`}
+                  >
+                    <InstagramIcon className="w-4 h-4" />
+                  </a>
+                )}
+              </div>
 
               {/* Avaliação em Estrelas */}
               <div className="flex items-center gap-1.5 mt-0.5">
@@ -154,16 +183,15 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
 
         {/* Botões de Ação */}
         <div className="pt-2.5 border-t border-gray-100 mt-1">
-          {/* Botão Principal: WhatsApp */}
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          {/* Botão Principal: WhatsApp Inteligente */}
+          <button
+            type="button"
+            onClick={() => setModalZapAberto(true)}
             className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs active:scale-98 transition-all mb-2 cursor-pointer"
           >
             <MessageCircle className="w-4 h-4 fill-white" />
             <span>Chamar no WhatsApp</span>
-          </a>
+          </button>
 
           {/* Linha de botões secundários */}
           <div className="grid grid-cols-3 gap-1.5 text-xs">
@@ -195,6 +223,13 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
           </div>
         </div>
       </article>
+
+      {/* Modal de Mensagens Pré-formatadas do WhatsApp */}
+      <WhatsAppOptionsModal
+        servico={servico}
+        isOpen={modalZapAberto}
+        onClose={() => setModalZapAberto(false)}
+      />
 
       {/* Modal de Avaliação */}
       <RatingModal
