@@ -84,6 +84,7 @@ export function ShareCommunityModal({ isOpen, onClose }: ShareCommunityModalProp
                 src="/logo.png"
                 alt="Logo Indica Jd.Regente"
                 fill
+                sizes="56px"
                 className="object-cover"
               />
             </div>

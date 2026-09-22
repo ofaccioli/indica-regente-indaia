@@ -57,6 +57,7 @@ export default function AdminLoginPage() {
                 src="/logo.png"
                 alt="Logo Indica Jd.Regente"
                 fill
+                sizes="64px"
                 className="object-cover"
               />
             </div>

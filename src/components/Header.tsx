@@ -23,6 +23,7 @@ export function Header({ busca, onBuscaChange, onAbrirDivulgacao }: HeaderProps)
                 src="/logo.png"
                 alt="Logo Indica Jd.Regente"
                 fill
+                sizes="44px"
                 className="object-cover"
                 priority
               />
