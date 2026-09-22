@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Send, Megaphone, AlertCircle, Loader2, HeartHandshake, HelpCircle, Gift } from "lucide-react";
+import { X, Send, Megaphone, AlertCircle, Loader2, Gift, Dog, Tag } from "lucide-react";
 import { CATEGORIAS_DISPONIVEIS, GRUPOS_BAIRROS, PedidoMural } from "@/types";
 import { formatarTelefoneBR } from "@/lib/utils";
 import { criarPedidoMural } from "@/lib/supabase";
@@ -17,6 +17,8 @@ export function NovoPedidoModal({ isOpen, onClose, onPedidoCriado }: NovoPedidoM
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [categoria, setCategoria] = useState<string>("Eletricista");
+  const [especieAnimal, setEspecieAnimal] = useState<string>("Cachorro");
+  const [categoriaDesapego, setCategoriaDesapego] = useState<string>("Móveis & Casa");
   const [moradorNome, setMoradorNome] = useState("");
   const [bairro, setBairro] = useState("Jd. Regente");
   const [whatsapp, setWhatsapp] = useState("");
@@ -32,7 +34,7 @@ export function NovoPedidoModal({ isOpen, onClose, onPedidoCriado }: NovoPedidoM
     setTipoPost(tipo);
     if (tipo === "pet_perdido") {
       setUrgente(true);
-      setCategoria("Pet Shop / Veterinário");
+      setCategoria("Pet / Veterinário");
     } else if (tipo === "desapego") {
       setUrgente(false);
       setCategoria("Outros");
@@ -60,16 +62,24 @@ export function NovoPedidoModal({ isOpen, onClose, onPedidoCriado }: NovoPedidoM
       valorFinal = ehDoacaoGratis ? "Doação Gratuita (Grátis)" : (valorDesapego.trim() || "A combinar");
     }
 
+    // Definir categoria final de acordo com o tipo
+    let categoriaFinal = categoria;
+    if (tipoPost === "pet_perdido") {
+      categoriaFinal = `Pet (${especieAnimal})`;
+    } else if (tipoPost === "desapego") {
+      categoriaFinal = `Desapego (${categoriaDesapego})`;
+    }
+
     setSalvando(true);
     try {
       const res = await criarPedidoMural({
         titulo: titulo.trim(),
         descricao: descricao.trim(),
-        categoria,
+        categoria: categoriaFinal,
         morador_nome: moradorNome.trim(),
         bairro,
         whatsapp_contato: whatsapp.trim() || undefined,
-        urgente,
+        urgente: tipoPost === "pet_perdido" ? true : urgente,
         tipo_post: tipoPost,
         valor_desapego: valorFinal,
         foto_url: fotoUrl.trim() || undefined,
@@ -182,7 +192,7 @@ export function NovoPedidoModal({ isOpen, onClose, onPedidoCriado }: NovoPedidoM
           <div>
             <label className="block text-xs font-bold text-gray-800 mb-1">
               {tipoPost === "pet_perdido"
-                ? "Nome do Pet e Bairro onde sumiu/encontrado *"
+                ? "Nome do Pet e Características Principais *"
                 : tipoPost === "desapego"
                 ? "O que você está desapegando ou doando? *"
                 : "O que você precisa? (Título claro) *"}
@@ -194,16 +204,16 @@ export function NovoPedidoModal({ isOpen, onClose, onPedidoCriado }: NovoPedidoM
               onChange={(e) => setTitulo(e.target.value)}
               placeholder={
                 tipoPost === "pet_perdido"
-                  ? "Ex: Thor sumiu no Jd. Valença / Regente (Poodle branco c/ coleira)"
+                  ? "Ex: Thor sumiu no Jd. Valença / Regente (Poodle branco c/ coleira azul)"
                   : tipoPost === "desapego"
-                  ? "Ex: Bicicleta Caloi aro 26 ou Berço de madeira"
+                  ? "Ex: Bicicleta Caloi aro 26 ou Berço de madeira infantil"
                   : "Ex: Procuro pintor caprichoso para pintar a sala"
               }
               className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
             />
           </div>
 
-          {/* Campos específicos de Desapego */}
+          {/* Campos específicos de Desapego: Valor / Doação */}
           {tipoPost === "desapego" && (
             <div className="bg-purple-50/80 p-3 rounded-2xl border border-purple-200 space-y-2">
               <label className="block text-xs font-bold text-purple-950">
@@ -236,27 +246,78 @@ export function NovoPedidoModal({ isOpen, onClose, onPedidoCriado }: NovoPedidoM
             </div>
           )}
 
+          {/* Linha com Seletores Inteligentes de acordo com o Tipo de Post */}
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-gray-800 mb-1">
-                Categoria *
-              </label>
-              <select
-                value={categoria}
-                onChange={(e) => setCategoria(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs focus:ring-2 focus:ring-emerald-500 outline-none bg-white font-medium"
-              >
-                {CATEGORIAS_DISPONIVEIS.filter((c) => c !== "Todos").map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Caso 1: Pedido de Serviço Comum -> Categoria de Serviços */}
+            {tipoPost === "pedido" && (
+              <div>
+                <label className="block text-xs font-bold text-gray-800 mb-1">
+                  Categoria do Serviço *
+                </label>
+                <select
+                  value={categoria}
+                  onChange={(e) => setCategoria(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs focus:ring-2 focus:ring-emerald-500 outline-none bg-white font-medium"
+                >
+                  {CATEGORIAS_DISPONIVEIS.filter((c) => c !== "Todos").map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
+            {/* Caso 2: Pet Perdido -> Espécie / Tipo de Animal (NÃO PEDE CATEGORIA DE SERVIÇO) */}
+            {tipoPost === "pet_perdido" && (
+              <div>
+                <label className="block text-xs font-bold text-red-950 mb-1">
+                  Espécie do Animal *
+                </label>
+                <select
+                  value={especieAnimal}
+                  onChange={(e) => setEspecieAnimal(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-red-300 text-xs focus:ring-2 focus:ring-red-500 outline-none bg-white font-bold text-gray-800"
+                >
+                  <option value="Cachorro">🐶 Cachorro</option>
+                  <option value="Gato">🐱 Gato</option>
+                  <option value="Pássaro / Ave">🦜 Pássaro / Ave</option>
+                  <option value="Outro Pet">🐾 Outro Animal</option>
+                </select>
+              </div>
+            )}
+
+            {/* Caso 3: Desapego -> Tipo de Item (NÃO PEDE CATEGORIA DE SERVIÇO) */}
+            {tipoPost === "desapego" && (
+              <div>
+                <label className="block text-xs font-bold text-purple-950 mb-1">
+                  Tipo de Item *
+                </label>
+                <select
+                  value={categoriaDesapego}
+                  onChange={(e) => setCategoriaDesapego(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-purple-300 text-xs focus:ring-2 focus:ring-purple-500 outline-none bg-white font-bold text-gray-800"
+                >
+                  <option value="Móveis & Casa">🛋️ Móveis & Casa</option>
+                  <option value="Eletro & Eletrônicos">⚡ Eletro & Eletrônicos</option>
+                  <option value="Infantil & Brinquedos">🧸 Infantil & Bebê</option>
+                  <option value="Plantas & Jardim">🌿 Plantas & Mudas</option>
+                  <option value="Bicicletas & Esportes">🚲 Bicicletas & Esporte</option>
+                  <option value="Roupas & Acessórios">👗 Roupas & Calçados</option>
+                  <option value="Ferramentas">🔧 Ferramentas</option>
+                  <option value="Outros">📦 Outros</option>
+                </select>
+              </div>
+            )}
+
+            {/* Bairro sempre presente de forma contextual */}
             <div>
               <label className="block text-xs font-bold text-gray-800 mb-1">
-                Localização / Bairro *
+                {tipoPost === "pet_perdido"
+                  ? "Bairro onde Sumiu / Visto *"
+                  : tipoPost === "desapego"
+                  ? "Bairro para Retirada *"
+                  : "Seu Bairro *"}
               </label>
               <select
                 value={bairro}
@@ -291,7 +352,7 @@ export function NovoPedidoModal({ isOpen, onClose, onPedidoCriado }: NovoPedidoM
               onChange={(e) => setDescricao(e.target.value)}
               placeholder={
                 tipoPost === "pet_perdido"
-                  ? "Ex: Fugiu pelo portão ontem por volta das 18h perto da praça. É dócil, atende por Thor e a família está desesperada. Por favor ajudem a divulgar!"
+                  ? "Ex: Fugiu pelo portão ontem por volta das 18h na Rua 4 do Jd. Regente. Atende por Thor, porte médio, coleira azul. A família está muito preocupada, por favor avisem se avistarem!"
                   : tipoPost === "desapego"
                   ? "Ex: Bicicleta usada mas em ótimo estado, pneus novos, precisa apenas lubrificar a corrente. Retirada no Jd. Regente."
                   : "Ex: Gostaria de alguém com boas recomendações para orçamento sem compromisso até sexta-feira..."
@@ -346,21 +407,28 @@ export function NovoPedidoModal({ isOpen, onClose, onPedidoCriado }: NovoPedidoM
             </div>
           </div>
 
-          {/* Checkbox de Urgência (para pedidos comuns ou confirmação em pets) */}
-          <div className={`p-3 rounded-2xl flex items-center gap-3 border ${
-            urgente ? "bg-red-50 border-red-200" : "bg-gray-50 border-gray-200"
-          }`}>
-            <input
-              type="checkbox"
-              id="mural_urgente"
-              checked={urgente}
-              onChange={(e) => setUrgente(e.target.checked)}
-              className="w-4 h-4 text-red-600 rounded cursor-pointer accent-red-600"
-            />
-            <label htmlFor="mural_urgente" className="text-xs font-bold text-gray-800 cursor-pointer">
-              🚨 Destacar com Alerta Urgente no Mural
-            </label>
-          </div>
+          {/* Alerta de urgência: automático para pets ou checkbox para serviços */}
+          {tipoPost === "pet_perdido" ? (
+            <div className="p-3 rounded-2xl bg-red-50 border border-red-200 flex items-center gap-2.5 text-xs text-red-950 font-bold">
+              <span className="text-base flex-shrink-0 animate-bounce">🚨</span>
+              <span>Alerta urgente automático: Este pet receberá destaque prioritário com botão direto de resgate no mural!</span>
+            </div>
+          ) : (
+            <div className={`p-3 rounded-2xl flex items-center gap-3 border ${
+              urgente ? "bg-red-50 border-red-200" : "bg-gray-50 border-gray-200"
+            }`}>
+              <input
+                type="checkbox"
+                id="mural_urgente"
+                checked={urgente}
+                onChange={(e) => setUrgente(e.target.checked)}
+                className="w-4 h-4 text-red-600 rounded cursor-pointer accent-red-600"
+              />
+              <label htmlFor="mural_urgente" className="text-xs font-bold text-gray-800 cursor-pointer">
+                🚨 Destacar como Urgente no Mural
+              </label>
+            </div>
+          )}
 
           <div className="pt-2">
             <button
