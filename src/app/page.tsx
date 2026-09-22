@@ -90,7 +90,6 @@ export default function Home() {
       <Header
         busca={busca}
         onBuscaChange={setBusca}
-        totalServicos={servicos.length}
       />
 
       {/* Carrossel de Categorias */}

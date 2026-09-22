@@ -10,12 +10,11 @@ interface SortTabsProps {
 }
 
 export function SortTabs({ ordenacaoAtual, onMudarOrdenacao }: SortTabsProps) {
-  const opcoes: { id: TipoOrdenacao; label: string; icon: React.ReactNode; badge?: string }[] = [
+  const opcoes: { id: TipoOrdenacao; label: string; icon: React.ReactNode }[] = [
     {
       id: "melhores",
       label: "Top Avaliados",
       icon: <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />,
-      badge: "Inteligente",
     },
     {
       id: "recomendados",
@@ -35,31 +34,27 @@ export function SortTabs({ ordenacaoAtual, onMudarOrdenacao }: SortTabsProps) {
   ];
 
   return (
-    <div className="px-4 py-2.5 bg-gray-50/80 border-b border-gray-200/60 flex items-center justify-between text-xs">
-      <span className="text-gray-500 font-medium hidden xs:inline">Ordenar por:</span>
-      <div className="flex gap-1.5 w-full xs:w-auto overflow-x-auto no-scrollbar">
-        {opcoes.map((opcao) => {
-          const ativo = ordenacaoAtual === opcao.id;
-          return (
-            <button
-              key={opcao.id}
-              onClick={() => onMudarOrdenacao(opcao.id)}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium transition-all text-xs cursor-pointer flex-shrink-0 ${
-                ativo
-                  ? "bg-white text-emerald-800 shadow-xs border border-emerald-200 font-semibold"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              }`}
-            >
-              {opcao.icon}
-              <span>{opcao.label}</span>
-              {opcao.badge && (
-                <span className="text-[9px] bg-amber-100 text-amber-800 px-1 rounded font-bold uppercase">
-                  {opcao.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
+    <div className="px-4 py-2 bg-white/60 border-b border-gray-100 flex items-center justify-between text-xs">
+      <div className="max-w-4xl mx-auto w-full flex items-center justify-start sm:justify-center overflow-x-auto no-scrollbar py-0.5">
+        <div className="bg-gray-100/90 p-1 rounded-2xl flex items-center gap-1">
+          {opcoes.map((opcao) => {
+            const ativo = ordenacaoAtual === opcao.id;
+            return (
+              <button
+                key={opcao.id}
+                onClick={() => onMudarOrdenacao(opcao.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all text-xs cursor-pointer flex-shrink-0 ${
+                  ativo
+                    ? "bg-white text-emerald-950 shadow-xs font-bold"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+              >
+                {opcao.icon}
+                <span>{opcao.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

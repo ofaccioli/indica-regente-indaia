@@ -244,6 +244,38 @@ export default function AdminDashboardPage() {
         </div>
       </header>
 
+      {/* Barra de Status e Métricas da Comunidade (Admin) */}
+      <div className="bg-gray-900 border-t border-gray-800 text-gray-300 py-2 px-4 text-xs shadow-inner">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+            <span className="font-semibold text-emerald-400">Comunidade Ativa</span>
+            <span className="text-gray-500">•</span>
+            <span className="text-gray-300">Regente Feijó & Indaiatuba</span>
+          </div>
+
+          <div className="flex items-center gap-3 text-[11px] text-gray-400">
+            <span>
+              <strong className="text-white font-bold">{servicos.length}</strong> serviços recomendados
+            </span>
+            <span>•</span>
+            <span>
+              <strong className="text-amber-400 font-bold">{avaliacoes.length}</strong> avaliações
+            </span>
+            <span>•</span>
+            <span>
+              <strong className="text-blue-400 font-bold">
+                {servicos.filter((s) => s.verificado_admin).length}
+              </strong>{" "}
+              verificados
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Conteúdo Principal */}
       <main className="max-w-6xl mx-auto px-4 pt-4">
         {abaAtiva === "servicos" ? (
