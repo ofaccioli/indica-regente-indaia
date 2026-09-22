@@ -21,6 +21,7 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
   const [descricao, setDescricao] = useState("");
   const [quemIndicou, setQuemIndicou] = useState("");
   const [instagram, setInstagram] = useState("");
+  const [ofertaVizinho, setOfertaVizinho] = useState("");
   const [atendeFimDeSemana, setAtendeFimDeSemana] = useState(false);
   const [ehMorador, setEhMorador] = useState(false);
   const [tipoAtendimento, setTipoAtendimento] = useState<"domicilio" | "local" | "ambos">("ambos");
@@ -37,6 +38,7 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
       setDescricao(servico.descricao || "");
       setQuemIndicou(servico.quem_indicou || "");
       setInstagram(servico.instagram || "");
+      setOfertaVizinho(servico.oferta_vizinho || "");
       setAtendeFimDeSemana(Boolean(servico.atende_fim_de_semana));
       setEhMorador(Boolean(servico.eh_morador));
       setTipoAtendimento(servico.tipo_atendimento || "ambos");
@@ -67,6 +69,7 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
             descricao: descricao.trim(),
             quem_indicou: quemIndicou.trim(),
             instagram: instagram.trim() || null,
+            oferta_vizinho: ofertaVizinho.trim() || null,
             atende_fim_de_semana: atendeFimDeSemana,
             eh_morador: ehMorador,
             tipo_atendimento: tipoAtendimento,
@@ -206,6 +209,19 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
               onChange={(e) => setInstagram(e.target.value)}
               placeholder="Ex: @carlos.eletrica"
               className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+            />
+          </div>
+
+          <div className="bg-amber-50/70 p-3 rounded-xl border border-amber-200">
+            <label className="block text-xs font-bold text-amber-950 mb-1">
+              🏷️ Oferta Especial para Vizinhos do Bairro (Opcional)
+            </label>
+            <input
+              type="text"
+              value={ofertaVizinho}
+              onChange={(e) => setOfertaVizinho(e.target.value)}
+              placeholder="Ex: 10% de desconto para moradores do Jd. Regente / Jd. Valença"
+              className="w-full px-3 py-2 rounded-xl border border-amber-300 text-sm focus:ring-2 focus:ring-amber-500 outline-none bg-white text-gray-800"
             />
           </div>
 

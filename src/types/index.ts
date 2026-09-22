@@ -10,6 +10,7 @@ export interface Servico {
   descricao?: string;
   quem_indicou?: string;
   instagram?: string;
+  oferta_vizinho?: string;
   nota_media: number;
   total_avaliacoes: number;
   pontuacao_inteligente?: number;
@@ -31,6 +32,9 @@ export interface PedidoMural {
   whatsapp_contato?: string;
   urgente?: boolean;
   status: "aberto" | "resolvido";
+  tipo_post?: "pedido" | "pet_perdido" | "desapego";
+  valor_desapego?: string;
+  foto_url?: string;
   respostas?: RespostaMural[];
   created_at: string;
 }

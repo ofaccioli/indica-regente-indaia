@@ -15,6 +15,9 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
+  Tag,
+  Gift,
+  Search,
 } from "lucide-react";
 import { PedidoMural, Servico, RespostaMural } from "@/types";
 import { responderPedidoMural, resolverPedidoMural } from "@/lib/supabase";
@@ -29,7 +32,7 @@ interface MuralViewProps {
 
 export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralViewProps) {
   const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false);
-  const [filtroStatus, setFiltroStatus] = useState<"todos" | "urgentes" | "abertos" | "resolvidos">("todos");
+  const [filtroTipo, setFiltroTipo] = useState<"todos" | "pedidos" | "pets" | "desapegos" | "urgentes">("todos");
   
   // Estado para expandir formulário de resposta por pedido
   const [pedidoRespondendoId, setPedidoRespondendoId] = useState<string | null>(null);
@@ -38,11 +41,18 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
   const [servicoIndicadoId, setServicoIndicadoId] = useState("");
   const [enviandoResposta, setEnviandoResposta] = useState(false);
 
+  // Contadores
+  const countPets = pedidos.filter((p) => p.tipo_post === "pet_perdido").length;
+  const countDesapegos = pedidos.filter((p) => p.tipo_post === "desapego").length;
+  const countPedidos = pedidos.filter((p) => !p.tipo_post || p.tipo_post === "pedido").length;
+  const countUrgentes = pedidos.filter((p) => p.urgente && p.status === "aberto").length;
+
   // Filtra pedidos
   const pedidosFiltrados = pedidos.filter((p) => {
-    if (filtroStatus === "urgentes") return p.urgente;
-    if (filtroStatus === "abertos") return p.status === "aberto";
-    if (filtroStatus === "resolvidos") return p.status === "resolvido";
+    if (filtroTipo === "urgentes") return p.urgente && p.status === "aberto";
+    if (filtroTipo === "pets") return p.tipo_post === "pet_perdido";
+    if (filtroTipo === "desapegos") return p.tipo_post === "desapego";
+    if (filtroTipo === "pedidos") return !p.tipo_post || p.tipo_post === "pedido";
     return true;
   });
 
@@ -92,16 +102,16 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
 
   return (
     <div className="space-y-4">
-      {/* Banner Superior com CTA para Pedir Indicação */}
+      {/* Banner Superior com CTA para Pedir Indicação / Avisar Pet / Desapegar */}
       <div className="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 rounded-3xl p-5 text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-amber-400 text-emerald-950 flex items-center justify-center flex-shrink-0 shadow font-black">
-            <Megaphone className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-2xl bg-amber-400 text-emerald-950 flex items-center justify-center flex-shrink-0 shadow font-black text-lg">
+            📢
           </div>
           <div>
-            <h2 className="text-base font-black leading-tight">Mural &ldquo;Alguém Indica?&rdquo;</h2>
+            <h2 className="text-base font-black leading-tight">Mural Comunitário da Vizinhança</h2>
             <p className="text-xs text-emerald-100/90 mt-0.5">
-              Peça indicações aos vizinhos ou ajude indicando bons profissionais do Jd. Regente!
+              Pedir indicação de serviços, alertar sobre 🐶 pets perdidos ou 📦 desapegar e doar entre vizinhos do Jd. Regente, Jd. Valença e região!
             </p>
           </div>
         </div>
@@ -111,88 +121,154 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
           className="w-full sm:w-auto bg-amber-400 hover:bg-amber-300 text-emerald-950 px-4 py-2.5 rounded-2xl font-black text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer flex-shrink-0"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>Pedir Indicação</span>
+          <span>+ Publicar no Mural</span>
         </button>
       </div>
 
-      {/* Filtros do Mural */}
+      {/* Filtros em Abas do Mural */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
         <button
-          onClick={() => setFiltroStatus("todos")}
+          onClick={() => setFiltroTipo("todos")}
           className={`px-3 py-1.5 rounded-full font-bold transition-all flex-shrink-0 cursor-pointer ${
-            filtroStatus === "todos"
-              ? "bg-emerald-700 text-white shadow-xs"
+            filtroTipo === "todos"
+              ? "bg-gray-900 text-white shadow-xs"
               : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
           }`}
         >
           Todos ({pedidos.length})
         </button>
+
         <button
-          onClick={() => setFiltroStatus("urgentes")}
-          className={`px-3 py-1.5 rounded-full font-bold transition-all flex-shrink-0 cursor-pointer ${
-            filtroStatus === "urgentes"
+          onClick={() => setFiltroTipo("pedidos")}
+          className={`px-3 py-1.5 rounded-full font-bold transition-all flex-shrink-0 cursor-pointer flex items-center gap-1 ${
+            filtroTipo === "pedidos"
+              ? "bg-emerald-700 text-white shadow-xs"
+              : "bg-white text-emerald-800 border border-emerald-200 hover:bg-emerald-50"
+          }`}
+        >
+          <Megaphone className="w-3 h-3" />
+          <span>Indicações ({countPedidos})</span>
+        </button>
+
+        <button
+          onClick={() => setFiltroTipo("pets")}
+          className={`px-3 py-1.5 rounded-full font-bold transition-all flex-shrink-0 cursor-pointer flex items-center gap-1 ${
+            filtroTipo === "pets"
               ? "bg-red-600 text-white shadow-xs"
-              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+              : "bg-white text-red-700 border border-red-200 hover:bg-red-50"
           }`}
         >
-          🚨 Urgentes ({pedidos.filter((p) => p.urgente).length})
+          <span>🐶 Pets Perdidos ({countPets})</span>
         </button>
+
         <button
-          onClick={() => setFiltroStatus("abertos")}
-          className={`px-3 py-1.5 rounded-full font-bold transition-all flex-shrink-0 cursor-pointer ${
-            filtroStatus === "abertos"
-              ? "bg-amber-500 text-white shadow-xs"
-              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+          onClick={() => setFiltroTipo("desapegos")}
+          className={`px-3 py-1.5 rounded-full font-bold transition-all flex-shrink-0 cursor-pointer flex items-center gap-1 ${
+            filtroTipo === "desapegos"
+              ? "bg-purple-700 text-white shadow-xs"
+              : "bg-white text-purple-700 border border-purple-200 hover:bg-purple-50"
           }`}
         >
-          🟡 Em Aberto ({pedidos.filter((p) => p.status === "aberto").length})
+          <span>📦 Desapegos & Doações ({countDesapegos})</span>
         </button>
-        <button
-          onClick={() => setFiltroStatus("resolvidos")}
-          className={`px-3 py-1.5 rounded-full font-bold transition-all flex-shrink-0 cursor-pointer ${
-            filtroStatus === "resolvidos"
-              ? "bg-blue-600 text-white shadow-xs"
-              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
-          }`}
-        >
-          ✅ Resolvidos ({pedidos.filter((p) => p.status === "resolvido").length})
-        </button>
+
+        {countUrgentes > 0 && (
+          <button
+            onClick={() => setFiltroTipo("urgentes")}
+            className={`px-3 py-1.5 rounded-full font-bold transition-all flex-shrink-0 cursor-pointer flex items-center gap-1 ${
+              filtroTipo === "urgentes"
+                ? "bg-amber-600 text-white shadow-xs animate-pulse"
+                : "bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100"
+            }`}
+          >
+            <span>🚨 Urgentes ({countUrgentes})</span>
+          </button>
+        )}
       </div>
 
       {/* Lista de Pedidos */}
       {pedidosFiltrados.length === 0 ? (
         <div className="bg-white rounded-3xl p-8 text-center border border-gray-200/80 shadow-2xs">
-          <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2">
-            <Megaphone className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2 text-2xl">
+            {filtroTipo === "pets" ? "🐶" : filtroTipo === "desapegos" ? "📦" : "📢"}
           </div>
-          <h3 className="font-bold text-sm text-gray-800">Nenhum pedido encontrado neste filtro</h3>
+          <h3 className="font-bold text-sm text-gray-800">Nenhuma postagem nesta categoria</h3>
           <p className="text-xs text-gray-500 mt-1">
-            Seja o primeiro a publicar uma solicitação para os vizinhos!
+            {filtroTipo === "pets"
+              ? "Nenhum animalzinho perdido reportado no momento (que ótima notícia!)."
+              : filtroTipo === "desapegos"
+              ? "Ainda não há desapegos anunciados. Tem algo parado que deseja vender ou doar?"
+              : "Seja o primeiro a publicar para os vizinhos do bairro!"}
           </p>
+          <button
+            onClick={() => setModalNovoPedidoAberto(true)}
+            className="mt-3.5 inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer"
+          >
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span>Criar publicação</span>
+          </button>
         </div>
       ) : (
         <div className="space-y-3">
           {pedidosFiltrados.map((pedido) => {
             const respostas = pedido.respostas || [];
             const isRespondendo = pedidoRespondendoId === pedido.id;
+            const isPet = pedido.tipo_post === "pet_perdido";
+            const isDesapego = pedido.tipo_post === "desapego";
 
             return (
               <article
                 key={pedido.id}
                 className={`bg-white rounded-3xl p-4 sm:p-5 border transition-all duration-200 shadow-xs hover:shadow-md ${
-                  pedido.urgente && pedido.status === "aberto"
-                    ? "border-red-300 ring-1 ring-red-100"
+                  isPet && pedido.status === "aberto"
+                    ? "border-red-300 ring-2 ring-red-100 bg-linear-to-b from-red-50/20 to-white"
+                    : isDesapego
+                    ? "border-purple-200/90 bg-linear-to-b from-purple-50/15 to-white"
+                    : pedido.urgente && pedido.status === "aberto"
+                    ? "border-amber-300 ring-1 ring-amber-100"
                     : "border-gray-200/80"
                 }`}
               >
-                {/* Topo do Card */}
+                {/* Topo do Card com Badges */}
                 <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                      {pedido.categoria}
-                    </span>
+                    {/* Badge do Tipo de Post */}
+                    {isPet ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-black px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-300 animate-pulse">
+                        🚨 ALERTA: PET PERDIDO
+                      </span>
+                    ) : isDesapego ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-300">
+                        📦 DESAPEGO & DOAÇÃO
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        📢 {pedido.categoria}
+                      </span>
+                    )}
 
-                    {pedido.urgente && pedido.status === "aberto" && (
+                    {/* Badge de Preço / Doação Grátis (se desapego) */}
+                    {isDesapego && pedido.valor_desapego && (
+                      <span className={`inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border ${
+                        pedido.valor_desapego.toLowerCase().includes("grátis") || pedido.valor_desapego.toLowerCase().includes("gratis") || pedido.valor_desapego.toLowerCase().includes("doação")
+                          ? "bg-emerald-100 text-emerald-900 border-emerald-300"
+                          : "bg-amber-100 text-amber-900 border-amber-300"
+                      }`}>
+                        {pedido.valor_desapego.toLowerCase().includes("grátis") || pedido.valor_desapego.toLowerCase().includes("gratis") ? (
+                          <>
+                            <Gift className="w-3 h-3 text-emerald-700" />
+                            <span>{pedido.valor_desapego}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Tag className="w-3 h-3 text-amber-700" />
+                            <span>{pedido.valor_desapego}</span>
+                          </>
+                        )}
+                      </span>
+                    )}
+
+                    {pedido.urgente && pedido.status === "aberto" && !isPet && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
                         <AlertCircle className="w-3 h-3 text-red-600" />
                         URGENTE
@@ -202,7 +278,7 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                     {pedido.status === "resolvido" ? (
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                         <CheckCircle2 className="w-3 h-3 text-blue-600" />
-                        Resolvido
+                        {isPet ? "🐶 Encontrado / Resolvido" : isDesapego ? "📦 Doado / Vendido" : "Resolvido"}
                       </span>
                     ) : (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
@@ -230,6 +306,21 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                   {pedido.descricao}
                 </p>
 
+                {/* Foto se informada */}
+                {pedido.foto_url && (
+                  <div className="mb-3 overflow-hidden rounded-2xl border border-gray-200 max-h-60 bg-black/5 flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={pedido.foto_url}
+                      alt={pedido.titulo}
+                      className="max-h-60 w-auto object-cover rounded-2xl"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  </div>
+                )}
+
                 {/* Autor e Ações de Contato */}
                 <div className="flex items-center justify-between gap-2 flex-wrap pb-3 border-b border-gray-100 text-xs">
                   <div className="flex items-center gap-2 text-gray-700 font-medium">
@@ -249,14 +340,26 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                       <a
                         href={gerarLinkWhatsApp(
                           pedido.whatsapp_contato,
-                          `Olá ${pedido.morador_nome}, vi seu pedido no Mural do Indica Jd. Regente ("${pedido.titulo}") e gostaria de te ajudar!`
+                          isPet
+                            ? `Olá ${pedido.morador_nome}, vi seu alerta de PET PERDIDO no Mural do Indica Jd. Regente ("${pedido.titulo}")!`
+                            : isDesapego
+                            ? `Olá ${pedido.morador_nome}, vi seu desapego/doação no Mural do Indica Jd. Regente ("${pedido.titulo}") e gostaria de conversar!`
+                            : `Olá ${pedido.morador_nome}, vi seu pedido no Mural do Indica Jd. Regente ("${pedido.titulo}") e gostaria de te ajudar!`
                         )}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-xl text-[11px] flex items-center gap-1 border border-emerald-200 transition-colors"
+                        className={`font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-2xs transition-colors ${
+                          isPet
+                            ? "bg-red-600 hover:bg-red-700 text-white"
+                            : isDesapego
+                            ? "bg-purple-700 hover:bg-purple-800 text-white"
+                            : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                        }`}
                       >
-                        <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Falar no WhatsApp</span>
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <span>
+                          {isPet ? "🐶 Vi este Pet!" : isDesapego ? "📦 Quero Negociar / Retirar" : "WhatsApp"}
+                        </span>
                       </a>
                     )}
 
@@ -267,7 +370,7 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                         title="Marcar como resolvido"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Já resolvi</span>
+                        <span>{isPet ? "Pet encontrado" : "Já resolvi"}</span>
                       </button>
                     )}
                   </div>
@@ -277,7 +380,7 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                 <div className="pt-3 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
-                      <span>Indicações dos Vizinhos</span>
+                      <span>{isPet ? "Informações dos Vizinhos" : isDesapego ? "Perguntas / Comentários" : "Indicações dos Vizinhos"}</span>
                       <span className="bg-emerald-100 text-emerald-900 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">
                         {respostas.length}
                       </span>
@@ -287,7 +390,7 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                       onClick={() => setPedidoRespondendoId(isRespondendo ? null : pedido.id)}
                       className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer"
                     >
-                      <span>{isRespondendo ? "Fechar resposta" : "+ Indicar alguém"}</span>
+                      <span>{isRespondendo ? "Fechar resposta" : isPet ? "+ Avisar paradeiro / ajudar" : "+ Deixar comentário / indicação"}</span>
                       {isRespondendo ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                     </button>
                   </div>
@@ -362,25 +465,33 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                           className="px-3 py-2 rounded-xl border border-gray-300 outline-none bg-white font-medium"
                         />
 
-                        <select
-                          value={servicoIndicadoId}
-                          onChange={(e) => setServicoIndicadoId(e.target.value)}
-                          className="px-3 py-2 rounded-xl border border-gray-300 outline-none bg-white font-medium text-xs truncate"
-                        >
-                          <option value="">Vincular profissional cadastrado (opcional)</option>
-                          {servicosCadastrados.map((s) => (
-                            <option key={s.id} value={s.id}>
-                              {s.nome} ({s.categoria})
-                            </option>
-                          ))}
-                        </select>
+                        {!isPet && !isDesapego && (
+                          <select
+                            value={servicoIndicadoId}
+                            onChange={(e) => setServicoIndicadoId(e.target.value)}
+                            className="px-3 py-2 rounded-xl border border-gray-300 outline-none bg-white font-medium text-xs truncate"
+                          >
+                            <option value="">Vincular profissional cadastrado (opcional)</option>
+                            {servicosCadastrados.map((s) => (
+                              <option key={s.id} value={s.id}>
+                                {s.nome} ({s.categoria})
+                              </option>
+                            ))}
+                          </select>
+                        )}
                       </div>
 
                       <textarea
                         rows={2}
                         value={mensagemResposta}
                         onChange={(e) => setMensagemResposta(e.target.value)}
-                        placeholder="Escreva sua recomendação ou comentário para o vizinho..."
+                        placeholder={
+                          isPet
+                            ? "Ex: Acabei de avistar um cãozinho parecido na Rua 3 próximo ao mercadinho..."
+                            : isDesapego
+                            ? "Ex: Olá, ainda está disponível? Qual o melhor horário para retirar?"
+                            : "Escreva sua recomendação ou comentário para o vizinho..."
+                        }
                         className="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs outline-none bg-white resize-none"
                       />
 
@@ -403,7 +514,7 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                           ) : (
                             <>
                               <Send className="w-3.5 h-3.5" />
-                              <span>Enviar Indicação</span>
+                              <span>Enviar Comentário</span>
                             </>
                           )}
                         </button>

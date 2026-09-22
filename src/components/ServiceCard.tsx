@@ -149,6 +149,12 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
                   🚨 Fim de Semana
                 </span>
               )}
+
+              {servico.oferta_vizinho && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-950 border border-amber-400">
+                  🏷️ Com Oferta
+                </span>
+              )}
             </div>
 
             {/* Selo Top Recomendado */}
@@ -233,6 +239,21 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
               </>
             )}
           </div>
+
+          {/* Oferta Especial de Vizinhança */}
+          {servico.oferta_vizinho && (
+            <div className="mb-2.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300/80 rounded-xl p-2.5 flex items-start gap-2 shadow-2xs">
+              <span className="text-sm flex-shrink-0">🏷️</span>
+              <div className="flex-1 min-w-0">
+                <span className="block text-[10px] font-black uppercase tracking-wider text-amber-900">
+                  Oferta para Vizinhos do Bairro
+                </span>
+                <p className="text-xs font-bold text-amber-950 leading-snug">
+                  {servico.oferta_vizinho}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Descrição dos Serviços */}
           {servico.descricao && (

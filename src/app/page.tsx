@@ -38,6 +38,7 @@ export default function Home() {
   const [apenasFimDeSemana, setApenasFimDeSemana] = useState(false);
   const [apenasFavoritos, setApenasFavoritos] = useState(false);
   const [apenasMorador, setApenasMorador] = useState(false);
+  const [apenasOfertas, setApenasOfertas] = useState(false);
   const [filtroAtendimento, setFiltroAtendimento] = useState<"todos" | "domicilio" | "local">("todos");
   const [ordenacao, setOrdenacao] = useState<TipoOrdenacao>("melhores");
   const [modalDivulgacaoAberto, setModalDivulgacaoAberto] = useState(false);
@@ -97,6 +98,11 @@ export default function Home() {
 
       // Filtro de Vizinho / Morador do Bairro
       if (apenasMorador && !item.eh_morador) {
+        return false;
+      }
+
+      // Filtro de Ofertas da Vizinhança
+      if (apenasOfertas && !item.oferta_vizinho) {
         return false;
       }
 
@@ -161,6 +167,7 @@ export default function Home() {
     apenasFavoritos,
     favoritosIds,
     apenasMorador,
+    apenasOfertas,
     filtroAtendimento,
     busca,
   ]);
@@ -209,7 +216,7 @@ export default function Home() {
             }`}
           >
             <Megaphone className="w-3.5 h-3.5 text-amber-600" />
-            <span>Mural &ldquo;Alguém Indica?&rdquo;</span>
+            <span>Mural & Pets / Desapego</span>
             <span className="bg-amber-100 text-amber-950 px-1.5 py-0.2 rounded-full text-[10px] font-bold">
               {pedidosMural.length}
             </span>
@@ -269,6 +276,18 @@ export default function Home() {
               }`}
             >
               <span>🏡 Moradores do Bairro</span>
+            </button>
+
+            {/* Filtro de Ofertas da Vizinhança */}
+            <button
+              onClick={() => setApenasOfertas(!apenasOfertas)}
+              className={`px-3 py-1.5 rounded-full font-bold transition-all flex items-center gap-1 flex-shrink-0 cursor-pointer ${
+                apenasOfertas
+                  ? "bg-amber-400 text-amber-950 shadow-xs ring-1 ring-amber-300"
+                  : "bg-white text-gray-700 border border-gray-200 hover:bg-amber-50 hover:text-amber-950"
+              }`}
+            >
+              <span>🏷️ Ofertas da Vizinhança</span>
             </button>
 
             {/* Filtro de Domicílio */}

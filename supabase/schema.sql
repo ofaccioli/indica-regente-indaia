@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS public.servicos (
   atende_fim_de_semana BOOLEAN DEFAULT false,
   eh_morador BOOLEAN DEFAULT false,
   tipo_atendimento TEXT DEFAULT 'ambos',
+  oferta_vizinho TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -94,6 +95,9 @@ CREATE TABLE IF NOT EXISTS public.pedidos_mural (
   whatsapp_contato TEXT,
   urgente BOOLEAN DEFAULT false,
   status TEXT DEFAULT 'aberto',
+  tipo_post TEXT DEFAULT 'pedido',
+  valor_desapego TEXT,
+  foto_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

@@ -54,6 +54,7 @@ export default function CadastrarPage() {
   const [outroBairroNome, setOutroBairroNome] = useState("");
   const [detectandoGps, setDetectandoGps] = useState(false);
   const [descricao, setDescricao] = useState("");
+  const [ofertaVizinho, setOfertaVizinho] = useState("");
   const [quemIndicou, setQuemIndicou] = useState("");
   const [instagram, setInstagram] = useState("");
   const [atendeFimDeSemana, setAtendeFimDeSemana] = useState(false);
@@ -155,6 +156,7 @@ export default function CadastrarPage() {
         descricao: descricao.trim(),
         quem_indicou: quemIndicou.trim() || "Vizinho da Comunidade",
         instagram: instagram.trim() ? (instagram.startsWith("@") ? instagram : `@${instagram.trim()}`) : undefined,
+        oferta_vizinho: ofertaVizinho.trim() || undefined,
         atende_fim_de_semana: atendeFimDeSemana,
         eh_morador: ehMorador,
         tipo_atendimento: tipoAtendimento,
@@ -398,6 +400,24 @@ export default function CadastrarPage() {
                 placeholder="Ex: Atende chamados de emergência, instala disjuntores, chuveiro, preço acessível."
                 className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none resize-none"
               />
+            </div>
+
+            {/* Oferta / Desconto de Vizinhança */}
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-2xl border border-amber-300 shadow-2xs">
+              <label className="block text-xs font-bold text-amber-950 mb-1.5 flex items-center gap-1.5">
+                <Tag className="w-3.5 h-3.5 text-amber-700" />
+                <span>Oferta Especial para Vizinhos do Bairro <span className="text-amber-800 font-normal">(opcional)</span></span>
+              </label>
+              <input
+                type="text"
+                value={ofertaVizinho}
+                onChange={(e) => setOfertaVizinho(e.target.value)}
+                placeholder="Ex: 10% de desconto ou entrega grátis no Jd. Regente / Valença"
+                className="w-full px-3 py-2.5 rounded-xl border border-amber-300 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white font-medium placeholder:font-normal placeholder:text-gray-400"
+              />
+              <p className="text-[11px] text-amber-900 mt-1">
+                ⭐ Ganha destaque com selo dourado <strong>🏷️ Com Oferta</strong> e atrai mais clientes da vizinhança!
+              </p>
             </div>
 
             {/* Quem está indicando */}
