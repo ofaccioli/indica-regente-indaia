@@ -48,29 +48,36 @@ export interface RespostaMural {
 export const BAIRROS_DESTAQUE = [
   "Todos os Bairros",
   "Jd. Regente",
-  "Jd. Santa Rita",
+  "Jd. Valença",
+  "Jd. Itamaracá",
+  "Vila Rubens",
   "Park Gran Reserve",
+  "Jd. Santa Rita",
   "Vila Avaí",
   "Cidade Nova II",
-  "Cidade Nova I",
   "Centro",
-  "Itaici",
-  "Jd. Morada do Sol",
 ] as const;
 
 export const GRUPOS_BAIRROS = [
   {
-    nome: "📍 Jd. Regente & Vizinhos Imediatos (até 2 km)",
+    nome: "📍 Jd. Regente & Vizinhos Imediatos (Grudados / até 1.5 km)",
     bairros: [
       "Jd. Regente",
-      "Jd. Santa Rita",
+      "Jd. Valença",
+      "Jd. Itamaracá",
+      "Vila Rubens",
       "Park Gran Reserve",
+      "Jd. Santa Rita",
+      "Vila Residencial Green Park",
+      "Jd. Dom Bosco",
       "Vila Avaí",
       "Vila Maria",
       "Vila Maria Helena",
+      "Vila Areal",
+      "Vila Georgina",
+      "Vila Castelo Branco",
       "Cidade Nova II",
       "Cidade Nova I",
-      "Jd. Dom Bosco",
     ],
   },
   {
@@ -153,16 +160,23 @@ export const GRUPOS_BAIRROS = [
 
 export const BAIRROS_INDAIATUBA = [
   "Todos os Bairros",
-  // 1. Jd. Regente e vizinhos imediatos (Zona Norte / Av. Conceição / Santos Dumont)
+  // 1. Jd. Regente e vizinhos imediatos (Grudados / até 1.5 km)
   "Jd. Regente",
-  "Jd. Santa Rita",
+  "Jd. Valença",
+  "Jd. Itamaracá",
+  "Vila Rubens",
   "Park Gran Reserve",
+  "Jd. Santa Rita",
+  "Vila Residencial Green Park",
+  "Jd. Dom Bosco",
   "Vila Avaí",
   "Vila Maria",
   "Vila Maria Helena",
+  "Vila Areal",
+  "Vila Georgina",
+  "Vila Castelo Branco",
   "Cidade Nova II",
   "Cidade Nova I",
-  "Jd. Dom Bosco",
   // 2. Região Próxima & Central (2 a 4 km)
   "Helvétia",
   "Centro",
