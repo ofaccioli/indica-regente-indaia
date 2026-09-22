@@ -11,10 +11,18 @@ import {
   HeartHandshake,
   Mail,
   Download,
+  ShieldAlert,
+  Recycle,
+  Phone,
 } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
+import { TelefonesUteisModal } from "@/components/TelefonesUteisModal";
+import { ColetaLixoModal } from "@/components/ColetaLixoModal";
 
 export default function SobrePage() {
+  const [modalTelefonesAberto, setModalTelefonesAberto] = React.useState(false);
+  const [modalColetaAberto, setModalColetaAberto] = React.useState(false);
+
   const handleInstalarApp = () => {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("indica:open-pwa-install"));
@@ -77,6 +85,51 @@ export default function SobrePage() {
             <p className="text-xs text-gray-600 leading-relaxed mt-2">
               O <strong>Indica Jd. Regente</strong> foi feito para centralizar todas essas indicações da vizinhança em um só lugar acessível pelo celular, com botões para chamar direto no WhatsApp com um único toque.
             </p>
+          </div>
+
+          {/* Guia Rápido do Bairro: Telefones Úteis & Coleta de Lixo */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Card SOS Telefones */}
+            <div className="bg-gradient-to-br from-red-50 to-rose-100/70 border border-red-200 rounded-3xl p-4 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-red-700 font-bold text-sm mb-1.5">
+                  <ShieldAlert className="w-5 h-5 text-red-600" />
+                  <h4>Telefones de Emergência</h4>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  GCM 153, SAMU 192, Bombeiros 193, SAAE, CPFL e UPA Morada do Sol com discagem direta.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalTelefonesAberto(true)}
+                className="mt-3.5 w-full py-2 px-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-98"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Ver Telefones Úteis</span>
+              </button>
+            </div>
+
+            {/* Card Coleta de Lixo */}
+            <div className="bg-gradient-to-br from-teal-50 to-emerald-100/70 border border-emerald-200 rounded-3xl p-4 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-1.5">
+                  <Recycle className="w-5 h-5 text-emerald-700" />
+                  <h4>Coleta de Lixo & Reciclagem</h4>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Dias e horários do caminhão de lixo comum, coleta seletiva e cata-bagulho no Jd. Regente e Valença.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalColetaAberto(true)}
+                className="mt-3.5 w-full py-2 px-3 bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-98"
+              >
+                <Recycle className="w-3.5 h-3.5" />
+                <span>Ver Calendário de Coleta</span>
+              </button>
+            </div>
           </div>
 
           {/* Como funciona a Inteligência */}
@@ -197,6 +250,16 @@ export default function SobrePage() {
           Indica Jd. Regente • Indaiatuba - SP
         </p>
       </footer>
+
+      {/* Modais de Utilidade Pública */}
+      <TelefonesUteisModal
+        isOpen={modalTelefonesAberto}
+        onClose={() => setModalTelefonesAberto(false)}
+      />
+      <ColetaLixoModal
+        isOpen={modalColetaAberto}
+        onClose={() => setModalColetaAberto(false)}
+      />
 
       <BottomNav />
     </div>

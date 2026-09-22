@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS public.servicos (
   eh_morador BOOLEAN DEFAULT false,
   tipo_atendimento TEXT DEFAULT 'ambos',
   oferta_vizinho TEXT,
+  horario_funcionamento TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

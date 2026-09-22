@@ -329,6 +329,29 @@ export async function buscarServicoPorId(id: string): Promise<{ servico: Servico
 }
 
 /**
+ * Busca todas as avaliações de um serviço específico
+ */
+export async function listarAvaliacoesPorServico(servicoId: string): Promise<Avaliacao[]> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("avaliacoes")
+        .select("*")
+        .eq("servico_id", servicoId)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        return data as Avaliacao[];
+      }
+    } catch (err) {
+      console.warn("Erro ao buscar avaliações no Supabase:", err);
+    }
+  }
+
+  return localAvaliacoes.filter((a) => a.servico_id === servicoId);
+}
+
+/**
  * Verifica se já existe um serviço cadastrado com este telefone
  */
 export async function verificarTelefoneExistente(telefone: string): Promise<Servico | null> {
@@ -420,6 +443,7 @@ export async function cadastrarServico(dados: Omit<Servico, "id" | "created_at" 
           eh_morador: Boolean(novoServico.eh_morador),
           tipo_atendimento: novoServico.tipo_atendimento || "ambos",
           oferta_vizinho: novoServico.oferta_vizinho || null,
+          horario_funcionamento: novoServico.horario_funcionamento || null,
           nota_media: 5.0,
           total_avaliacoes: 1,
         }])

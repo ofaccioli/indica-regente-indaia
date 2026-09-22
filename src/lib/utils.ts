@@ -157,3 +157,96 @@ export async function detectarBairroPorGPS(
     );
   });
 }
+
+/**
+ * Comprime uma imagem selecionada pelo usuário (câmera ou galeria)
+ * redimensionando-a para maxDim e convertendo para WebP/JPEG leve (Data URL)
+ */
+export async function comprimirImagemArquivo(file: File, maxDim = 800, quality = 0.75): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(e.target?.result as string);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        try {
+          const dataUrl = canvas.toDataURL("image/webp", quality);
+          resolve(dataUrl);
+        } catch {
+          const dataUrl = canvas.toDataURL("image/jpeg", quality);
+          resolve(dataUrl);
+        }
+      };
+      img.onerror = () => reject(new Error("Falha ao processar a imagem."));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error("Falha ao ler o arquivo selecionado."));
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Analisa o texto de horário de funcionamento e determina se está aberto agora
+ */
+export function verificarAbertoAgora(horario?: string): { aberto: boolean; texto: string } | null {
+  if (!horario || !horario.trim()) return null;
+  const textoLimpo = horario.trim();
+
+  if (/24\s*h(oras)?/i.test(textoLimpo)) {
+    return { aberto: true, texto: "Aberto 24h" };
+  }
+
+  const regexHoras = /(\d{1,2})(?::(\d{2})|h(?:(\d{2}))?)?\s*(?:-|às|as|até|ate)\s*(\d{1,2})(?::(\d{2})|h(?:(\d{2}))?)?/i;
+  const match = textoLimpo.match(regexHoras);
+
+  if (match) {
+    const horaInicio = parseInt(match[1], 10);
+    const minInicio = parseInt(match[2] || match[3] || "0", 10);
+    const horaFim = parseInt(match[4], 10);
+    const minFim = parseInt(match[5] || match[6] || "0", 10);
+
+    const agora = new Date();
+    const minutosAtuais = agora.getHours() * 60 + agora.getMinutes();
+    const minutosInicio = horaInicio * 60 + minInicio;
+    const minutosFim = horaFim * 60 + minFim;
+
+    if (minutosFim < minutosInicio) {
+      if (minutosAtuais >= minutosInicio || minutosAtuais <= minutosFim) {
+        return { aberto: true, texto: `🟢 Aberto (fecha às ${String(horaFim).padStart(2, "0")}:${String(minFim).padStart(2, "0")})` };
+      } else {
+        return { aberto: false, texto: `🔴 Fechado (abre às ${String(horaInicio).padStart(2, "0")}:${String(minInicio).padStart(2, "0")})` };
+      }
+    }
+
+    if (minutosAtuais >= minutosInicio && minutosAtuais <= minutosFim) {
+      return { aberto: true, texto: `🟢 Aberto (fecha às ${String(horaFim).padStart(2, "0")}:${String(minFim).padStart(2, "0")})` };
+    } else {
+      return { aberto: false, texto: `🔴 Fechado` };
+    }
+  }
+
+  return { aberto: true, texto: textoLimpo };
+}

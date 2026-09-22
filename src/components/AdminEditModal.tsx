@@ -25,6 +25,7 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
   const [atendeFimDeSemana, setAtendeFimDeSemana] = useState(false);
   const [ehMorador, setEhMorador] = useState(false);
   const [tipoAtendimento, setTipoAtendimento] = useState<"domicilio" | "local" | "ambos">("ambos");
+  const [horarioFuncionamento, setHorarioFuncionamento] = useState("");
   const [verificadoAdmin, setVerificadoAdmin] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
@@ -39,6 +40,7 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
       setQuemIndicou(servico.quem_indicou || "");
       setInstagram(servico.instagram || "");
       setOfertaVizinho(servico.oferta_vizinho || "");
+      setHorarioFuncionamento(servico.horario_funcionamento || "");
       setAtendeFimDeSemana(Boolean(servico.atende_fim_de_semana));
       setEhMorador(Boolean(servico.eh_morador));
       setTipoAtendimento(servico.tipo_atendimento || "ambos");
@@ -70,6 +72,7 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
             quem_indicou: quemIndicou.trim(),
             instagram: instagram.trim() || null,
             oferta_vizinho: ofertaVizinho.trim() || null,
+            horario_funcionamento: horarioFuncionamento.trim() || null,
             atende_fim_de_semana: atendeFimDeSemana,
             eh_morador: ehMorador,
             tipo_atendimento: tipoAtendimento,
@@ -222,6 +225,19 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
               onChange={(e) => setOfertaVizinho(e.target.value)}
               placeholder="Ex: 10% de desconto para moradores do Jd. Regente / Jd. Valença"
               className="w-full px-3 py-2 rounded-xl border border-amber-300 text-sm focus:ring-2 focus:ring-amber-500 outline-none bg-white text-gray-800"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1">
+              🕐 Horário de Funcionamento (ex: Seg a Sex: 08h às 18h ou 24h)
+            </label>
+            <input
+              type="text"
+              value={horarioFuncionamento}
+              onChange={(e) => setHorarioFuncionamento(e.target.value)}
+              placeholder="Ex: Seg a Sex: 08h às 18h / 24h"
+              className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
             />
           </div>
 

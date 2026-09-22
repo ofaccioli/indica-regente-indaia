@@ -19,6 +19,7 @@ export interface Servico {
   atende_fim_de_semana?: boolean;
   eh_morador?: boolean;
   tipo_atendimento?: "domicilio" | "local" | "ambos";
+  horario_funcionamento?: string;
   created_at: string;
 }
 

@@ -19,6 +19,9 @@ import {
   Loader2,
   Phone,
   Plus,
+  Home,
+  Tag,
+  Award,
 } from "lucide-react";
 import { Servico, Avaliacao } from "@/types";
 import { listarServicos } from "@/lib/supabase";
@@ -288,6 +291,60 @@ export default function AdminDashboardPage() {
 
       {/* Conteúdo Principal */}
       <main className="max-w-6xl mx-auto px-4 pt-4">
+        {/* Cards de Métricas / KPIs */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
+          <div className="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-2xs">
+            <div className="flex items-center justify-between text-gray-500 mb-1">
+              <span className="text-[11px] font-bold">Total Serviços</span>
+              <Users className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="text-xl sm:text-2xl font-black text-gray-900">{servicos.length}</div>
+            <span className="text-[10px] text-emerald-700 font-semibold">Cadastrados no app</span>
+          </div>
+
+          <div className="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-2xs">
+            <div className="flex items-center justify-between text-gray-500 mb-1">
+              <span className="text-[11px] font-bold">Vizinhos Moradores</span>
+              <Home className="w-4 h-4 text-emerald-700" />
+            </div>
+            <div className="text-xl sm:text-2xl font-black text-emerald-900">
+              {servicos.filter((s) => s.eh_morador).length}
+            </div>
+            <span className="text-[10px] text-gray-500 font-medium">Moram no bairro</span>
+          </div>
+
+          <div className="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-2xs">
+            <div className="flex items-center justify-between text-gray-500 mb-1">
+              <span className="text-[11px] font-bold">Avaliações</span>
+              <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
+            </div>
+            <div className="text-xl sm:text-2xl font-black text-amber-950">{avaliacoes.length}</div>
+            <span className="text-[10px] text-amber-800 font-medium">Depoimentos reais</span>
+          </div>
+
+          <div className="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-2xs">
+            <div className="flex items-center justify-between text-gray-500 mb-1">
+              <span className="text-[11px] font-bold">Verificados</span>
+              <ShieldCheck className="w-4 h-4 text-blue-600" />
+            </div>
+            <div className="text-xl sm:text-2xl font-black text-blue-950">
+              {servicos.filter((s) => s.verificado_admin).length}
+            </div>
+            <span className="text-[10px] text-blue-700 font-medium">Selo de moderação</span>
+          </div>
+
+          <div className="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-2xs col-span-2 sm:col-span-1">
+            <div className="flex items-center justify-between text-gray-500 mb-1">
+              <span className="text-[11px] font-bold">Com Ofertas</span>
+              <Tag className="w-4 h-4 text-orange-500" />
+            </div>
+            <div className="text-xl sm:text-2xl font-black text-orange-950">
+              {servicos.filter((s) => s.oferta_vizinho).length}
+            </div>
+            <span className="text-[10px] text-orange-700 font-medium">Descontos ativos</span>
+          </div>
+        </div>
+
         {abaAtiva === "servicos" ? (
           <div>
             {/* Barra de pesquisa da lista de contatos */}

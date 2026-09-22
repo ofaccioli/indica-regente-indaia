@@ -13,11 +13,13 @@ import {
   AlertCircle,
   CheckCircle2,
   Award,
+  Clock,
 } from "lucide-react";
 import { Servico } from "@/types";
 import { WhatsAppOptionsModal } from "./WhatsAppOptionsModal";
 import { RatingModal } from "./RatingModal";
-import { gerarLinkLigacao } from "@/lib/utils";
+import { VerAvaliacoesModal } from "./VerAvaliacoesModal";
+import { gerarLinkLigacao, verificarAbertoAgora } from "@/lib/utils";
 import { isFavorite, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
 
 interface ServiceCardProps {
@@ -50,8 +52,11 @@ export function ServiceCard({
   const [salvoLocal, setSalvoLocal] = useState(salvo);
   const [modalZapAberto, setModalZapAberto] = useState(false);
   const [modalAvaliacaoAberto, setModalAvaliacaoAberto] = useState(false);
+  const [modalVerAvaliacoesAberto, setModalVerAvaliacoesAberto] = useState(false);
   const [modalLigarAberto, setModalLigarAberto] = useState(false);
   const [copiado, setCopiado] = useState(false);
+
+  const statusAberto = verificarAbertoAgora(servico.horario_funcionamento);
 
   // Sincroniza estado de favorito com props e localStorage
   useEffect(() => {
@@ -161,6 +166,24 @@ export function ServiceCard({
                   🏷️ Com Oferta
                 </span>
               )}
+
+              {statusAberto && (
+                <span
+                  className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    statusAberto.aberto
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                      : "bg-rose-50 text-rose-800 border-rose-200"
+                  }`}
+                  title={servico.horario_funcionamento}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      statusAberto.aberto ? "bg-emerald-500 animate-pulse" : "bg-rose-500"
+                    }`}
+                  />
+                  {statusAberto.texto}
+                </span>
+              )}
             </div>
 
             {/* Selo Top Recomendado */}
@@ -210,27 +233,40 @@ export function ServiceCard({
                 </div>
               </div>
 
-              {/* Avaliação em Estrelas & Total */}
-              <div className="flex items-center gap-1.5 mt-1">
-                <div className="flex items-center bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/80">
+              {/* Avaliação em Estrelas & Total (Clicável para ver depoimentos reais) */}
+              <button
+                type="button"
+                onClick={() => setModalVerAvaliacoesAberto(true)}
+                className="flex items-center gap-1.5 mt-1 hover:opacity-85 transition cursor-pointer text-left group/rating"
+                title="Clique para ler as avaliações dos vizinhos"
+              >
+                <div className="flex items-center bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/80 group-hover/rating:border-amber-400">
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                   <span className="font-black text-xs text-amber-950 ml-1">
                     {servico.nota_media ? servico.nota_media.toFixed(1) : "5.0"}
                   </span>
                 </div>
                 <span className="text-gray-300 text-xs">•</span>
-                <span className="text-[11px] text-gray-500 font-semibold">
+                <span className="text-[11px] text-emerald-700 group-hover/rating:text-emerald-800 font-semibold underline underline-offset-2 decoration-emerald-300">
                   {servico.total_avaliacoes} {servico.total_avaliacoes === 1 ? "indicação" : "indicações"}
                 </span>
-              </div>
+              </button>
             </div>
           </div>
 
           {/* Localização e Bairro */}
-          <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-2">
+          <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1.5">
             <MapPin className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
             <span className="font-semibold text-gray-700">{servico.cidade_bairro}</span>
           </div>
+
+          {/* Horário de Funcionamento se cadastrado */}
+          {servico.horario_funcionamento && (
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1.5">
+              <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+              <span className="text-[11px] text-slate-600">{servico.horario_funcionamento}</span>
+            </div>
+          )}
 
           {/* Telefones */}
           <div className="flex items-center gap-2 text-xs text-gray-600 mb-2.5 flex-wrap">
@@ -346,6 +382,14 @@ export function ServiceCard({
         isOpen={modalAvaliacaoAberto}
         onClose={() => setModalAvaliacaoAberto(false)}
         onAvaliacaoSalva={onAtualizar || (() => {})}
+      />
+
+      {/* Modal para Visualizar Avaliações e Depoimentos */}
+      <VerAvaliacoesModal
+        servico={servico}
+        isOpen={modalVerAvaliacoesAberto}
+        onClose={() => setModalVerAvaliacoesAberto(false)}
+        onAvaliarClick={() => setModalAvaliacaoAberto(true)}
       />
 
       {/* Modal para Escolha de Telefone para Ligação */}

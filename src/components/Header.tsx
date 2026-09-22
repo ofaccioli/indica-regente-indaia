@@ -2,17 +2,24 @@
 
 import React from "react";
 import Image from "next/image";
-import { Search, X, Plus, Share2, Sparkles, Download } from "lucide-react";
+import { Search, X, Plus, Share2, Sparkles, Download, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
 interface HeaderProps {
   busca: string;
   onBuscaChange: (novaBusca: string) => void;
   onAbrirDivulgacao?: () => void;
+  onAbrirTelefones?: () => void;
   onLogoClick?: () => void;
 }
 
-export function Header({ busca, onBuscaChange, onAbrirDivulgacao, onLogoClick }: HeaderProps) {
+export function Header({
+  busca,
+  onBuscaChange,
+  onAbrirDivulgacao,
+  onAbrirTelefones,
+  onLogoClick,
+}: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-md border-b border-emerald-700/40 backdrop-blur-md">
       <div className="max-w-4xl mx-auto px-4 pt-3.5 pb-3">
@@ -51,6 +58,18 @@ export function Header({ busca, onBuscaChange, onAbrirDivulgacao, onLogoClick }:
           </Link>
 
           <div className="flex items-center gap-1.5 flex-shrink-0">
+            {onAbrirTelefones && (
+              <button
+                type="button"
+                onClick={onAbrirTelefones}
+                className="inline-flex items-center gap-1 bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all border border-red-400/60 cursor-pointer animate-pulse"
+                title="Telefones Úteis & Emergência de Indaiatuba (GCM 153, SAMU, SAAE, CPFL)"
+              >
+                <ShieldAlert className="w-3.5 h-3.5 text-white" />
+                <span className="hidden xs:inline font-black">SOS</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => {

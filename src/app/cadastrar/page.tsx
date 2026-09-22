@@ -17,6 +17,7 @@ import {
   Loader2,
   AlertCircle,
   Navigation,
+  Clock,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -61,6 +62,7 @@ export default function CadastrarPage() {
   const [atendeFimDeSemana, setAtendeFimDeSemana] = useState(false);
   const [ehMorador, setEhMorador] = useState(false);
   const [tipoAtendimento, setTipoAtendimento] = useState<"domicilio" | "local" | "ambos">("ambos");
+  const [horarioFuncionamento, setHorarioFuncionamento] = useState("");
 
   // Handler para detectar bairro via GPS
   const handleDetectarGps = async () => {
@@ -161,6 +163,7 @@ export default function CadastrarPage() {
         atende_fim_de_semana: atendeFimDeSemana,
         eh_morador: ehMorador,
         tipo_atendimento: tipoAtendimento,
+        horario_funcionamento: horarioFuncionamento.trim() || undefined,
       });
 
       if (res.sucesso) {
@@ -260,6 +263,24 @@ export default function CadastrarPage() {
                 placeholder="Ex: João Eletricista / Auto Elétrica do Silva"
                 className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
               />
+            </div>
+
+            {/* Horário de Funcionamento */}
+            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+              <label className="block text-xs font-bold text-gray-800 mb-1.5 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Horário de Funcionamento <span className="text-gray-400 font-normal">(opcional)</span></span>
+              </label>
+              <input
+                type="text"
+                value={horarioFuncionamento}
+                onChange={(e) => setHorarioFuncionamento(e.target.value)}
+                placeholder="Ex: Seg a Sex: 08h às 18h ou Plantão 24h"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              />
+              <p className="text-[11px] text-gray-500 mt-1">
+                💡 O aplicativo calcula automaticamente se o profissional está 🟢 Aberto Agora ou 🔴 Fechado.
+              </p>
             </div>
 
             {/* Categoria */}

@@ -9,6 +9,7 @@ import { ServiceCard } from "@/components/ServiceCard";
 import { BottomNav } from "@/components/BottomNav";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { ShareCommunityModal } from "@/components/ShareCommunityModal";
+import { TelefonesUteisModal } from "@/components/TelefonesUteisModal";
 import { MuralView } from "@/components/MuralView";
 import { Servico, TipoOrdenacao, PedidoMural } from "@/types";
 import { listarServicos, listarPedidosMural } from "@/lib/supabase";
@@ -42,6 +43,7 @@ export default function Home() {
   const [filtroAtendimento, setFiltroAtendimento] = useState<"todos" | "domicilio" | "local">("todos");
   const [ordenacao, setOrdenacao] = useState<TipoOrdenacao>("melhores");
   const [modalDivulgacaoAberto, setModalDivulgacaoAberto] = useState(false);
+  const [modalTelefonesAberto, setModalTelefonesAberto] = useState(false);
   const [favoritosIds, setFavoritosIds] = useState<string[]>([]);
 
   // Sincroniza favoritos salvos localmente
@@ -196,6 +198,7 @@ export default function Home() {
         busca={busca}
         onBuscaChange={setBusca}
         onAbrirDivulgacao={() => setModalDivulgacaoAberto(true)}
+        onAbrirTelefones={() => setModalTelefonesAberto(true)}
         onLogoClick={irParaGuiaServicos}
       />
 
@@ -431,6 +434,12 @@ export default function Home() {
       <ShareCommunityModal
         isOpen={modalDivulgacaoAberto}
         onClose={() => setModalDivulgacaoAberto(false)}
+      />
+
+      {/* Modal de Telefones Úteis e Emergência */}
+      <TelefonesUteisModal
+        isOpen={modalTelefonesAberto}
+        onClose={() => setModalTelefonesAberto(false)}
       />
 
       {/* Footer */}

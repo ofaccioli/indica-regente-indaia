@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Send, Megaphone, AlertCircle, Loader2, Gift, Dog, Tag } from "lucide-react";
+import { X, Send, Megaphone, AlertCircle, Loader2, Gift, Dog, Tag, Camera, Image as ImageIcon, Trash2 } from "lucide-react";
 import { CATEGORIAS_DISPONIVEIS, GRUPOS_BAIRROS, PedidoMural } from "@/types";
-import { formatarTelefoneBR } from "@/lib/utils";
+import { formatarTelefoneBR, comprimirImagemArquivo } from "@/lib/utils";
 import { criarPedidoMural } from "@/lib/supabase";
 
 interface NovoPedidoModalProps {
@@ -26,7 +26,25 @@ export function NovoPedidoModal({ isOpen, onClose, onPedidoCriado }: NovoPedidoM
   const [ehDoacaoGratis, setEhDoacaoGratis] = useState(false);
   const [valorDesapego, setValorDesapego] = useState("");
   const [fotoUrl, setFotoUrl] = useState("");
+  const [carregandoFoto, setCarregandoFoto] = useState(false);
+  const [mostrarCampoUrl, setMostrarCampoUrl] = useState(false);
   const [salvando, setSalvando] = useState(false);
+
+  const handleFotoArquivo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setCarregandoFoto(true);
+      const dataUrl = await comprimirImagemArquivo(file, 800, 0.75);
+      setFotoUrl(dataUrl);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao processar imagem. Tente uma foto menor ou outro formato.");
+    } finally {
+      setCarregandoFoto(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -361,21 +379,88 @@ export function NovoPedidoModal({ isOpen, onClose, onPedidoCriado }: NovoPedidoM
             />
           </div>
 
-          {/* Link para foto (opcional) para pets ou desapego */}
-          {(tipoPost === "pet_perdido" || tipoPost === "desapego") && (
-            <div>
-              <label className="block text-xs font-bold text-gray-800 mb-1">
-                Link da Foto <span className="text-gray-400 font-normal">(opcional - imagem na internet)</span>
-              </label>
-              <input
-                type="url"
-                value={fotoUrl}
-                onChange={(e) => setFotoUrl(e.target.value)}
-                placeholder="https://imgur.com/... ou link de imagem"
-                className="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs focus:ring-2 focus:ring-emerald-500 outline-none"
-              />
-            </div>
-          )}
+          {/* Foto (Galeria, Câmera ou Link) */}
+          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+            <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                {tipoPost === "pet_perdido"
+                  ? "Foto do Pet (recomendado)"
+                  : tipoPost === "desapego"
+                  ? "Foto do Item (recomendado)"
+                  : "Foto de Referência (opcional)"}
+              </span>
+              {!fotoUrl && (
+                <button
+                  type="button"
+                  onClick={() => setMostrarCampoUrl(!mostrarCampoUrl)}
+                  className="text-[11px] text-emerald-700 hover:underline font-semibold cursor-pointer"
+                >
+                  {mostrarCampoUrl ? "Usar envio de arquivo" : "Ou colar link da web"}
+                </button>
+              )}
+            </label>
+
+            {fotoUrl ? (
+              <div className="relative inline-block mt-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={fotoUrl}
+                  alt="Pré-visualização"
+                  className="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-xl border border-slate-300 shadow-xs"
+                />
+                <button
+                  type="button"
+                  onClick={() => setFotoUrl("")}
+                  className="absolute -top-2 -right-2 bg-rose-600 hover:bg-rose-700 text-white p-1 rounded-full shadow-md transition"
+                  title="Remover foto"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+                <span className="block text-[11px] text-emerald-700 font-semibold mt-1">
+                  ✓ Foto anexada com sucesso!
+                </span>
+              </div>
+            ) : mostrarCampoUrl ? (
+              <div>
+                <input
+                  type="url"
+                  value={fotoUrl}
+                  onChange={(e) => setFotoUrl(e.target.value)}
+                  placeholder="https://exemplo.com/minha-foto.jpg"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500 outline-none bg-white"
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-white border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-xl cursor-pointer transition text-slate-700 hover:text-emerald-700">
+                  {carregandoFoto ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+                      <span className="text-xs font-bold text-emerald-700">Comprimindo imagem...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="w-4 h-4 text-emerald-600" />
+                      <span className="text-xs font-bold">
+                        Tirar foto ou escolher da galeria
+                      </span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFotoArquivo}
+                    disabled={carregandoFoto}
+                    className="hidden"
+                  />
+                </label>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  💡 A foto é otimizada automaticamente no seu aparelho para carregar instantaneamente.
+                </p>
+              </div>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
