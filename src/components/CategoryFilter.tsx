@@ -38,7 +38,7 @@ export function CategoryFilter({
       case "Eletricista":
         return <Zap className="w-3.5 h-3.5 text-amber-500" />;
       case "Encanador":
-        return <Droplets className="w-3.5 h-3.5 text-blue-500" />;
+        return <Droplets className="w-3.5 h-3.5 text-sky-500" />;
       case "Diarista / Limpeza":
         return <Sparkles className="w-3.5 h-3.5 text-teal-500" />;
       case "Mecânico":
@@ -62,15 +62,15 @@ export function CategoryFilter({
       case "Costura / Roupas":
         return <Shirt className="w-3.5 h-3.5 text-violet-500" />;
       case "Tecnologia / Celular":
-        return <Smartphone className="w-3.5 h-3.5 text-sky-600" />;
+        return <Smartphone className="w-3.5 h-3.5 text-blue-600" />;
       default:
         return <Sparkles className="w-3.5 h-3.5 text-gray-500" />;
     }
   };
 
   return (
-    <div className="w-full bg-white border-b border-gray-100 py-2.5 px-4 shadow-xs">
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 pt-0.5">
+    <div className="w-full bg-white border-b border-gray-200/80 py-2.5 px-4 shadow-2xs">
+      <div className="max-w-4xl mx-auto flex gap-2 overflow-x-auto no-scrollbar pb-1 pt-0.5">
         {CATEGORIAS_DISPONIVEIS.map((cat) => {
           const isAtivo = categoriaSelecionada === cat;
           const total = cat === "Todos" ? contagemPorCategoria["_total"] || 0 : contagemPorCategoria[cat] || 0;
@@ -79,10 +79,10 @@ export function CategoryFilter({
             <button
               key={cat}
               onClick={() => onSelecionarCategoria(cat)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-150 flex-shrink-0 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-semibold whitespace-nowrap transition-all duration-200 flex-shrink-0 cursor-pointer ${
                 isAtivo
                   ? "bg-emerald-700 text-white shadow-sm ring-2 ring-emerald-600/30 scale-[1.02]"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200/80 hover:text-gray-900"
               }`}
             >
               <span>{getIcon(cat)}</span>

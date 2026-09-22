@@ -1,78 +1,68 @@
 "use client";
 
 import React, { useState } from "react";
-import { Servico } from "@/types";
 import {
-  Star,
-  MapPin,
-  MessageCircle,
   Phone,
-  Share2,
-  ThumbsUp,
+  MessageCircle,
+  MapPin,
+  Star,
   UserCheck,
-  Award,
-  CheckCircle2,
-  AlertCircle,
+  ThumbsUp,
+  Share2,
   Heart,
+  AlertCircle,
+  CheckCircle2,
+  Award,
 } from "lucide-react";
-import {
-  gerarLinkLigacao,
-  gerarTextoCompartilhamento,
-} from "@/lib/utils";
-import { isFavorite, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
-import { RatingModal } from "./RatingModal";
+import { Servico } from "@/types";
 import { WhatsAppOptionsModal } from "./WhatsAppOptionsModal";
+import { RatingModal } from "./RatingModal";
+import { gerarLinkLigacao } from "@/lib/utils";
 
+interface ServiceCardProps {
+  servico: Servico;
+  onAtualizar?: () => void;
+  salvo?: boolean;
+  onToggleFavorito?: (id: string) => void;
+}
+
+// Ícone do Instagram estilizado
 function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
     </svg>
   );
 }
 
-interface ServiceCardProps {
-  servico: Servico;
-  onAtualizar: () => void;
-}
-
-export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
-  const [modalAvaliacaoAberto, setModalAvaliacaoAberto] = useState(false);
+export function ServiceCard({
+  servico,
+  onAtualizar,
+  salvo = false,
+  onToggleFavorito,
+}: ServiceCardProps) {
   const [modalZapAberto, setModalZapAberto] = useState(false);
+  const [modalAvaliacaoAberto, setModalAvaliacaoAberto] = useState(false);
   const [modalLigarAberto, setModalLigarAberto] = useState(false);
   const [copiado, setCopiado] = useState(false);
-  const [salvo, setSalvo] = useState(false);
-
-  React.useEffect(() => {
-    setSalvo(isFavorite(servico.id));
-
-    const handleFavChange = () => {
-      setSalvo(isFavorite(servico.id));
-    };
-
-    window.addEventListener(FAVORITES_EVENT, handleFavChange);
-    return () => window.removeEventListener(FAVORITES_EVENT, handleFavChange);
-  }, [servico.id]);
-
-  const handleToggleFavorito = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const novoStatus = toggleFavorite(servico.id);
-    setSalvo(novoStatus);
-  };
 
   const ligarUrl = gerarLinkLigacao(servico.telefone);
 
-  const handleCompartilhar = async () => {
-    const texto = gerarTextoCompartilhamento(
-      servico.nome,
-      servico.categoria,
-      servico.telefone,
-      servico.cidade_bairro,
-      servico.nota_media,
-      servico.total_avaliacoes
-    );
+  const handleToggleFavorito = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onToggleFavorito) {
+      onToggleFavorito(servico.id);
+    }
+  };
+
+  const handleCompartilhar = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const texto = `Indicação de serviço em Indaiatuba:\n*${servico.nome}* (${servico.categoria})\nBairro: ${servico.cidade_bairro}\nTelefone: ${servico.telefone}\nEncontre mais profissionais no Indica Jd.Regente: https://indica-regente-indaia.vercel.app`;
 
     if (navigator.share) {
       try {
@@ -105,39 +95,39 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
 
   return (
     <>
-      <article className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md border border-gray-200/70 transition-all duration-200 flex flex-col justify-between relative overflow-hidden group">
+      <article className="bg-white rounded-3xl p-4 sm:p-5 shadow-xs hover:shadow-md border border-slate-200/80 hover:border-emerald-200 transition-all duration-200 flex flex-col justify-between relative overflow-hidden group">
         <div>
-          {/* Topo: Categoria + Badges */}
-          <div className="flex items-center justify-between gap-1.5 mb-2.5 flex-wrap">
+          {/* Topo: Categoria + Badges em Pílulas Modernas */}
+          <div className="flex items-center justify-between gap-1.5 mb-3 flex-wrap">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/50">
+              <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/70">
                 {servico.categoria}
               </span>
 
               {servico.eh_morador && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100/80 text-emerald-950 border border-emerald-300">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-950 border border-emerald-300">
                   🏡 Vizinho do Bairro
                 </span>
               )}
 
               {servico.tipo_atendimento === "domicilio" && (
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                  🛵 A domicílio
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  🛵 Domicílio
                 </span>
               )}
               {servico.tipo_atendimento === "local" && (
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                  🏢 No local fixo
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  🏢 No Local
                 </span>
               )}
               {servico.tipo_atendimento === "ambos" && (
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                  🛵 Domicílio & 🏢 Local
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  🛵 & 🏢 Ambos
                 </span>
               )}
 
               {servico.verificado_admin && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/70">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                   <CheckCircle2 className="w-3 h-3 text-blue-600" />
                   Verificado
                 </span>
@@ -146,12 +136,12 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
               {servico.atende_fim_de_semana && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-300">
                   <AlertCircle className="w-3 h-3 text-amber-600" />
-                  🚨 Fim de Semana
+                  🚨 Plantão FDS
                 </span>
               )}
 
               {servico.oferta_vizinho && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-950 border border-amber-400">
+                <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-950 border border-amber-400">
                   🏷️ Com Oferta
                 </span>
               )}
@@ -159,22 +149,22 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
 
             {/* Selo Top Recomendado */}
             {servico.selo_destaque && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 shadow-xs">
+              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 shadow-2xs">
                 <Award className="w-3 h-3 fill-amber-950" />
                 TOP RECOMENDADO
               </span>
             )}
           </div>
 
-          {/* Cabeçalho com Avatar de Iniciais e Nome */}
-          <div className="flex items-start gap-2.5 mb-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-900 flex items-center justify-center font-black text-sm flex-shrink-0 border border-emerald-200/60 shadow-2xs">
+          {/* Cabeçalho com Avatar de Iniciais, Nome e Ações Rápidas */}
+          <div className="flex items-start gap-3 mb-2.5">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center font-black text-base flex-shrink-0 shadow-sm border border-emerald-500/30">
               {inicial}
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-1">
-                <h3 className="text-base font-bold text-gray-900 leading-snug truncate">
+                <h3 className="text-base font-extrabold text-gray-900 leading-tight truncate">
                   {servico.nome}
                 </h3>
                 <div className="flex items-center gap-1 flex-shrink-0">
@@ -183,7 +173,7 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
                       href={`https://instagram.com/${instagramUser}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-pink-600 hover:text-pink-700 p-1 rounded-full hover:bg-pink-50 transition-colors"
+                      className="text-pink-600 hover:text-pink-700 p-1.5 rounded-full hover:bg-pink-50 transition-colors"
                       title={`Instagram: @${instagramUser}`}
                     >
                       <InstagramIcon className="w-4 h-4" />
@@ -193,7 +183,7 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
                     onClick={handleToggleFavorito}
                     aria-label={salvo ? "Remover dos favoritos" : "Salvar contato"}
                     title={salvo ? "Salvo nos seus favoritos" : "Salvar nos favoritos"}
-                    className={`p-1 rounded-full transition-all active:scale-90 ${
+                    className={`p-1.5 rounded-full transition-all active:scale-90 cursor-pointer ${
                       salvo
                         ? "text-rose-500 bg-rose-50 hover:bg-rose-100"
                         : "text-gray-400 hover:text-rose-500 hover:bg-gray-100"
@@ -204,51 +194,51 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
                 </div>
               </div>
 
-              {/* Avaliação em Estrelas */}
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <div className="flex items-center text-amber-500">
+              {/* Avaliação em Estrelas & Total */}
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className="flex items-center bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/80">
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <span className="font-bold text-xs text-gray-900 ml-1">
+                  <span className="font-black text-xs text-amber-950 ml-1">
                     {servico.nota_media ? servico.nota_media.toFixed(1) : "5.0"}
                   </span>
                 </div>
                 <span className="text-gray-300 text-xs">•</span>
-                <span className="text-[11px] text-gray-500 font-medium">
+                <span className="text-[11px] text-gray-500 font-semibold">
                   {servico.total_avaliacoes} {servico.total_avaliacoes === 1 ? "indicação" : "indicações"}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Localização */}
-          <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
+          {/* Localização e Bairro */}
+          <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-2">
             <MapPin className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-            <span className="truncate font-medium">{servico.cidade_bairro}</span>
+            <span className="font-semibold text-gray-700">{servico.cidade_bairro}</span>
           </div>
 
           {/* Telefones */}
-          <div className="flex items-center gap-1.5 text-[11px] text-gray-500 mb-2.5 flex-wrap">
-            <span className="font-semibold text-gray-700 flex items-center gap-1">
+          <div className="flex items-center gap-2 text-xs text-gray-600 mb-2.5 flex-wrap">
+            <span className="font-semibold text-gray-800 flex items-center gap-1">
               <Phone className="w-3 h-3 text-emerald-600 flex-shrink-0" />
               {servico.telefone}
             </span>
             {servico.telefone_secundario && (
               <>
                 <span className="text-gray-300">•</span>
-                <span className="text-gray-600">2º Tel: <strong>{servico.telefone_secundario}</strong></span>
+                <span className="text-gray-500">2º: <strong>{servico.telefone_secundario}</strong></span>
               </>
             )}
           </div>
 
-          {/* Oferta Especial de Vizinhança */}
+          {/* Oferta Especial de Vizinhança (Design Refinado) */}
           {servico.oferta_vizinho && (
-            <div className="mb-2.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300/80 rounded-xl p-2.5 flex items-start gap-2 shadow-2xs">
-              <span className="text-sm flex-shrink-0">🏷️</span>
+            <div className="mb-3 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border border-amber-300 rounded-2xl p-3 flex items-start gap-2.5 shadow-2xs">
+              <span className="text-base flex-shrink-0">🏷️</span>
               <div className="flex-1 min-w-0">
                 <span className="block text-[10px] font-black uppercase tracking-wider text-amber-900">
-                  Oferta para Vizinhos do Bairro
+                  Condição Especial para Vizinhos
                 </span>
-                <p className="text-xs font-bold text-amber-950 leading-snug">
+                <p className="text-xs font-bold text-amber-950 leading-snug mt-0.5">
                   {servico.oferta_vizinho}
                 </p>
               </div>
@@ -257,29 +247,29 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
 
           {/* Descrição dos Serviços */}
           {servico.descricao && (
-            <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3 bg-gray-50/80 p-2 rounded-xl border border-gray-100">
+            <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3 bg-slate-50 p-2.5 rounded-2xl border border-slate-100 font-normal">
               {servico.descricao}
             </p>
           )}
 
           {/* Quem indicou */}
           {servico.quem_indicou && (
-            <div className="flex items-center gap-1.5 text-[11px] text-emerald-900 bg-emerald-50/70 px-2.5 py-1 rounded-lg mb-3 border border-emerald-100/70">
-              <UserCheck className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+            <div className="flex items-center gap-1.5 text-[11px] text-emerald-950 bg-emerald-50/80 px-2.5 py-1.5 rounded-xl mb-3 border border-emerald-100">
+              <UserCheck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
               <span>
-                Recomendado por: <strong className="font-semibold">{servico.quem_indicou}</strong>
+                Recomendado por: <strong className="font-bold">{servico.quem_indicou}</strong>
               </span>
             </div>
           )}
         </div>
 
         {/* Botões de Ação */}
-        <div className="pt-2.5 border-t border-gray-100 mt-1">
+        <div className="pt-3 border-t border-slate-100 mt-1">
           {/* Botão Principal: WhatsApp Inteligente */}
           <button
             type="button"
             onClick={() => setModalZapAberto(true)}
-            className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs active:scale-98 transition-all mb-2 cursor-pointer"
+            className="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-98 transition-all mb-2 cursor-pointer"
           >
             <MessageCircle className="w-4 h-4 fill-white" />
             <span>Chamar no WhatsApp</span>
@@ -291,7 +281,7 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
               <button
                 type="button"
                 onClick={() => setModalLigarAberto(true)}
-                className="py-1.5 px-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium flex items-center justify-center gap-1 transition-colors text-[11px] cursor-pointer"
+                className="py-1.5 px-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold flex items-center justify-center gap-1 transition-colors text-[11px] cursor-pointer"
               >
                 <Phone className="w-3 h-3 text-emerald-600" />
                 <span>Ligar (2)</span>
@@ -299,7 +289,7 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
             ) : (
               <a
                 href={ligarUrl}
-                className="py-1.5 px-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium flex items-center justify-center gap-1 transition-colors text-[11px]"
+                className="py-1.5 px-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold flex items-center justify-center gap-1 transition-colors text-[11px]"
               >
                 <Phone className="w-3 h-3 text-emerald-600" />
                 <span>Ligar</span>
@@ -309,7 +299,7 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
             <button
               type="button"
               onClick={() => setModalAvaliacaoAberto(true)}
-              className="py-1.5 px-2 rounded-xl border border-amber-200 bg-amber-50/50 text-amber-900 hover:bg-amber-100/70 font-medium flex items-center justify-center gap-1 transition-colors text-[11px] cursor-pointer"
+              className="py-1.5 px-2 rounded-xl border border-amber-200 bg-amber-50/60 text-amber-950 hover:bg-amber-100/70 font-semibold flex items-center justify-center gap-1 transition-colors text-[11px] cursor-pointer"
             >
               <ThumbsUp className="w-3 h-3 text-amber-600" />
               <span>Avaliar</span>
@@ -318,7 +308,7 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
             <button
               type="button"
               onClick={handleCompartilhar}
-              className="py-1.5 px-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium flex items-center justify-center gap-1 transition-colors text-[11px] cursor-pointer"
+              className="py-1.5 px-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold flex items-center justify-center gap-1 transition-colors text-[11px] cursor-pointer"
             >
               <Share2 className="w-3 h-3 text-blue-600" />
               <span>{copiado ? "Copiado!" : "Indicar"}</span>
@@ -339,7 +329,7 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
         servico={servico}
         isOpen={modalAvaliacaoAberto}
         onClose={() => setModalAvaliacaoAberto(false)}
-        onAvaliacaoSalva={onAtualizar}
+        onAvaliacaoSalva={onAtualizar || (() => {})}
       />
 
       {/* Modal para Escolha de Telefone para Ligação */}
