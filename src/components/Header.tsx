@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Search, X, Plus, Share2, Sparkles } from "lucide-react";
+import { Search, X, Plus, Share2, Sparkles, Download } from "lucide-react";
 import Link from "next/link";
 
 interface HeaderProps {
@@ -51,6 +51,20 @@ export function Header({ busca, onBuscaChange, onAbrirDivulgacao, onLogoClick }:
           </Link>
 
           <div className="flex items-center gap-1.5 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("indica:open-pwa-install"));
+                }
+              }}
+              className="inline-flex items-center gap-1 bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 hover:text-white px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all border border-emerald-600/50 cursor-pointer"
+              title="Instalar App no Celular"
+            >
+              <Download className="w-3.5 h-3.5 text-amber-300" />
+              <span className="hidden xs:inline">App</span>
+            </button>
+
             {onAbrirDivulgacao && (
               <button
                 type="button"

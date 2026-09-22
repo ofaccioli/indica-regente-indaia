@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   Smartphone,
@@ -9,27 +10,58 @@ import {
   ShieldCheck,
   HeartHandshake,
   Mail,
-  Code,
+  Download,
 } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 
 export default function SobrePage() {
+  const handleInstalarApp = () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("indica:open-pwa-install"));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20 flex flex-col justify-between">
       <div>
-        {/* Header */}
-        <header className="sticky top-0 z-20 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white px-4 py-3 shadow-md flex items-center gap-3">
-          <Link
-            href="/"
-            className="p-1 rounded-full hover:bg-emerald-800/80 transition-colors"
-            aria-label="Voltar para a página inicial"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <h1 className="text-base font-bold leading-tight">Como Funciona & Ajuda</h1>
-            <p className="text-[11px] text-emerald-200">Indica Jd. Regente • Indaiatuba</p>
+        {/* Header com Logo */}
+        <header className="sticky top-0 z-20 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white px-4 py-3 shadow-md flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="p-1.5 rounded-full hover:bg-emerald-800/80 transition-colors"
+              aria-label="Voltar para a página inicial"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-xs border-2 border-amber-300/80 flex-shrink-0 bg-emerald-950">
+                <Image
+                  src="/logo.png"
+                  alt="Logo Indica Jd.Regente"
+                  fill
+                  sizes="36px"
+                  className="object-cover"
+                  priority
+                />
+              </div>
+              <div>
+                <h1 className="text-sm sm:text-base font-black leading-tight">
+                  Como Funciona & <span className="text-amber-400">Ajuda</span>
+                </h1>
+                <p className="text-[11px] text-emerald-200 font-medium">Indica Jd. Regente • Indaiatuba</p>
+              </div>
+            </Link>
           </div>
+
+          <button
+            type="button"
+            onClick={handleInstalarApp}
+            className="inline-flex items-center gap-1.5 bg-amber-400 hover:bg-amber-300 text-emerald-950 px-3 py-1.5 rounded-xl text-xs font-black shadow-xs active:scale-95 transition-all cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Instalar App</span>
+          </button>
         </header>
 
         <main className="max-w-xl mx-auto px-4 pt-5 space-y-4">
@@ -71,10 +103,16 @@ export default function SobrePage() {
 
           {/* Como instalar no Celular (PWA) */}
           <div className="bg-white rounded-3xl p-5 border border-gray-200 shadow-2xs">
-            <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-2">
-              <Smartphone className="w-5 h-5 text-emerald-600" />
-              <h3>Como ter o App na Tela do seu Celular</h3>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
+                <Smartphone className="w-5 h-5 text-emerald-600" />
+                <h3>Como ter o App na Tela do seu Celular</h3>
+              </div>
+              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                PWA Grátis
+              </span>
             </div>
+
             <p className="text-xs text-gray-600 leading-relaxed">
               O Indica Jd. Regente é um <strong>PWA (Progressive Web App)</strong>. Você não precisa baixar nada de lojas pesadas:
             </p>
@@ -92,6 +130,15 @@ export default function SobrePage() {
                 </p>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={handleInstalarApp}
+              className="mt-3.5 w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
+            >
+              <Download className="w-4 h-4 text-amber-300" />
+              <span>Instalar Aplicativo no Celular Agora</span>
+            </button>
           </div>
 
           {/* Entre em Contato com o DEV */}

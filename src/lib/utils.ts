@@ -66,13 +66,13 @@ export function gerarLinkLigacao(telefone: string): string {
  * Formata texto para compartilhar o contato no grupo de WhatsApp
  */
 export function gerarTextoCompartilhamento(nome: string, categoria: string, telefone: string, cidade: string, nota: number, total: number): string {
-  return `⭐ *Indicação no IndicaRegenteIndaia*:\n\n` +
+  return `⭐ *Indicação no Indica Jd. Regente (Indaiatuba)*:\n\n` +
     `👤 *${nome}*\n` +
     `🛠️ Categoria: *${categoria}*\n` +
     `⭐ Avaliação: *${nota.toFixed(1)}/5.0* (${total} indicações)\n` +
     `📍 Região: ${cidade}\n` +
     `📱 WhatsApp: ${telefone}\n\n` +
-    `👉 Veja mais e recomende também no IndicaRegenteIndaia!`;
+    `👉 Veja mais e recomende no app: https://indica-regente-indaia.vercel.app`;
 }
 
 /**

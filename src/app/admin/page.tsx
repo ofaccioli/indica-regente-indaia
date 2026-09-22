@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ShieldCheck,
   LogOut,
@@ -182,13 +183,22 @@ export default function AdminDashboardPage() {
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-6 h-6 text-amber-400" />
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="relative w-8 h-8 rounded-xl overflow-hidden shadow-xs border border-amber-400/80 flex-shrink-0 bg-emerald-950">
+                <Image
+                  src="/logo.png"
+                  alt="Logo Indica Jd.Regente"
+                  fill
+                  sizes="32px"
+                  className="object-cover"
+                  priority
+                />
+              </div>
               <div>
                 <h1 className="text-base font-bold leading-tight">Painel de Moderação</h1>
-                <p className="text-[11px] text-gray-400">IndicaRegenteIndaia Admin</p>
+                <p className="text-[11px] text-gray-400">Indica Jd. Regente • Indaiatuba</p>
               </div>
-            </div>
+            </Link>
           </div>
 
           <div className="flex items-center gap-2">

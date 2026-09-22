@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -133,7 +134,7 @@ export default function CadastrarPage() {
     }
 
     if (contatoDuplicado) {
-      alert("Este telefone já está cadastrado no IndicaRegenteIndaia. Evite contatos duplicados!");
+      alert("Este telefone já está cadastrado no Indica Jd. Regente. Evite contatos duplicados!");
       return;
     }
 
@@ -189,18 +190,34 @@ export default function CadastrarPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
-      {/* Header simples */}
-      <header className="sticky top-0 z-20 bg-emerald-700 text-white px-4 py-3 shadow-md flex items-center gap-3">
-        <Link
-          href="/"
-          className="p-1 rounded-full hover:bg-emerald-800 transition-colors"
-          aria-label="Voltar para a página inicial"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <div>
-          <h1 className="text-base font-bold leading-tight">Indicar Profissional / Serviço</h1>
-          <p className="text-[11px] text-emerald-200">IndicaRegenteIndaia</p>
+      {/* Header com Logo */}
+      <header className="sticky top-0 z-20 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white px-4 py-3 shadow-md flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="p-1.5 rounded-full hover:bg-emerald-800/80 transition-colors"
+            aria-label="Voltar para a página inicial"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-xs border-2 border-amber-300/80 flex-shrink-0 bg-emerald-950">
+              <Image
+                src="/logo.png"
+                alt="Logo Indica Jd.Regente"
+                fill
+                sizes="36px"
+                className="object-cover"
+                priority
+              />
+            </div>
+            <div>
+              <h1 className="text-sm sm:text-base font-black leading-tight">
+                Indicar <span className="text-amber-400">Profissional / Serviço</span>
+              </h1>
+              <p className="text-[11px] text-emerald-200 font-medium">Indica Jd. Regente • Indaiatuba</p>
+            </div>
+          </Link>
         </div>
       </header>
 
