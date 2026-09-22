@@ -52,9 +52,9 @@ export default function AdminLoginPage() {
         {/* Card do Login */}
         <div className="bg-white rounded-3xl shadow-xl border border-gray-200/80 p-6">
           <div className="text-center mb-6">
-            <div className="relative w-16 h-16 rounded-2xl overflow-hidden mx-auto mb-3 shadow-md border border-amber-300/50">
+            <div className="relative w-16 h-16 rounded-2xl overflow-hidden mx-auto mb-3 shadow-md border-2 border-amber-300/70 bg-emerald-800">
               <Image
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="Logo Indica Jd.Regente"
                 fill
                 className="object-cover"

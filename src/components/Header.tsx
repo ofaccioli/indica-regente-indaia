@@ -17,9 +17,9 @@ export function Header({ busca, onBuscaChange }: HeaderProps) {
         {/* Topo do Header: Logo e Botão de Ação */}
         <div className="flex items-center justify-between gap-3 mb-3">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-11 h-11 rounded-2xl overflow-hidden shadow-md border border-amber-300/40 group-active:scale-95 transition-transform flex-shrink-0 bg-emerald-900">
+            <div className="relative w-11 h-11 rounded-2xl overflow-hidden shadow-sm border-2 border-amber-300/60 group-active:scale-95 transition-transform flex-shrink-0 bg-emerald-800">
               <Image
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="Logo Indica Jd.Regente"
                 fill
                 className="object-cover"
