@@ -266,7 +266,14 @@ export default function Home() {
           />
 
           {/* Filtros Rápidos Comunitários (Ofertas, Moradores, Favoritos, Domicílio) */}
-          <div className="max-w-4xl w-full mx-auto px-4 pt-2 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+          <div
+            onWheel={(e) => {
+              if (Math.abs(e.deltaY) > 0) {
+                e.currentTarget.scrollLeft += e.deltaY;
+              }
+            }}
+            className="max-w-4xl w-full mx-auto px-4 pt-2 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs scroll-smooth"
+          >
             {/* Filtro de Ofertas da Vizinhança */}
             <button
               onClick={() => setApenasOfertas(!apenasOfertas)}
