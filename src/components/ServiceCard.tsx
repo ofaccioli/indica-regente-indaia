@@ -13,11 +13,13 @@ import {
   Award,
   CheckCircle2,
   AlertCircle,
+  Heart,
 } from "lucide-react";
 import {
   gerarLinkLigacao,
   gerarTextoCompartilhamento,
 } from "@/lib/utils";
+import { isFavorite, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
 import { RatingModal } from "./RatingModal";
 import { WhatsAppOptionsModal } from "./WhatsAppOptionsModal";
 
@@ -40,6 +42,24 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
   const [modalAvaliacaoAberto, setModalAvaliacaoAberto] = useState(false);
   const [modalZapAberto, setModalZapAberto] = useState(false);
   const [copiado, setCopiado] = useState(false);
+  const [salvo, setSalvo] = useState(false);
+
+  React.useEffect(() => {
+    setSalvo(isFavorite(servico.id));
+
+    const handleFavChange = () => {
+      setSalvo(isFavorite(servico.id));
+    };
+
+    window.addEventListener(FAVORITES_EVENT, handleFavChange);
+    return () => window.removeEventListener(FAVORITES_EVENT, handleFavChange);
+  }, [servico.id]);
+
+  const handleToggleFavorito = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const novoStatus = toggleFavorite(servico.id);
+    setSalvo(novoStatus);
+  };
 
   const ligarUrl = gerarLinkLigacao(servico.telefone);
 
@@ -93,6 +113,28 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
                 {servico.categoria}
               </span>
 
+              {servico.eh_morador && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100/80 text-emerald-950 border border-emerald-300">
+                  🏡 Vizinho do Bairro
+                </span>
+              )}
+
+              {servico.tipo_atendimento === "domicilio" && (
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  🛵 A domicílio
+                </span>
+              )}
+              {servico.tipo_atendimento === "local" && (
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  🏢 No local fixo
+                </span>
+              )}
+              {servico.tipo_atendimento === "ambos" && (
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  🛵 Domicílio & 🏢 Local
+                </span>
+              )}
+
               {servico.verificado_admin && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/70">
                   <CheckCircle2 className="w-3 h-3 text-blue-600" />
@@ -128,17 +170,31 @@ export function ServiceCard({ servico, onAtualizar }: ServiceCardProps) {
                 <h3 className="text-base font-bold text-gray-900 leading-snug truncate">
                   {servico.nome}
                 </h3>
-                {instagramUser && (
-                  <a
-                    href={`https://instagram.com/${instagramUser}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-pink-600 hover:text-pink-700 p-1 rounded-full hover:bg-pink-50 transition-colors flex-shrink-0"
-                    title={`Instagram: @${instagramUser}`}
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  {instagramUser && (
+                    <a
+                      href={`https://instagram.com/${instagramUser}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-pink-600 hover:text-pink-700 p-1 rounded-full hover:bg-pink-50 transition-colors"
+                      title={`Instagram: @${instagramUser}`}
+                    >
+                      <InstagramIcon className="w-4 h-4" />
+                    </a>
+                  )}
+                  <button
+                    onClick={handleToggleFavorito}
+                    aria-label={salvo ? "Remover dos favoritos" : "Salvar contato"}
+                    title={salvo ? "Salvo nos seus favoritos" : "Salvar nos favoritos"}
+                    className={`p-1 rounded-full transition-all active:scale-90 ${
+                      salvo
+                        ? "text-rose-500 bg-rose-50 hover:bg-rose-100"
+                        : "text-gray-400 hover:text-rose-500 hover:bg-gray-100"
+                    }`}
                   >
-                    <InstagramIcon className="w-4 h-4" />
-                  </a>
-                )}
+                    <Heart className={`w-4 h-4 ${salvo ? "fill-rose-500" : ""}`} />
+                  </button>
+                </div>
               </div>
 
               {/* Avaliação em Estrelas */}

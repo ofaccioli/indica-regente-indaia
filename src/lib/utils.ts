@@ -34,15 +34,24 @@ export function isTelefoneValido(telefone: string): boolean {
 /**
  * Gera URL do WhatsApp com mensagem pronta
  */
-export function gerarLinkWhatsApp(telefone: string, nomeProfissional: string, categoria: string): string {
+export function gerarLinkWhatsApp(
+  telefone: string,
+  nomeOuMensagem?: string,
+  categoria?: string
+): string {
   let digitos = limparTelefone(telefone);
   if (!digitos.startsWith("55")) {
     digitos = `55${digitos}`;
   }
-  const mensagem = encodeURIComponent(
-    `Olá ${nomeProfissional}! Peguei seu contato pelo app *IndicaRegenteIndaia* na categoria *${categoria}*. Gostaria de mais informações sobre seus serviços!`
-  );
-  return `https://wa.me/${digitos}?text=${mensagem}`;
+
+  let textoFinal = "";
+  if (categoria && nomeOuMensagem) {
+    textoFinal = `Olá ${nomeOuMensagem}! Peguei seu contato pelo app *Indica Jd.Regente - Indaiatuba* na categoria *${categoria}*. Gostaria de mais informações sobre seus serviços!`;
+  } else if (nomeOuMensagem) {
+    textoFinal = nomeOuMensagem;
+  }
+
+  return `https://wa.me/${digitos}${textoFinal ? `?text=${encodeURIComponent(textoFinal)}` : ""}`;
 }
 
 /**

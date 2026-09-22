@@ -52,6 +52,8 @@ export default function CadastrarPage() {
   const [quemIndicou, setQuemIndicou] = useState("");
   const [instagram, setInstagram] = useState("");
   const [atendeFimDeSemana, setAtendeFimDeSemana] = useState(false);
+  const [ehMorador, setEhMorador] = useState(false);
+  const [tipoAtendimento, setTipoAtendimento] = useState<"domicilio" | "local" | "ambos">("ambos");
 
   // Estados de validação e feedback
   const [verificandoTelefone, setVerificandoTelefone] = useState(false);
@@ -125,6 +127,8 @@ export default function CadastrarPage() {
         quem_indicou: quemIndicou.trim() || "Vizinho da Comunidade",
         instagram: instagram.trim() ? (instagram.startsWith("@") ? instagram : `@${instagram.trim()}`) : undefined,
         atende_fim_de_semana: atendeFimDeSemana,
+        eh_morador: ehMorador,
+        tipo_atendimento: tipoAtendimento,
       });
 
       if (res.sucesso) {
@@ -336,6 +340,62 @@ export default function CadastrarPage() {
               <p className="text-[11px] text-gray-400 mt-1">
                 Os moradores poderão ver fotos de serviços realizados diretamente no Instagram dele.
               </p>
+            </div>
+
+            {/* Tipo de Atendimento */}
+            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+              <label className="block text-xs font-bold text-gray-800 mb-2">
+                Como é realizado o atendimento?
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTipoAtendimento("domicilio")}
+                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center ${
+                    tipoAtendimento === "domicilio"
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                      : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                  }`}
+                >
+                  🛵 Domicílio
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTipoAtendimento("local")}
+                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center ${
+                    tipoAtendimento === "local"
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                      : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                  }`}
+                >
+                  🏢 No Local
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTipoAtendimento("ambos")}
+                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center ${
+                    tipoAtendimento === "ambos"
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                      : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                  }`}
+                >
+                  🛵 & 🏢 Ambos
+                </button>
+              </div>
+            </div>
+
+            {/* Checkbox de Morador do Bairro / Vizinho */}
+            <div className="bg-emerald-50/70 border border-emerald-200/80 p-3.5 rounded-2xl flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="eh_morador"
+                checked={ehMorador}
+                onChange={(e) => setEhMorador(e.target.checked)}
+                className="w-4 h-4 text-emerald-600 rounded cursor-pointer accent-emerald-600"
+              />
+              <label htmlFor="eh_morador" className="text-xs text-emerald-950 font-bold cursor-pointer">
+                🏡 É morador do Jd. Regente ou bairros vizinhos (Prestigiar vizinho)
+              </label>
             </div>
 
             {/* Checkbox de Atendimento em Fins de Semana / Plantão */}

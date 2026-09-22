@@ -21,6 +21,8 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
   const [quemIndicou, setQuemIndicou] = useState("");
   const [instagram, setInstagram] = useState("");
   const [atendeFimDeSemana, setAtendeFimDeSemana] = useState(false);
+  const [ehMorador, setEhMorador] = useState(false);
+  const [tipoAtendimento, setTipoAtendimento] = useState<"domicilio" | "local" | "ambos">("ambos");
   const [verificadoAdmin, setVerificadoAdmin] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
@@ -34,6 +36,8 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
       setQuemIndicou(servico.quem_indicou || "");
       setInstagram(servico.instagram || "");
       setAtendeFimDeSemana(Boolean(servico.atende_fim_de_semana));
+      setEhMorador(Boolean(servico.eh_morador));
+      setTipoAtendimento(servico.tipo_atendimento || "ambos");
       setVerificadoAdmin(Boolean(servico.verificado_admin));
     }
   }, [servico]);
@@ -60,6 +64,8 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
             quem_indicou: quemIndicou.trim(),
             instagram: instagram.trim() || null,
             atende_fim_de_semana: atendeFimDeSemana,
+            eh_morador: ehMorador,
+            tipo_atendimento: tipoAtendimento,
             verificado_admin: verificadoAdmin,
           },
         }),
@@ -177,6 +183,62 @@ export function AdminEditModal({ servico, isOpen, onClose, onSalvo }: AdminEditM
               placeholder="Ex: @carlos.eletrica"
               className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
             />
+          </div>
+
+          {/* Tipo de Atendimento */}
+          <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">
+              Modalidade de Atendimento:
+            </label>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <button
+                type="button"
+                onClick={() => setTipoAtendimento("domicilio")}
+                className={`py-1.5 rounded-lg font-semibold border ${
+                  tipoAtendimento === "domicilio"
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                🛵 Domicílio
+              </button>
+              <button
+                type="button"
+                onClick={() => setTipoAtendimento("local")}
+                className={`py-1.5 rounded-lg font-semibold border ${
+                  tipoAtendimento === "local"
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                🏢 No Local
+              </button>
+              <button
+                type="button"
+                onClick={() => setTipoAtendimento("ambos")}
+                className={`py-1.5 rounded-lg font-semibold border ${
+                  tipoAtendimento === "ambos"
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                🛵 & 🏢 Ambos
+              </button>
+            </div>
+          </div>
+
+          {/* Checkbox de Morador do Bairro */}
+          <div className="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="eh_morador_admin"
+              checked={ehMorador}
+              onChange={(e) => setEhMorador(e.target.checked)}
+              className="w-4 h-4 text-emerald-600 rounded cursor-pointer accent-emerald-600"
+            />
+            <label htmlFor="eh_morador_admin" className="text-xs text-emerald-950 font-semibold cursor-pointer">
+              🏡 É Morador do Bairro / Vizinho (exibe selo especial)
+            </label>
           </div>
 
           {/* Checkbox de Atende Fim de Semana */}

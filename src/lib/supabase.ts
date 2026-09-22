@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Servico, Avaliacao } from "@/types";
+import { Servico, Avaliacao, PedidoMural, RespostaMural } from "@/types";
 import { limparTelefone } from "./utils";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -29,6 +29,8 @@ const SEED_SERVICOS: Servico[] = [
     quem_indicou: "Ricardo do Grupo",
     instagram: "carlos.eletrica",
     atende_fim_de_semana: true,
+    eh_morador: true,
+    tipo_atendimento: "domicilio",
     nota_media: 4.95,
     total_avaliacoes: 18,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
@@ -44,6 +46,8 @@ const SEED_SERVICOS: Servico[] = [
     quem_indicou: "Ana Paula Condomínio",
     instagram: "luiza.diarista",
     atende_fim_de_semana: false,
+    eh_morador: false,
+    tipo_atendimento: "domicilio",
     nota_media: 5.0,
     total_avaliacoes: 24,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
@@ -59,6 +63,8 @@ const SEED_SERVICOS: Servico[] = [
     quem_indicou: "Marcos Mecânico",
     instagram: "mecanicadobeto",
     atende_fim_de_semana: false,
+    eh_morador: false,
+    tipo_atendimento: "local",
     nota_media: 4.80,
     total_avaliacoes: 15,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
@@ -74,6 +80,8 @@ const SEED_SERVICOS: Servico[] = [
     quem_indicou: "Juliana Santos",
     instagram: "drfernandovet24h",
     atende_fim_de_semana: true,
+    eh_morador: false,
+    tipo_atendimento: "ambos",
     nota_media: 4.90,
     total_avaliacoes: 21,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
@@ -89,6 +97,8 @@ const SEED_SERVICOS: Servico[] = [
     quem_indicou: "Seu Zé do Mercado",
     instagram: "marcosencanador_indaiatuba",
     atende_fim_de_semana: true,
+    eh_morador: true,
+    tipo_atendimento: "domicilio",
     nota_media: 4.85,
     total_avaliacoes: 12,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8).toISOString(),
@@ -104,6 +114,8 @@ const SEED_SERVICOS: Servico[] = [
     quem_indicou: "Família Ribeiro",
     instagram: "pizzariasabordavila",
     atende_fim_de_semana: true,
+    eh_morador: false,
+    tipo_atendimento: "local",
     nota_media: 4.75,
     total_avaliacoes: 30,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString(),
@@ -119,6 +131,8 @@ const SEED_SERVICOS: Servico[] = [
     quem_indicou: "Camila Estética",
     instagram: "silviaunhas_indaiatuba",
     atende_fim_de_semana: true,
+    eh_morador: true,
+    tipo_atendimento: "ambos",
     nota_media: 5.0,
     total_avaliacoes: 9,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
@@ -152,9 +166,59 @@ const SEED_AVALIACOES: Avaliacao[] = [
   },
 ];
 
+const SEED_PEDIDOS_MURAL: PedidoMural[] = [
+  {
+    id: "ped-1",
+    titulo: "Procuro pintor para sala e fachada",
+    descricao: "Preciso de indicação de pintor caprichoso para pintar a sala e a frente de casa aqui no Regente Feijó. Preferência que tenha boas recomendações!",
+    categoria: "Pintor / Gesso",
+    morador_nome: "Patrícia",
+    bairro: "Jd. Regente",
+    whatsapp_contato: "19992334455",
+    urgente: false,
+    status: "aberto",
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
+    respostas: [
+      {
+        id: "resp-1",
+        pedido_id: "ped-1",
+        autor_nome: "Marcos (Vizinho)",
+        mensagem: "Oi Patrícia! O Carlos Roberto aqui do Regente fez serviços de reforma e pintura na minha casa, recomendo muito!",
+        servico_id_indicado: "1",
+        servico_nome_indicado: "Carlos Roberto Eletricista",
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
+      },
+    ],
+  },
+  {
+    id: "ped-2",
+    titulo: "Vazamento urgente no registro do cavalete!",
+    descricao: "Gente, estourou um cano perto do cavalete agora de manhã. Alguém conhece encanador que atende rápido hoje?",
+    categoria: "Encanador",
+    morador_nome: "Renato",
+    bairro: "Jd. Regente",
+    whatsapp_contato: "19991223344",
+    urgente: true,
+    status: "aberto",
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    respostas: [
+      {
+        id: "resp-2",
+        pedido_id: "ped-2",
+        autor_nome: "Dona Maria",
+        mensagem: "Chama o Marcos Encanador! Ele mora aqui no bairro e atende rápido mesmo no plantão.",
+        servico_id_indicado: "5",
+        servico_nome_indicado: "Marcos Encanador & Caça Vazamentos",
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 1).toISOString(),
+      },
+    ],
+  },
+];
+
 // Fallback de armazenamento local / em memória
 let localServicos: Servico[] = [...SEED_SERVICOS];
 let localAvaliacoes: Avaliacao[] = [...SEED_AVALIACOES];
+let localPedidosMural: PedidoMural[] = [...SEED_PEDIDOS_MURAL];
 
 /**
  * Busca todos os serviços (do Supabase ou do cache local)
@@ -294,6 +358,8 @@ export async function cadastrarServico(dados: Omit<Servico, "id" | "created_at" 
           quem_indicou: novoServico.quem_indicou,
           instagram: novoServico.instagram,
           atende_fim_de_semana: Boolean(novoServico.atende_fim_de_semana),
+          eh_morador: Boolean(novoServico.eh_morador),
+          tipo_atendimento: novoServico.tipo_atendimento || "ambos",
           nota_media: 5.0,
           total_avaliacoes: 1,
         }])
@@ -524,4 +590,195 @@ export async function listarTodasAvaliacoes(): Promise<Avaliacao[]> {
 
   return [...localAvaliacoes];
 }
+
+/**
+ * Busca todos os pedidos do Mural Comunitário "Alguém Indica?"
+ */
+export async function listarPedidosMural(): Promise<PedidoMural[]> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("pedidos_mural")
+        .select("*, respostas:respostas_mural(*)")
+        .order("created_at", { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        return data as PedidoMural[];
+      }
+    } catch (err) {
+      console.warn("Supabase indisponível para mural, usando dados locais:", err);
+    }
+  }
+
+  // Tenta carregar do localStorage
+  if (typeof window !== "undefined") {
+    try {
+      const salvo = localStorage.getItem("indica_pedidos_mural");
+      if (salvo) {
+        localPedidosMural = JSON.parse(salvo);
+      }
+    } catch {}
+  }
+
+  return [...localPedidosMural];
+}
+
+/**
+ * Cria um novo pedido de recomendação no Mural
+ */
+export async function criarPedidoMural(
+  dados: Omit<PedidoMural, "id" | "created_at" | "respostas" | "status"> & { status?: "aberto" | "resolvido" }
+): Promise<{ sucesso: boolean; pedido?: PedidoMural; erro?: string }> {
+  const novoPedido: PedidoMural = {
+    id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `ped-${Date.now()}`,
+    titulo: dados.titulo.trim(),
+    descricao: dados.descricao.trim(),
+    categoria: dados.categoria,
+    morador_nome: dados.morador_nome.trim() || "Vizinho(a)",
+    bairro: dados.bairro || "Jd. Regente",
+    whatsapp_contato: dados.whatsapp_contato ? limparTelefone(dados.whatsapp_contato) : undefined,
+    urgente: Boolean(dados.urgente),
+    status: dados.status || "aberto",
+    respostas: [],
+    created_at: new Date().toISOString(),
+  };
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("pedidos_mural")
+        .insert([{
+          titulo: novoPedido.titulo,
+          descricao: novoPedido.descricao,
+          categoria: novoPedido.categoria,
+          morador_nome: novoPedido.morador_nome,
+          bairro: novoPedido.bairro,
+          whatsapp_contato: novoPedido.whatsapp_contato,
+          urgente: novoPedido.urgente,
+          status: novoPedido.status,
+        }])
+        .select()
+        .single();
+
+      if (!error && data) {
+        return { sucesso: true, pedido: { ...(data as PedidoMural), respostas: [] } };
+      }
+    } catch (err) {
+      console.warn("Erro ao criar pedido no Supabase:", err);
+    }
+  }
+
+  localPedidosMural = [novoPedido, ...localPedidosMural];
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem("indica_pedidos_mural", JSON.stringify(localPedidosMural));
+    } catch {}
+  }
+
+  return { sucesso: true, pedido: novoPedido };
+}
+
+/**
+ * Adiciona uma resposta / indicação de vizinho para um pedido no Mural
+ */
+export async function responderPedidoMural(
+  dados: Omit<RespostaMural, "id" | "created_at">
+): Promise<{ sucesso: boolean; resposta?: RespostaMural; erro?: string }> {
+  const novaResposta: RespostaMural = {
+    id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `resp-${Date.now()}`,
+    pedido_id: dados.pedido_id,
+    autor_nome: dados.autor_nome.trim() || "Vizinho(a)",
+    mensagem: dados.mensagem.trim(),
+    servico_id_indicado: dados.servico_id_indicado,
+    servico_nome_indicado: dados.servico_nome_indicado,
+    created_at: new Date().toISOString(),
+  };
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("respostas_mural")
+        .insert([novaResposta])
+        .select()
+        .single();
+
+      if (!error && data) {
+        return { sucesso: true, resposta: data as RespostaMural };
+      }
+    } catch (err) {
+      console.warn("Erro ao responder no Supabase:", err);
+    }
+  }
+
+  // Atualiza local
+  const index = localPedidosMural.findIndex((p) => p.id === dados.pedido_id);
+  if (index !== -1) {
+    const respostasAtuais = localPedidosMural[index].respostas || [];
+    localPedidosMural[index] = {
+      ...localPedidosMural[index],
+      respostas: [...respostasAtuais, novaResposta],
+    };
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("indica_pedidos_mural", JSON.stringify(localPedidosMural));
+      } catch {}
+    }
+
+    return { sucesso: true, resposta: novaResposta };
+  }
+
+  return { sucesso: false, erro: "Pedido não encontrado" };
+}
+
+/**
+ * Marca um pedido como resolvido
+ */
+export async function resolverPedidoMural(pedidoId: string): Promise<{ sucesso: boolean }> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      await supabase
+        .from("pedidos_mural")
+        .update({ status: "resolvido" })
+        .eq("id", pedidoId);
+    } catch {}
+  }
+
+  const index = localPedidosMural.findIndex((p) => p.id === pedidoId);
+  if (index !== -1) {
+    localPedidosMural[index] = {
+      ...localPedidosMural[index],
+      status: "resolvido",
+    };
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("indica_pedidos_mural", JSON.stringify(localPedidosMural));
+      } catch {}
+    }
+  }
+
+  return { sucesso: true };
+}
+
+/**
+ * Exclui um pedido do Mural (Ação de Moderação)
+ */
+export async function excluirPedidoMural(pedidoId: string): Promise<{ sucesso: boolean }> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      await supabase.from("pedidos_mural").delete().eq("id", pedidoId);
+    } catch {}
+  }
+
+  localPedidosMural = localPedidosMural.filter((p) => p.id !== pedidoId);
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem("indica_pedidos_mural", JSON.stringify(localPedidosMural));
+    } catch {}
+  }
+
+  return { sucesso: true };
+}
+
 

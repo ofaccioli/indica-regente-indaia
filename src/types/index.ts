@@ -14,6 +14,32 @@ export interface Servico {
   selo_destaque?: boolean;
   verificado_admin?: boolean;
   atende_fim_de_semana?: boolean;
+  eh_morador?: boolean;
+  tipo_atendimento?: "domicilio" | "local" | "ambos";
+  created_at: string;
+}
+
+export interface PedidoMural {
+  id: string;
+  titulo: string;
+  descricao: string;
+  categoria: string;
+  morador_nome: string;
+  bairro: string;
+  whatsapp_contato?: string;
+  urgente?: boolean;
+  status: "aberto" | "resolvido";
+  respostas?: RespostaMural[];
+  created_at: string;
+}
+
+export interface RespostaMural {
+  id: string;
+  pedido_id: string;
+  autor_nome: string;
+  mensagem: string;
+  servico_id_indicado?: string;
+  servico_nome_indicado?: string;
   created_at: string;
 }
 
