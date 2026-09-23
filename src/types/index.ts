@@ -288,6 +288,8 @@ export const CATEGORIAS_DISPONIVEIS = [
   "Barbearia / Cabeleireiro",
   "Lava Rápido / Estética Automotiva",
   "Dentista / Odontologia",
+  "Médico / Clínicas & Consultórios",
+  "Psicólogo / Terapia & Saúde Mental",
   "Açougue / Casa de Carnes",
   "Sorveteria / Açaí",
   "Ar Condicionado",

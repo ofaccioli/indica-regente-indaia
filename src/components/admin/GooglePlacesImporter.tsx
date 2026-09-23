@@ -137,7 +137,10 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
 
       const data = await res.json();
       if (data.sucesso) {
-        setMensagemSucesso(`🎉 Sucesso! ${paraImportar.length} estabelecimento(s) importado(s) para o app!`);
+        const msg = data.duplicados > 0
+          ? `🎉 Sucesso! ${data.inseridos} estabelecimento(s) cadastrado(s) no app. (${data.duplicados} já existentes/duplicados foram pulados)`
+          : `🎉 Sucesso! ${data.inseridos || paraImportar.length} estabelecimento(s) cadastrado(s) no app!`;
+        setMensagemSucesso(msg);
         setSelecionados(new Set());
         handleBuscar();
         onImportado();
@@ -324,6 +327,8 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
                   <option value="Barbearia / Cabeleireiro">Barbearias & Salões</option>
                   <option value="Lava Rápido / Estética Automotiva">Lava Rápido & Estética</option>
                   <option value="Dentista / Odontologia">Dentistas & Odontologia</option>
+                  <option value="Médico / Clínicas & Consultórios">Médicos & Consultórios</option>
+                  <option value="Psicólogo / Terapia & Saúde Mental">Psicólogos & Saúde Mental</option>
                   <option value="Açougue / Casa de Carnes">Açougues & Carnes</option>
                   <option value="Sorveteria / Açaí">Sorveterias & Açaí</option>
                   <option value="Restaurante / Lanche">Pizzarias & Lanchonetes</option>
@@ -423,6 +428,30 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
                 }`}
               >
                 🦷 Dentistas
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Médico / Clínicas & Consultórios" ? "Todos" : "Médico / Clínicas & Consultórios")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Médico / Clínicas & Consultórios"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                🩺 Médicos & Clínicas
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Psicólogo / Terapia & Saúde Mental" ? "Todos" : "Psicólogo / Terapia & Saúde Mental")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Psicólogo / Terapia & Saúde Mental"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                🧠 Psicólogos
               </button>
 
               <button

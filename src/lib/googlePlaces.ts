@@ -129,7 +129,9 @@ export function mapearGoogleParaCategoriaApp(types: string[] = [], nome = ""): s
   if (nomeLower.includes("pizza") || nomeLower.includes("hamburg") || nomeLower.includes("burger") || nomeLower.includes("pastel") || nomeLower.includes("espeto") || nomeLower.includes("lanche")) return "Restaurante / Lanche";
   if (nomeLower.includes("barbearia") || nomeLower.includes("barbeiro") || nomeLower.includes("cabeleireir")) return "Barbearia / Cabeleireiro";
   if (nomeLower.includes("lava rápido") || nomeLower.includes("lava rapido") || nomeLower.includes("estética automotiva") || nomeLower.includes("polimento") || nomeLower.includes("lavacar")) return "Lava Rápido / Estética Automotiva";
+  if (nomeLower.includes("psicolog") || nomeLower.includes("psicoterap") || nomeLower.includes("saúde mental") || nomeLower.includes("saude mental") || nomeLower.includes("psicanal") || (nomeLower.includes("terapeuta") && !nomeLower.includes("fisioterapeuta"))) return "Psicólogo / Terapia & Saúde Mental";
   if (nomeLower.includes("dentista") || nomeLower.includes("odonto") || nomeLower.includes("ortodontia") || nomeLower.includes("implante")) return "Dentista / Odontologia";
+  if (nomeLower.includes("médic") || nomeLower.includes("medic") || nomeLower.includes("pediatra") || nomeLower.includes("cardiolog") || nomeLower.includes("oftalmo") || nomeLower.includes("dermatolog") || nomeLower.includes("ginecolog") || nomeLower.includes("ortoped") || nomeLower.includes("clínica médica") || nomeLower.includes("clinica medica") || nomeLower.includes("consultório médico") || nomeLower.includes("consultorio medico")) return "Médico / Clínicas & Consultórios";
   if (nomeLower.includes("açougue") || nomeLower.includes("acougue") || nomeLower.includes("casa de carnes") || (nomeLower.includes("carnes") && !nomeLower.includes("churrasqueiro"))) return "Açougue / Casa de Carnes";
   if (nomeLower.includes("sorvete") || nomeLower.includes("sorveteria") || nomeLower.includes("açaí") || nomeLower.includes("acai") || nomeLower.includes("gelato") || nomeLower.includes("gelateria")) return "Sorveteria / Açaí";
   if (nomeLower.includes("padaria") || nomeLower.includes("confeitaria") || nomeLower.includes("bolo") || nomeLower.includes("café") || nomeLower.includes("doceria") || nomeLower.includes("chocolate")) return "Bolos / Doces / Salgados";
@@ -139,7 +141,7 @@ export function mapearGoogleParaCategoriaApp(types: string[] = [], nome = ""): s
   if (nomeLower.includes("ar condicionado") || nomeLower.includes("climatiz") || nomeLower.includes("refrigera")) return "Ar Condicionado";
   if (nomeLower.includes("vidraçaria") || nomeLower.includes("box") || nomeLower.includes("espelho")) return "Vidraçaria / Box & Espelhos";
   if (nomeLower.includes("biciclet") || nomeLower.includes("bike") || nomeLower.includes("ciclo")) return "Bicicletaria / Bike";
-  if (nomeLower.includes("farmácia") || nomeLower.includes("drogaria") || nomeLower.includes("fisioterapia") || nomeLower.includes("clínica") || nomeLower.includes("hospital")) return "Saúde / Terapia";
+  if (nomeLower.includes("farmácia") || nomeLower.includes("drogaria") || nomeLower.includes("fisioterapia") || nomeLower.includes("hospital")) return "Saúde / Terapia";
   if (nomeLower.includes("estética") || nomeLower.includes("unha") || nomeLower.includes("manicure") || nomeLower.includes("depila")) return "Beleza / Estética";
   if (nomeLower.includes("eletricista") || nomeLower.includes("elétrica")) return "Eletricista";
   if (nomeLower.includes("encanador") || nomeLower.includes("hidráulic") || nomeLower.includes("desentupidora")) return "Encanador";
@@ -159,6 +161,7 @@ export function mapearGoogleParaCategoriaApp(types: string[] = [], nome = ""): s
   // Verificações por tipos do Google Places
   const typesSet = new Set(types);
 
+  if (typesSet.has("doctor")) return "Médico / Clínicas & Consultórios";
   if (typesSet.has("car_wash")) return "Lava Rápido / Estética Automotiva";
   if (typesSet.has("dentist")) return "Dentista / Odontologia";
   if (typesSet.has("locksmith")) return "Chaveiro / Fechaduras";
@@ -169,7 +172,7 @@ export function mapearGoogleParaCategoriaApp(types: string[] = [], nome = ""): s
   if (typesSet.has("electrician")) return "Eletricista";
   if (typesSet.has("plumber")) return "Encanador";
   if (typesSet.has("hair_care") || typesSet.has("beauty_salon") || typesSet.has("spa")) return "Beleza / Estética";
-  if (typesSet.has("physiotherapist") || typesSet.has("doctor") || typesSet.has("pharmacy")) return "Saúde / Terapia";
+  if (typesSet.has("physiotherapist") || typesSet.has("pharmacy")) return "Saúde / Terapia";
   if (typesSet.has("bicycle_store")) return "Bicicletaria / Bike";
   if (typesSet.has("laundry")) return "Lavanderia / Passadeira";
   if (typesSet.has("moving_company")) return "Fretes / Mudanças";
@@ -409,6 +412,36 @@ export const LUGARES_CURADOS_INDAIATUBA: GooglePlaceResult[] = [
     nota_media: 5.0,
     total_avaliacoes: 85,
     horario_funcionamento: "Seg a Sáb: 07h30 às 17h30",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-valenca-medico-1",
+    nome: "Clínica Médica Integrada Valença",
+    categoria: "Médico / Clínicas & Consultórios",
+    telefone: "1938351500",
+    telefone_formatado: "(19) 3835-1500",
+    bairro: "Jd. Valença",
+    endereco: "Av. dos Indaiás, 810 - Jd. Valença, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.9,
+    total_avaliacoes: 145,
+    horario_funcionamento: "Seg a Sex: 08h às 19h | Sáb: 08h às 12h",
+    foto_url: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-regente-psicologia-1",
+    nome: "Espaço Integrar - Psicologia & Psicoterapia",
+    categoria: "Psicólogo / Terapia & Saúde Mental",
+    telefone: "19998223344",
+    telefone_formatado: "(19) 99822-3344",
+    bairro: "Jd. Regente",
+    endereco: "R. Antônio Barnabé, 190 - Jd. Regente, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 5.0,
+    total_avaliacoes: 82,
+    horario_funcionamento: "Seg a Sex: 08h às 20h | Sáb: 08h às 13h",
+    foto_url: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=600&auto=format&fit=crop&q=80",
     origem: "google",
   },
 
@@ -847,7 +880,7 @@ export const LUGARES_CURADOS_INDAIATUBA: GooglePlaceResult[] = [
     origem: "google",
   },
   {
-    google_place_id: "ind-centro-barbearia-1",
+    google_place_id: "ind-centro-barbearia-vip-1",
     nome: "Studio & Barbearia Vip Indaiatuba",
     categoria: "Barbearia / Cabeleireiro",
     telefone: "19996335522",
@@ -1011,6 +1044,36 @@ export const LUGARES_CURADOS_INDAIATUBA: GooglePlaceResult[] = [
     foto_url: "https://brasillocais.com/photo/296410.jpg",
     origem: "google",
   },
+  {
+    google_place_id: "ind-centro-medico-1",
+    nome: "Centro Médico Especializado Santa Clara Indaiatuba",
+    categoria: "Médico / Clínicas & Consultórios",
+    telefone: "1938756000",
+    telefone_formatado: "(19) 3875-6000",
+    bairro: "Centro",
+    endereco: "R. Bernardino de Campos, 520 - Centro, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.8,
+    total_avaliacoes: 380,
+    horario_funcionamento: "Seg a Sex: 07h30 às 19h | Sáb: 08h às 12h",
+    foto_url: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-centro-psicologia-1",
+    nome: "Clínica de Psicologia & Saúde Mental Indaiatuba",
+    categoria: "Psicólogo / Terapia & Saúde Mental",
+    telefone: "19997116677",
+    telefone_formatado: "(19) 99711-6677",
+    bairro: "Centro",
+    endereco: "R. 11 de Junho, 740 - Centro, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.9,
+    total_avaliacoes: 110,
+    horario_funcionamento: "Seg a Sex: 08h às 20h",
+    foto_url: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
 ];
 
 /**
@@ -1021,6 +1084,8 @@ export function obterFotoPadraoCategoria(categoria: string): string {
     "Barbearia / Cabeleireiro": "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=600&auto=format&fit=crop&q=80",
     "Lava Rápido / Estética Automotiva": "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&auto=format&fit=crop&q=80",
     "Dentista / Odontologia": "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&auto=format&fit=crop&q=80",
+    "Médico / Clínicas & Consultórios": "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=600&auto=format&fit=crop&q=80",
+    "Psicólogo / Terapia & Saúde Mental": "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=600&auto=format&fit=crop&q=80",
     "Açougue / Casa de Carnes": "https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=600&auto=format&fit=crop&q=80",
     "Sorveteria / Açaí": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600&auto=format&fit=crop&q=80",
     "Restaurante / Lanche": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&auto=format&fit=crop&q=80",
@@ -1039,6 +1104,98 @@ export function obterFotoPadraoCategoria(categoria: string): string {
     "Pintor / Gesso": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&auto=format&fit=crop&q=80",
   };
   return fotos[categoria] || "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&auto=format&fit=crop&q=80";
+}
+
+/**
+ * Normaliza strings para deduplicação segura (sem acentos, minúsculas, caracteres alfanuméricos)
+ */
+export function normalizarParaDeduplicacao(texto: string): string {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "")
+    .trim();
+}
+
+/**
+ * Deduplica estabelecimentos com inteligência:
+ * 1. Agrupa por telefone com DDD (se for número comercial válido)
+ * 2. Agrupa por forte similaridade de nome no mesmo bairro ou categoria
+ * 3. Preserva fotos reais e o endereço mais detalhado
+ */
+export function deduplicarLugaresGoogle(lugares: GooglePlaceResult[]): GooglePlaceResult[] {
+  const mapa = new Map<string, GooglePlaceResult>();
+  const telefonesMapeados = new Map<string, string>(); // telLimpo -> id
+
+  for (const item of lugares) {
+    const telLimpo = (item.telefone || "").replace(/\D/g, "");
+    const telValido = telLimpo.length >= 10 && !telLimpo.startsWith("000") && !/^(\d)\1+$/.test(telLimpo);
+
+    // Se já vimos esse telefone
+    if (telValido && telefonesMapeados.has(telLimpo)) {
+      const idExistente = telefonesMapeados.get(telLimpo)!;
+      const existente = mapa.get(idExistente);
+      if (existente) {
+        // Enriquece foto se a existente for genérica e a nova for real
+        if ((!existente.foto_url || existente.foto_url.includes("unsplash")) && item.foto_url && !item.foto_url.includes("unsplash")) {
+          existente.foto_url = item.foto_url;
+        }
+        if (item.endereco && item.endereco.length > existente.endereco.length) {
+          existente.endereco = item.endereco;
+        }
+      }
+      continue;
+    }
+
+    // Similaridade de nome
+    const nomeNorm = normalizarParaDeduplicacao(
+      item.nome
+        .replace(/indaiatuba/gi, "")
+        .replace(/@\w+/g, "")
+    );
+
+    let ehDuplicata = false;
+    for (const [id, existente] of mapa.entries()) {
+      const existNomeNorm = normalizarParaDeduplicacao(
+        existente.nome.replace(/indaiatuba/gi, "").replace(/@\w+/g, "")
+      );
+
+      const nomesBatem =
+        existNomeNorm.length >= 5 &&
+        nomeNorm.length >= 5 &&
+        (existNomeNorm === nomeNorm ||
+          (existNomeNorm.includes(nomeNorm) && nomeNorm.length > 7) ||
+          (nomeNorm.includes(existNomeNorm) && existNomeNorm.length > 7));
+
+      if (nomesBatem) {
+        const mesmoBairro = normalizarParaDeduplicacao(existente.bairro) === normalizarParaDeduplicacao(item.bairro);
+        const mesmaCategoria = existente.categoria === item.categoria;
+
+        if (mesmoBairro || mesmaCategoria) {
+          ehDuplicata = true;
+          if (!existente.telefone && item.telefone) {
+            existente.telefone = item.telefone;
+            existente.telefone_formatado = item.telefone_formatado || item.telefone;
+          }
+          if ((!existente.foto_url || existente.foto_url.includes("unsplash")) && item.foto_url && !item.foto_url.includes("unsplash")) {
+            existente.foto_url = item.foto_url;
+          }
+          break;
+        }
+      }
+    }
+
+    if (ehDuplicata) continue;
+
+    const idKey = item.google_place_id || `place-${Math.random()}`;
+    mapa.set(idKey, { ...item });
+    if (telValido) {
+      telefonesMapeados.set(telLimpo, idKey);
+    }
+  }
+
+  return Array.from(mapa.values());
 }
 
 /**
@@ -1135,8 +1292,8 @@ export async function buscarLiveWeb(termo: string): Promise<GooglePlaceResult[]>
                 google_place_id: `live-web-${Date.now()}-${i}`,
                 nome,
                 categoria: cat,
-                telefone: telefone || "(19) 99540-5840",
-                telefone_formatado: telefone || "(19) 99540-5840",
+                telefone: telefone || "",
+                telefone_formatado: telefone || "",
                 bairro,
                 endereco: enderecoCompleto,
                 cidade: "Indaiatuba",
@@ -1188,7 +1345,7 @@ export async function buscarLiveWeb(termo: string): Promise<GooglePlaceResult[]>
     } catch {}
   }
 
-  return resultados;
+  return deduplicarLugaresGoogle(resultados);
 }
 
 /**
@@ -1585,13 +1742,15 @@ export async function buscarLugaresGoogle(
     resultados = resultados.filter((l) => l.proximidade_tier === 4);
   }
 
-  // 5. REGRA DE OURO: ORDENAÇÃO POR PROXIMIDADE DO BAIRRO JD. REGENTE
+  // 5. REGRA DE OURO: DEDUPLICAÇÃO & ORDENAÇÃO POR PROXIMIDADE DO BAIRRO JD. REGENTE
   // 1º = Vizinhos Imediatos ao Jd. Regente (Tier 1)
   // 2º = Região Central (Tier 2)
   // 3º = Parque Ecológico / Leste (Tier 3)
   // 4º = Morada do Sol / Sul (Tier 4)
   // Desempate por maior nota média e mais avaliações
-  resultados.sort((a, b) => {
+  const lugaresFinais = deduplicarLugaresGoogle(resultados);
+
+  lugaresFinais.sort((a, b) => {
     const tierA = a.proximidade_tier || 5;
     const tierB = b.proximidade_tier || 5;
 
@@ -1605,7 +1764,7 @@ export async function buscarLugaresGoogle(
   });
 
   return {
-    lugares: resultados,
+    lugares: lugaresFinais,
     isApiKeyAtiva: Boolean(apiKey),
   };
 }

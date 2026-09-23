@@ -41,6 +41,8 @@ import {
   Camera,
   Bike,
   Printer,
+  Stethoscope,
+  Brain,
 } from "lucide-react";
 
 interface CategoryFilterProps {
@@ -127,6 +129,10 @@ export function CategoryFilter({
         return <Scissors className="w-3.5 h-3.5 text-purple-500" />;
       case "Saúde / Terapia":
         return <HeartPulse className="w-3.5 h-3.5 text-rose-500" />;
+      case "Médico / Clínicas & Consultórios":
+        return <Stethoscope className="w-3.5 h-3.5 text-blue-600" />;
+      case "Psicólogo / Terapia & Saúde Mental":
+        return <Brain className="w-3.5 h-3.5 text-emerald-600" />;
       case "Cuidador / Enfermagem / Babá":
         return <HeartHandshake className="w-3.5 h-3.5 text-rose-600" />;
       case "Aulas / Reforço":

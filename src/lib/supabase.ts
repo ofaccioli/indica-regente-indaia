@@ -257,6 +257,62 @@ let localAvaliacoes: Avaliacao[] = [...SEED_AVALIACOES];
 let localPedidosMural: PedidoMural[] = [...SEED_PEDIDOS_MURAL];
 
 /**
+ * Garante que a lista de serviços retornada nunca exiba itens duplicados
+ */
+export function deduplicarListaServicos(servicos: Servico[]): Servico[] {
+  const vistos = new Map<string, Servico>();
+  const telefonesVistos = new Map<string, string>();
+
+  for (const s of servicos) {
+    const tel = (s.telefone_numeros || s.telefone || "").replace(/\D/g, "");
+    const isTelValido = tel.length >= 10 && !tel.startsWith("000") && !/^(\d)\1+$/.test(tel);
+
+    if (isTelValido && telefonesVistos.has(tel)) {
+      continue;
+    }
+
+    const nomeNorm = s.nome
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "")
+      .replace(/indaiatuba/g, "");
+
+    let duplicado = false;
+    for (const [id, exist] of vistos.entries()) {
+      const existNomeNorm = exist.nome
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]/g, "")
+        .replace(/indaiatuba/g, "");
+
+      if (
+        existNomeNorm.length >= 5 &&
+        nomeNorm.length >= 5 &&
+        (existNomeNorm === nomeNorm ||
+          (existNomeNorm.includes(nomeNorm) && nomeNorm.length > 7) ||
+          (nomeNorm.includes(existNomeNorm) && existNomeNorm.length > 7))
+      ) {
+        if (exist.categoria === s.categoria || exist.cidade_bairro === s.cidade_bairro) {
+          duplicado = true;
+          break;
+        }
+      }
+    }
+
+    if (duplicado) continue;
+
+    vistos.set(s.id, s);
+    if (isTelValido) {
+      telefonesVistos.set(tel, s.id);
+    }
+  }
+
+  return Array.from(vistos.values());
+}
+
+/**
  * Busca todos os serviços (do Supabase ou do cache local)
  */
 export async function listarServicos(): Promise<Servico[]> {
@@ -268,7 +324,7 @@ export async function listarServicos(): Promise<Servico[]> {
         .order("nota_media", { ascending: false });
 
       if (!error && data) {
-        return data as Servico[];
+        return deduplicarListaServicos(data as Servico[]);
       }
       if (error) {
         console.error("Erro ao buscar serviços no Supabase:", error);
@@ -290,7 +346,7 @@ export async function listarServicos(): Promise<Servico[]> {
     }
   }
 
-  return [...localServicos];
+  return deduplicarListaServicos([...localServicos]);
 }
 
 /**
@@ -386,6 +442,42 @@ export async function verificarTelefoneExistente(telefone: string): Promise<Serv
 }
 
 /**
+ * Verifica se já existe um serviço com nome idêntico ou muito semelhante
+ */
+export async function verificarNomeExistente(nome: string, categoria?: string): Promise<Servico | null> {
+  const norm = nome
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "")
+    .replace(/indaiatuba/g, "");
+
+  if (!norm || norm.length < 4) return null;
+
+  const todos = await listarServicos();
+  const encontrado = todos.find((s) => {
+    const sNorm = s.nome
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "")
+      .replace(/indaiatuba/g, "");
+
+    if (sNorm === norm) return true;
+    if (sNorm.length >= 6 && norm.length >= 6) {
+      if (sNorm.includes(norm) || norm.includes(sNorm)) {
+        if (!categoria || s.categoria === categoria) {
+          return true;
+        }
+      }
+    }
+    return false;
+  });
+
+  return encontrado || null;
+}
+
+/**
  * Cadastra um novo serviço, validando duplicidade
  */
 export async function cadastrarServico(
@@ -417,6 +509,16 @@ export async function cadastrarServico(
         servico: existenteSec,
       };
     }
+  }
+
+  // 3. Checa se já existe estabelecimento com nome idêntico ou muito similar
+  const existenteNome = await verificarNomeExistente(dados.nome, dados.categoria);
+  if (existenteNome) {
+    return {
+      sucesso: false,
+      erro: `Já existe um estabelecimento cadastrado com nome idêntico ou similar: "${existenteNome.nome}" (${existenteNome.categoria}).`,
+      servico: existenteNome,
+    };
   }
 
   const notaInicial = typeof dados.nota_media === "number" ? dados.nota_media : 5.0;

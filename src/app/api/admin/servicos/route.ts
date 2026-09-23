@@ -84,11 +84,24 @@ export async function POST(request: Request) {
     // Se passou lista para importação em lote
     if (Array.isArray(servicos)) {
       const resultados = [];
+      let inseridos = 0;
+      let duplicados = 0;
       for (const s of servicos) {
         const res = await cadastrarServico(s);
         resultados.push(res);
+        if (res.sucesso) {
+          inseridos++;
+        } else {
+          duplicados++;
+        }
       }
-      return NextResponse.json({ sucesso: true, resultados });
+      return NextResponse.json({
+        sucesso: true,
+        total: servicos.length,
+        inseridos,
+        duplicados,
+        resultados,
+      });
     }
 
     if (!servico) {

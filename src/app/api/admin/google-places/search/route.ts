@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isRequisicaoAdmin } from "@/lib/admin-auth";
-import { buscarLugaresGoogle } from "@/lib/googlePlaces";
+import { buscarLugaresGoogle, normalizarParaDeduplicacao } from "@/lib/googlePlaces";
 import { listarServicos } from "@/lib/supabase";
 
 export async function GET(request: Request) {
@@ -21,21 +21,43 @@ export async function GET(request: Request) {
     // Carrega serviços já existentes para cruzar duplicidades por nome e telefone
     const servicosExistentes = await listarServicos();
     const telefonesCadastrados = new Set(
-      servicosExistentes.map((s) => s.telefone_numeros || s.telefone.replace(/\D/g, ""))
+      servicosExistentes
+        .map((s) => (s.telefone_numeros || s.telefone || "").replace(/\D/g, ""))
+        .filter((t) => t.length >= 8)
     );
-    const nomesCadastrados = new Set(
-      servicosExistentes.map((s) => s.nome.toLowerCase().trim())
-    );
+    const nomesCadastradosNorm = servicosExistentes.map((s) => ({
+      original: s.nome,
+      norm: normalizarParaDeduplicacao(s.nome.replace(/indaiatuba/gi, "")),
+      categoria: s.categoria,
+    }));
 
     const lugaresComStatus = lugares.map((l) => {
-      const telLimpo = l.telefone.replace(/\D/g, "");
-      const jaExiste =
-        (telLimpo && telefonesCadastrados.has(telLimpo)) ||
-        nomesCadastrados.has(l.nome.toLowerCase().trim());
+      const telLimpo = (l.telefone || "").replace(/\D/g, "");
+      const nomeNorm = normalizarParaDeduplicacao(l.nome.replace(/indaiatuba/gi, ""));
+
+      let jaExiste = false;
+
+      // 1. Checa por telefone cadastrado
+      if (telLimpo && telLimpo.length >= 8 && telefonesCadastrados.has(telLimpo)) {
+        jaExiste = true;
+      }
+
+      // 2. Checa por nome similar
+      if (!jaExiste && nomeNorm.length >= 4) {
+        jaExiste = nomesCadastradosNorm.some((exist) => {
+          if (exist.norm === nomeNorm) return true;
+          if (exist.norm.length >= 6 && nomeNorm.length >= 6) {
+            if (exist.norm.includes(nomeNorm) || nomeNorm.includes(exist.norm)) {
+              return true;
+            }
+          }
+          return false;
+        });
+      }
 
       return {
         ...l,
-        ja_cadastrado: Boolean(jaExiste),
+        ja_cadastrado: jaExiste,
       };
     });
 
