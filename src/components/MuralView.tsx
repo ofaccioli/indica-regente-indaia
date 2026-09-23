@@ -33,6 +33,7 @@ interface MuralViewProps {
 export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralViewProps) {
   const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false);
   const [filtroTipo, setFiltroTipo] = useState<"todos" | "pedidos" | "pets" | "desapegos" | "urgentes">("todos");
+  const [ocultarExpirados, setOcultarExpirados] = useState(false);
   
   // Estado para expandir formulário de resposta por pedido
   const [pedidoRespondendoId, setPedidoRespondendoId] = useState<string | null>(null);
@@ -41,14 +42,25 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
   const [servicoIndicadoId, setServicoIndicadoId] = useState("");
   const [enviandoResposta, setEnviandoResposta] = useState(false);
 
+  // Helper de cálculo de dias
+  const agora = Date.now();
+  const getDiasAtras = (dateStr: string) =>
+    Math.floor((agora - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
+
   // Contadores
   const countPets = pedidos.filter((p) => p.tipo_post === "pet_perdido").length;
   const countDesapegos = pedidos.filter((p) => p.tipo_post === "desapego").length;
   const countPedidos = pedidos.filter((p) => !p.tipo_post || p.tipo_post === "pedido").length;
   const countUrgentes = pedidos.filter((p) => p.urgente && p.status === "aberto").length;
+  const countExpirados = pedidos.filter(
+    (p) => p.status === "aberto" && getDiasAtras(p.created_at) >= 30
+  ).length;
 
   // Filtra pedidos
   const pedidosFiltrados = pedidos.filter((p) => {
+    if (ocultarExpirados && p.status === "aberto" && getDiasAtras(p.created_at) >= 30) {
+      return false;
+    }
     if (filtroTipo === "urgentes") return p.urgente && p.status === "aberto";
     if (filtroTipo === "pets") return p.tipo_post === "pet_perdido";
     if (filtroTipo === "desapegos") return p.tipo_post === "desapego";
@@ -184,6 +196,21 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
             <span>🚨 Urgentes ({countUrgentes})</span>
           </button>
         )}
+
+        {countExpirados > 0 && (
+          <button
+            onClick={() => setOcultarExpirados(!ocultarExpirados)}
+            className={`px-3 py-1.5 rounded-full font-bold transition-all flex-shrink-0 cursor-pointer flex items-center gap-1 ${
+              ocultarExpirados
+                ? "bg-slate-800 text-white shadow-xs"
+                : "bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200"
+            }`}
+            title="Ocultar postagens em aberto com mais de 30 dias"
+          >
+            <Clock className="w-3 h-3" />
+            <span>{ocultarExpirados ? "Ocultando antigos (+30d)" : `Ocultar antigos (${countExpirados})`}</span>
+          </button>
+        )}
       </div>
 
       {/* Lista de Pedidos */}
@@ -215,6 +242,8 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
             const isRespondendo = pedidoRespondendoId === pedido.id;
             const isPet = pedido.tipo_post === "pet_perdido";
             const isDesapego = pedido.tipo_post === "desapego";
+            const diasAtras = getDiasAtras(pedido.created_at);
+            const isExpirado = diasAtras >= 30;
 
             return (
               <article
@@ -227,7 +256,7 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                     : pedido.urgente && pedido.status === "aberto"
                     ? "border-amber-300 ring-1 ring-amber-100"
                     : "border-gray-200/80"
-                }`}
+                } ${isExpirado && pedido.status === "aberto" ? "opacity-90" : ""}`}
               >
                 {/* Topo do Card com Badges */}
                 <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
@@ -279,6 +308,14 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                         <CheckCircle2 className="w-3 h-3 text-blue-600" />
                         {isPet ? "🐶 Encontrado / Resolvido" : isDesapego ? "📦 Doado / Vendido" : "Resolvido"}
+                      </span>
+                    ) : isExpirado ? (
+                      <span
+                        className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-300"
+                        title="Publicação em aberto há mais de 30 dias. Pode já não estar mais disponível."
+                      >
+                        <Clock className="w-3 h-3 text-slate-500" />
+                        <span>Expirado (+30d)</span>
                       </span>
                     ) : (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">

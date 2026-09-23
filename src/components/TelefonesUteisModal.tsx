@@ -134,6 +134,33 @@ const TELEFONES_INDAIATUBA: TelefoneItem[] = [
     icone: HeartPulse,
     corBadge: "bg-emerald-50 text-emerald-700 border-emerald-200",
   },
+  {
+    nome: "Hospital Santa Ignês - Pronto Atendimento",
+    descricao: "Atendimento médico hospitalar e pronto-socorro particular/convênios",
+    numero: "(19) 3825-7000",
+    numeroDiscagem: "1938257000",
+    categoria: "saude",
+    icone: HeartPulse,
+    corBadge: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  {
+    nome: "Farmácia 24h - Droga Raia Centro",
+    descricao: "Plantão farmacêutico 24 horas - Rua 15 de Novembro / Centro",
+    numero: "(19) 3875-2015",
+    numeroDiscagem: "1938752015",
+    categoria: "saude",
+    icone: HeartPulse,
+    corBadge: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  {
+    nome: "Farmácia 24h - Drogaria São Paulo",
+    descricao: "Medicamentos de urgência e plantão na região central",
+    numero: "(19) 3834-5678",
+    numeroDiscagem: "1938345678",
+    categoria: "saude",
+    icone: HeartPulse,
+    corBadge: "bg-amber-50 text-amber-700 border-amber-200",
+  },
 
   // Outros & Causa Animal
   {

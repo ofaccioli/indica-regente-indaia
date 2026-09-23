@@ -17,6 +17,7 @@ import { Servico, TipoOrdenacao, PedidoMural } from "@/types";
 import { listarServicos, listarPedidosMural } from "@/lib/supabase";
 import { ordenarServicos } from "@/lib/ranking";
 import { getFavorites, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
+import { buscarCategoriasPorSinonimos } from "@/lib/synonyms";
 import {
   Sparkles,
   PlusCircle,
@@ -93,6 +94,7 @@ export default function Home() {
   // Filtra por categoria, bairro, plantão, morador, atendimento, favoritos e busca
   const servicosFiltrados = useMemo(() => {
     const termo = busca.toLowerCase().trim();
+    const categoriasSinonimos = termo ? buscarCategoriasPorSinonimos(termo) : [];
 
     return servicos.filter((item) => {
       // Filtro de Meus Salvos / Favoritos
@@ -144,7 +146,7 @@ export default function Home() {
         }
       }
 
-      // Filtro de Texto de Busca
+      // Filtro de Texto de Busca Inteligente
       if (!termo) return true;
 
       const nome = item.nome.toLowerCase();
@@ -160,7 +162,8 @@ export default function Home() {
         cidade.includes(termo) ||
         desc.includes(termo) ||
         quem.includes(termo) ||
-        telefone.includes(termo)
+        telefone.includes(termo) ||
+        categoriasSinonimos.includes(item.categoria)
       );
     });
   }, [

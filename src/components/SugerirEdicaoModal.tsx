@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, MessageCircle, Edit3, ShieldCheck, PhoneCall, HelpCircle } from "lucide-react";
+import { X, MessageCircle, Edit3, ShieldCheck, PhoneCall, HelpCircle, AlertTriangle } from "lucide-react";
 import { Servico } from "@/types";
 
 interface SugerirEdicaoModalProps {
@@ -29,6 +29,10 @@ export function SugerirEdicaoModal({
 
   // Contato do desenvolvedor / moderador (Otavio Faccioli - 19 99395-2651)
   const zapModeradorUrl = `https://wa.me/5519993952651?text=${textoWhatsApp}`;
+
+  const zapNumeroMudouUrl = `https://wa.me/5519993952651?text=${encodeURIComponent(
+    `Olá Otavio! No app *Indica Jd. Regente*, tentei contatar *${servico.nome}* (${servico.telefone}), mas o número mudou, está desativado ou não atende. Poderia verificar/atualizar por gentileza?`
+  )}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-fade-in">
@@ -102,6 +106,26 @@ export function SugerirEdicaoModal({
             >
               <MessageCircle className="w-4 h-4 fill-white" />
               <span>Solicitar Correção no WhatsApp</span>
+            </a>
+          </div>
+
+          {/* Opção 3: Alerta rápido de Faxina Colaborativa - Número mudou ou não atende */}
+          <div className="bg-amber-50/80 border border-amber-200 rounded-2xl p-3.5 space-y-2">
+            <div className="flex items-center gap-2 text-amber-900 font-bold">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <span>Número mudou ou não atende?</span>
+            </div>
+            <p className="text-amber-800 text-[11px] leading-relaxed">
+              Ajude a manter o guia sempre confiável e sem contatos inativos. Avise o moderador com 1 clique:
+            </p>
+            <a
+              href={zapNumeroMudouUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2 px-3 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded-xl flex items-center justify-center gap-1.5 transition active:scale-95 shadow-xs text-xs"
+            >
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>Avisar que Não Atende / Mudou</span>
             </a>
           </div>
 

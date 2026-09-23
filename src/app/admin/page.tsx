@@ -22,6 +22,7 @@ import {
   Home,
   Tag,
   Award,
+  Download,
 } from "lucide-react";
 import { Servico, Avaliacao } from "@/types";
 import { listarServicos } from "@/lib/supabase";
@@ -78,6 +79,72 @@ export default function AdminDashboardPage() {
     } finally {
       setCarregando(false);
     }
+  };
+
+  const handleExportarCSV = () => {
+    if (servicos.length === 0) {
+      alert("Nenhum serviço cadastrado para exportar.");
+      return;
+    }
+
+    const cabecalho = [
+      "ID",
+      "Nome",
+      "Categoria",
+      "Telefone",
+      "Telefone Secundário",
+      "Bairro",
+      "Nota Média",
+      "Total Avaliações",
+      "Morador do Bairro",
+      "Atende Fim de Semana",
+      "Verificado Admin",
+      "Oferta Vizinho",
+      "Horário de Funcionamento",
+      "Quem Indicou",
+      "Instagram",
+      "Data de Cadastro",
+    ];
+
+    const escapeCsv = (val: any) => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    const linhas = servicos.map((s) => [
+      escapeCsv(s.id),
+      escapeCsv(s.nome),
+      escapeCsv(s.categoria),
+      escapeCsv(s.telefone),
+      escapeCsv(s.telefone_secundario || ""),
+      escapeCsv(s.cidade_bairro),
+      s.nota_media || 5,
+      s.total_avaliacoes || 0,
+      s.eh_morador ? "Sim" : "Não",
+      s.atende_fim_de_semana ? "Sim" : "Não",
+      s.verificado_admin ? "Sim" : "Não",
+      escapeCsv(s.oferta_vizinho || ""),
+      escapeCsv(s.horario_funcionamento || ""),
+      escapeCsv(s.quem_indicou || ""),
+      escapeCsv(s.instagram || ""),
+      escapeCsv(s.created_at ? new Date(s.created_at).toLocaleDateString("pt-BR") : ""),
+    ]);
+
+    const csvContent =
+      "\uFEFF" + [cabecalho.join(";"), ...linhas.map((l) => l.join(";"))].join("\r\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute(
+      "download",
+      `indica-regente-profissionais-${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleLogout = async () => {
@@ -205,6 +272,16 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExportarCSV}
+              className="bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+              title="Baixar planilha Excel / CSV com todos os dados cadastrados"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Exportar Excel</span>
+            </button>
+
             <Link
               href="/cadastrar"
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs transition-colors"

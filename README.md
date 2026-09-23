@@ -51,20 +51,34 @@ Ao tocar em **"Chamar no WhatsApp"**, o morador pode escolher mensagens pré-for
 - **Edição Direta pelo Criador**: O aparelho que cadastrou o serviço reconhece o autor e exibe o botão `✏️ Editar`, permitindo atualizar telefones, fotos, horários e condições especiais sem burocracia.
 - **"É o dono? Atualizar informações"**: Para outros aparelhos, abre o modal de contato direto no WhatsApp da moderação (**Otavio Faccioli - 19 99395-2651**) com os dados já preenchidos.
 
-### 6. 🚨 SOS & Calendário do Bairro
-- **Telefones Úteis com Discagem Direta**:
-  - GCM (153), SAMU (192), Bombeiros (193), Polícia Militar (190), SAAE (Água), CPFL (Energia), UPA Morada do Sol, etc.
+### 6. 🚨 SOS, Saúde & Calendário do Bairro
+- **Telefones Úteis e Emergências com Discagem Direta**:
+  - GCM (153), SAMU (192), Bombeiros (193), Polícia Militar (190), SAAE (Água), CPFL (Energia), UPA Morada do Sol.
+  - **Hospitais & Farmácias 24h**: HAOC (Hospital Augusto de Oliveira Camargo), Hospital Santa Ignês e farmácias 24h de plantão (Droga Raia e Drogaria São Paulo).
 - **Calendário de Coleta de Lixo**:
   - Horários e dias do caminhão de lixo comum, coleta seletiva e cata-bagulho no Jd. Regente e Valença.
 
-### 7. 🎨 Design, Layout & Experiência de Uso (UX)
+### 7. 🧠 Busca Inteligente por Problemas e Sinônimos
+- O morador não precisa adivinhar o nome técnico da profissão:
+  - Digitar *"chuveiro queimou"* ou *"tomada"* acha **Eletricista**.
+  - Digitar *"vazamento"*, *"cano"* ou *"torneira"* acha **Encanador**.
+  - Digitar *"faxina"* ou *"passadeira"* acha **Diarista / Limpeza**.
+  - Digitar *"viracopos"* ou *"aeroporto"* acha **Uber / Táxi / Motorista**.
+  - Digitar *"carreto"* ou *"entulho"* acha **Fretes / Mudanças**.
+
+### 8. 🧹 Faxina Colaborativa & Validade no Mural
+- **Alerta "Número mudou / Não atende"**: Botão de 1 toque em qualquer serviço para avisar a moderação pelo WhatsApp sobre contatos inativos.
+- **Validade de 30 Dias no Mural**: Selo `⏳ Expirado (+30d)` e botão para ocultar posts antigos com 1 clique, mantendo os desapegos e avisos sempre atualizados.
+- **Exportação para Excel / CSV no `/admin`**: Download completo dos prestadores com telefones, notas e horários em UTF-8 formatado para Excel.
+
+### 9. 🎨 Design, Layout & Experiência de Uso (UX)
 - **Chips de Atalhos Rápidos**: Logo abaixo da barra de busca, tags deslizáveis (`🔥 Churrasco`, `⚡ Eletricista`, `🚖 Uber`, `🎂 Bolos`, etc.) para filtrar com 1 toque sem digitar.
 - **Botão Flutuante "Voltar ao Topo"**: Surge suavemente ao rolar a página para baixo.
 - **Notificações Toast**: Avisos elegantes e discretos ao favoritar ou copiar indicações.
 - **Empty State Inteligente**: Ao pesquisar algo não encontrado, oferece botões diretos para *Pedir no Mural do Bairro* ou *Indicar um profissional*.
 - **Compartilhamento no WhatsApp com Pré-visualização Oficial**: Banner Open Graph (1200x630) nas cores verde esmeralda com o logotipo oficial do **Indica Jd. Regente** (substituindo o ícone da Vercel).
 - **PWA Instalável**: Funciona no navegador e permite instalar como aplicativo no Android (Chrome) e iPhone (Safari) com ícone próprio na tela de início.
-- **Painel Administrativo (`/admin`)**: Área para moderadores gerenciarem cadastros, aprovarem avaliações e editarem qualquer serviço.
+- **Painel Administrativo (`/admin`)**: Área para moderadores gerenciarem cadastros, aprovarem avaliações, exportarem CSV para Excel e editarem qualquer serviço.
 
 ---
 
