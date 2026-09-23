@@ -79,6 +79,7 @@ Ao tocar em **"Chamar no WhatsApp"**, o morador pode escolher mensagens pré-for
 - **Compartilhamento no WhatsApp com Pré-visualização Oficial**: Banner Open Graph (1200x630) nas cores verde esmeralda com o logotipo oficial do **Indica Jd. Regente** (substituindo o ícone da Vercel).
 - **PWA Instalável**: Funciona no navegador e permite instalar como aplicativo no Android (Chrome) e iPhone (Safari) com ícone próprio na tela de início.
 - **Painel Administrativo (`/admin`)**: Área para moderadores gerenciarem cadastros, aprovarem avaliações, exportarem CSV para Excel e editarem qualquer serviço.
+- **Importador do Google Maps (`/admin`)**: Ferramenta integrada com busca em massa por categoria e importação por link direto do Google Maps. Puxa nome, telefones, nota média ($\ge 4.5★$), horários, fotos e endereços reais de Indaiatuba com 1 clique (suporta catálogo curado offline ou Google Places API em tempo real).
 
 ---
 

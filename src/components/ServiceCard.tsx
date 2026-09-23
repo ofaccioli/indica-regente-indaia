@@ -179,6 +179,15 @@ export function ServiceCard({
                   🚨 Plantão FDS
                 </span>
               )}
+
+              {servico.origem === "google" && (
+                <span
+                  className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200"
+                  title="Estabelecimento bem avaliado verificado no Google Maps"
+                >
+                  <span>⭐ Google Maps</span>
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-1.5 flex-shrink-0">

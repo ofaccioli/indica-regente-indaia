@@ -22,6 +22,11 @@ export interface Servico {
   horario_funcionamento?: string;
   foto_url?: string;
   fotos_trabalhos?: string[];
+  origem?: "comunidade" | "google";
+  google_rating?: number;
+  google_user_ratings_total?: number;
+  google_place_id?: string;
+  endereco?: string;
   created_at: string;
 }
 

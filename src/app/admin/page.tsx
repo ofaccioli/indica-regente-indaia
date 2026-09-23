@@ -23,10 +23,12 @@ import {
   Tag,
   Award,
   Download,
+  Sparkles,
 } from "lucide-react";
 import { Servico, Avaliacao } from "@/types";
 import { listarServicos } from "@/lib/supabase";
 import { AdminEditModal } from "@/components/AdminEditModal";
+import { GooglePlacesImporter } from "@/components/admin/GooglePlacesImporter";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -36,7 +38,7 @@ export default function AdminDashboardPage() {
   // Estados de dados
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
-  const [abaAtiva, setAbaAtiva] = useState<"servicos" | "avaliacoes">("servicos");
+  const [abaAtiva, setAbaAtiva] = useState<"servicos" | "avaliacoes" | "google">("servicos");
   const [busca, setBusca] = useState("");
 
   // Modal de edição
@@ -331,6 +333,21 @@ export default function AdminDashboardPage() {
               {avaliacoes.length}
             </span>
           </button>
+
+          <button
+            onClick={() => setAbaAtiva("google")}
+            className={`py-2.5 font-bold border-b-2 transition-colors flex items-center gap-1.5 cursor-pointer ${
+              abaAtiva === "google"
+                ? "border-amber-400 text-amber-300"
+                : "border-transparent text-gray-400 hover:text-gray-200"
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span>Importar do Google</span>
+            <span className="bg-amber-400/20 text-amber-300 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold border border-amber-400/30">
+              Novo
+            </span>
+          </button>
         </div>
       </header>
 
@@ -612,6 +629,13 @@ export default function AdminDashboardPage() {
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Aba: Importar do Google */}
+        {abaAtiva === "google" && (
+          <div className="space-y-4">
+            <GooglePlacesImporter onImportado={carregarDados} />
           </div>
         )}
       </main>

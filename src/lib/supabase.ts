@@ -388,7 +388,12 @@ export async function verificarTelefoneExistente(telefone: string): Promise<Serv
 /**
  * Cadastra um novo serviço, validando duplicidade
  */
-export async function cadastrarServico(dados: Omit<Servico, "id" | "created_at" | "nota_media" | "total_avaliacoes">): Promise<{ sucesso: boolean; servico?: Servico; erro?: string }> {
+export async function cadastrarServico(
+  dados: Omit<Servico, "id" | "created_at" | "nota_media" | "total_avaliacoes"> & {
+    nota_media?: number;
+    total_avaliacoes?: number;
+  }
+): Promise<{ sucesso: boolean; servico?: Servico; erro?: string }> {
   const digitos = limparTelefone(dados.telefone);
   const digitosSecundario = dados.telefone_secundario ? limparTelefone(dados.telefone_secundario) : undefined;
 
@@ -414,13 +419,16 @@ export async function cadastrarServico(dados: Omit<Servico, "id" | "created_at" 
     }
   }
 
+  const notaInicial = typeof dados.nota_media === "number" ? dados.nota_media : 5.0;
+  const totalInicial = typeof dados.total_avaliacoes === "number" ? dados.total_avaliacoes : 1;
+
   const novoServico: Servico = {
     ...dados,
     id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
     telefone_numeros: digitos,
     telefone_secundario_numeros: digitosSecundario,
-    nota_media: 5.0,
-    total_avaliacoes: 1,
+    nota_media: notaInicial,
+    total_avaliacoes: totalInicial,
     created_at: new Date().toISOString(),
   };
 
@@ -446,8 +454,8 @@ export async function cadastrarServico(dados: Omit<Servico, "id" | "created_at" 
           horario_funcionamento: novoServico.horario_funcionamento || null,
           foto_url: novoServico.foto_url || null,
           fotos_trabalhos: novoServico.fotos_trabalhos || null,
-          nota_media: 5.0,
-          total_avaliacoes: 1,
+          nota_media: novoServico.nota_media,
+          total_avaliacoes: novoServico.total_avaliacoes,
         }])
         .select()
         .single();
