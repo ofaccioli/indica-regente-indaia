@@ -44,6 +44,7 @@ import {
   verificarTelefoneExistente,
   cadastrarServico,
 } from "@/lib/supabase";
+import { addMyCreatedService } from "@/lib/my-services";
 import { DuplicateWarning } from "@/components/DuplicateWarning";
 import { RatingModal } from "@/components/RatingModal";
 
@@ -208,6 +209,9 @@ export default function CadastrarPage() {
       });
 
       if (res.sucesso) {
+        if (res.servico) {
+          addMyCreatedService(res.servico.id);
+        }
         setMensagemSucesso(true);
 
         try {

@@ -420,7 +420,9 @@ export default function Home() {
                     key={item.id}
                     servico={item}
                     salvo={favoritosIds.includes(item.id)}
-                    onToggleFavorito={(id) => toggleFavorite(id)}
+                    onToggleFavorito={() => {
+                      setFavoritosIds(getFavorites());
+                    }}
                     onAtualizar={carregarDados}
                   />
                 ))}

@@ -15,14 +15,18 @@ import {
   Award,
   Clock,
   Camera,
+  Edit3,
 } from "lucide-react";
 import { Servico } from "@/types";
 import { WhatsAppOptionsModal } from "./WhatsAppOptionsModal";
 import { RatingModal } from "./RatingModal";
 import { VerAvaliacoesModal } from "./VerAvaliacoesModal";
 import { FotosTrabalhosModal } from "./FotosTrabalhosModal";
+import { EditarServicoModal } from "./EditarServicoModal";
+import { SugerirEdicaoModal } from "./SugerirEdicaoModal";
 import { gerarLinkLigacao, verificarAbertoAgora } from "@/lib/utils";
 import { isFavorite, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
+import { isMyCreatedService, MY_SERVICES_EVENT } from "@/lib/my-services";
 
 interface ServiceCardProps {
   servico: Servico;
@@ -57,13 +61,28 @@ export function ServiceCard({
   const [modalVerAvaliacoesAberto, setModalVerAvaliacoesAberto] = useState(false);
   const [modalFotosAberto, setModalFotosAberto] = useState(false);
   const [modalLigarAberto, setModalLigarAberto] = useState(false);
+  const [modalEditarAberto, setModalEditarAberto] = useState(false);
+  const [modalSugerirEdicaoAberto, setModalSugerirEdicaoAberto] = useState(false);
+  const [souAutor, setSouAutor] = useState(false);
   const [copiado, setCopiado] = useState(false);
 
   const statusAberto = verificarAbertoAgora(servico.horario_funcionamento);
 
+  // Checa se este aparelho foi quem cadastrou o serviço
+  useEffect(() => {
+    setSouAutor(isMyCreatedService(servico.id));
+
+    const handleMyServicesSync = () => {
+      setSouAutor(isMyCreatedService(servico.id));
+    };
+
+    window.addEventListener(MY_SERVICES_EVENT, handleMyServicesSync);
+    return () => window.removeEventListener(MY_SERVICES_EVENT, handleMyServicesSync);
+  }, [servico.id]);
+
   // Sincroniza estado de favorito com props e localStorage
   useEffect(() => {
-    setSalvoLocal(salvo || isFavorite(servico.id));
+    setSalvoLocal(isFavorite(servico.id));
 
     const handleSync = () => {
       setSalvoLocal(isFavorite(servico.id));
@@ -71,7 +90,7 @@ export function ServiceCard({
 
     window.addEventListener(FAVORITES_EVENT, handleSync);
     return () => window.removeEventListener(FAVORITES_EVENT, handleSync);
-  }, [salvo, servico.id]);
+  }, [servico.id]);
 
   const ligarUrl = gerarLinkLigacao(servico.telefone);
 
@@ -197,6 +216,21 @@ export function ServiceCard({
                 >
                   <Camera className="w-3 h-3 text-emerald-600" />
                   <span>Fotos ({servico.fotos_trabalhos.length})</span>
+                </button>
+              )}
+
+              {souAutor && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setModalEditarAberto(true);
+                  }}
+                  className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition active:scale-95 cursor-pointer"
+                  title="Você cadastrou este serviço! Clique para editar"
+                >
+                  <Edit3 className="w-2.5 h-2.5" />
+                  <span>Editar</span>
                 </button>
               )}
             </div>
@@ -395,6 +429,24 @@ export function ServiceCard({
               <span>{copiado ? "Copiado!" : "Indicar"}</span>
             </button>
           </div>
+
+          {/* Link discreto para Atualizar Dados / Sugerir Edição */}
+          <div className="pt-2 text-center border-t border-slate-100/70 mt-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (souAutor) {
+                  setModalEditarAberto(true);
+                } else {
+                  setModalSugerirEdicaoAberto(true);
+                }
+              }}
+              className="text-[11px] text-slate-400 hover:text-emerald-700 font-medium inline-flex items-center gap-1 hover:underline transition cursor-pointer"
+            >
+              <Edit3 className="w-3 h-3 text-slate-400" />
+              <span>{souAutor ? "Editar informações deste cadastro" : "É o dono? Atualizar informações"}</span>
+            </button>
+          </div>
         </div>
       </article>
 
@@ -430,6 +482,23 @@ export function ServiceCard({
           fotos={servico.fotos_trabalhos}
         />
       )}
+
+      {/* Modal de Edição Direta (para quem cadastrou no aparelho) */}
+      <EditarServicoModal
+        servico={servico}
+        isOpen={modalEditarAberto}
+        onClose={() => setModalEditarAberto(false)}
+        onSalvo={onAtualizar || (() => {})}
+      />
+
+      {/* Modal de Sugerir Edição / WhatsApp com Moderador */}
+      <SugerirEdicaoModal
+        servico={servico}
+        isOpen={modalSugerirEdicaoAberto}
+        onClose={() => setModalSugerirEdicaoAberto(false)}
+        podeEditarDireto={souAutor}
+        onAbrirEdicaoDireta={() => setModalEditarAberto(true)}
+      />
 
       {/* Modal para Escolha de Telefone para Ligação */}
       {modalLigarAberto && servico.telefone_secundario && (

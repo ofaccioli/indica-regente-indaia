@@ -20,6 +20,15 @@ import {
   LayoutGrid,
   ChevronLeft,
   ChevronRight,
+  Flame,
+  Cake,
+  PartyPopper,
+  Trees,
+  Truck,
+  Armchair,
+  Key,
+  HeartHandshake,
+  Briefcase,
 } from "lucide-react";
 
 interface CategoryFilterProps {
@@ -82,6 +91,20 @@ export function CategoryFilter({
         return <Hammer className="w-3.5 h-3.5 text-amber-700" />;
       case "Pintor / Gesso":
         return <Paintbrush className="w-3.5 h-3.5 text-indigo-500" />;
+      case "Churrasqueiro":
+        return <Flame className="w-3.5 h-3.5 text-amber-600" />;
+      case "Buffet / Festas & Eventos":
+        return <PartyPopper className="w-3.5 h-3.5 text-fuchsia-500" />;
+      case "Bolos / Doces / Salgados":
+        return <Cake className="w-3.5 h-3.5 text-pink-500" />;
+      case "Jardinagem / Piscina":
+        return <Trees className="w-3.5 h-3.5 text-emerald-600" />;
+      case "Marcenaria / Móveis":
+        return <Armchair className="w-3.5 h-3.5 text-amber-800" />;
+      case "Chaveiro / Fechaduras":
+        return <Key className="w-3.5 h-3.5 text-yellow-600" />;
+      case "Fretes / Mudanças":
+        return <Truck className="w-3.5 h-3.5 text-blue-600" />;
       case "Pet / Veterinário":
         return <Dog className="w-3.5 h-3.5 text-pink-500" />;
       case "Restaurante / Lanche":
@@ -92,12 +115,18 @@ export function CategoryFilter({
         return <Scissors className="w-3.5 h-3.5 text-purple-500" />;
       case "Saúde / Terapia":
         return <HeartPulse className="w-3.5 h-3.5 text-rose-500" />;
+      case "Cuidador / Enfermagem / Babá":
+        return <HeartHandshake className="w-3.5 h-3.5 text-rose-600" />;
       case "Aulas / Reforço":
         return <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />;
       case "Costura / Roupas":
         return <Shirt className="w-3.5 h-3.5 text-violet-500" />;
+      case "Lavanderia / Passadeira":
+        return <Sparkles className="w-3.5 h-3.5 text-sky-600" />;
       case "Tecnologia / Celular":
         return <Smartphone className="w-3.5 h-3.5 text-blue-600" />;
+      case "Contabilidade / Advocacia":
+        return <Briefcase className="w-3.5 h-3.5 text-slate-700" />;
       default:
         return <Sparkles className="w-3.5 h-3.5 text-gray-500" />;
     }
