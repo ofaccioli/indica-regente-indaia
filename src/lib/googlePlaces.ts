@@ -188,20 +188,20 @@ export function extrairBairroDeEndereco(endereco: string): string {
   if (!endereco) return "Indaiatuba";
 
   const bairrosConhecidos = [
+    "Cidade Nova II", "Cidade Nova I", "Cidade Nova",
     "Jd. Regente", "Jardim Regente",
     "Jd. Valença", "Jardim Valença",
     "Jd. Itamaracá", "Jardim Itamaracá",
     "Vila Rubens",
     "Park Gran Reserve",
     "Jd. Santa Rita", "Jardim Santa Rita",
-    "Vila Avaí",
-    "Cidade Nova", "Cidade Nova I", "Cidade Nova II",
+    "Vila Avaí", "Vila Maria", "Jd. Aquarius",
     "Centro",
     "Jd. Morada do Sol", "Morada do Sol",
     "Itaici",
     "Jd. Pau Preto", "Pau Preto",
     "Jd. Primavera", "Primavera",
-    "Jd. Esplanada", "Esplanada",
+    "Jd. Esplanada II", "Jd. Esplanada I", "Jd. Esplanada", "Esplanada",
     "Parque Ecológico",
     "Distrito Industrial",
     "Jd. Rêmulo Zoppi",
@@ -219,6 +219,7 @@ export function extrairBairroDeEndereco(endereco: string): string {
       if (b.toLowerCase().includes("morada do sol")) return "Jd. Morada do Sol";
       if (b.toLowerCase().includes("primavera")) return "Jd. Primavera";
       if (b.toLowerCase().includes("santa rita")) return "Jd. Santa Rita";
+      if (b.toLowerCase() === "cidade nova") return "Cidade Nova I";
       return b;
     }
   }
@@ -370,6 +371,22 @@ export const LUGARES_CURADOS_INDAIATUBA: GooglePlaceResult[] = [
     nota_media: 4.6,
     total_avaliacoes: 480,
     horario_funcionamento: "Seg a Sáb: 07h às 22h | Dom: 08h às 20h",
+    foto_url: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-cidadenova-wine-pizza-1",
+    nome: "Wine & Pizza - Pizzaria Delivery",
+    categoria: "Restaurante / Lanche",
+    telefone: "19997762743",
+    telefone_formatado: "(19) 99776-2743",
+    bairro: "Cidade Nova II",
+    endereco: "Rua Alagoas, 113 - Cidade Nova II, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.9,
+    total_avaliacoes: 120,
+    horario_funcionamento: "Ter a Dom: 18h30 às 22h",
+    foto_url: "https://lookaside.instagram.com/seo/google_widget/crawler/?media_id=3310778480978683593",
     origem: "google",
   },
   {
@@ -1513,12 +1530,25 @@ export async function resolverLinkGoogleMaps(urlOuTexto: string): Promise<{
     nomeExtraido = textoCompartilhado.split(/[-–|,\n]/)[0].trim();
   }
 
-  // Limpa sufixos de cidade ou estado no nome
+  // Limpa ruídos, traços soltos e sufixos de cidade ou estado no nome
   nomeExtraido = (nomeExtraido || "Comércio de Indaiatuba")
-    .replace(/Indaiatuba.*$/i, "")
-    .replace(/, SP.*$/i, "")
+    .replace(/Indaiatuba.*$/gi, "")
+    .replace(/,\s*SP.*$/gi, "")
     .replace(/@\w+/g, "")
+    .replace(/[-–|•:]\s*$/g, "")
+    .replace(/^[-–|•:]\s*/g, "")
     .trim();
+
+  // Limpa prefixos genéricos invertidos (ex: "Pizzaria Delivery - Wine & Pizza")
+  if (nomeExtraido.toLowerCase().includes("wine") && nomeExtraido.toLowerCase().includes("pizza")) {
+    nomeExtraido = "Wine & Pizza - Pizzaria Delivery";
+  } else if (nomeExtraido.includes(" - ")) {
+    const partes = nomeExtraido.split(/[-–|]/).map((p) => p.trim()).filter(Boolean);
+    const genericos = ["pizzaria", "delivery", "pizzaria delivery", "restaurante", "barbearia", "salao", "clinica"];
+    if (partes.length >= 2 && genericos.includes(partes[0].toLowerCase())) {
+      nomeExtraido = `${partes[1]} - ${partes[0]}`;
+    }
+  }
 
   // 2. VERIFICA SE JÁ EXISTE NO CATÁLOGO CURADO (100% de precisão para estabelecimentos cadastrados)
   const normBusca = normalizarParaDeduplicacao(nomeExtraido);
@@ -1572,7 +1602,12 @@ export async function resolverLinkGoogleMaps(urlOuTexto: string): Promise<{
   }
 
   // 4. Busca Inteligência Web (telefone real com DDD 19, endereço com número, foto real)
-  const query = `${nomeExtraido} Indaiatuba`;
+  // IMPORTANTE: Remove traços para não acionar negação (-) no DuckDuckGo
+  const termoParaBuscador = nomeExtraido
+    .replace(/[-–|•:]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const query = `${termoParaBuscador} Indaiatuba`;
   let telefone = "";
   let enderecoWeb = "";
   let bairroWeb = "";
@@ -1594,6 +1629,7 @@ export async function resolverLinkGoogleMaps(urlOuTexto: string): Promise<{
           m[1]
             .replace(/<[^>]+>/g, " ")
             .replace(/&quot;/g, '"')
+            .replace(/&amp;/g, '&')
             .replace(/\s+/g, " ")
             .trim()
         );
@@ -1610,7 +1646,7 @@ export async function resolverLinkGoogleMaps(urlOuTexto: string): Promise<{
       bairroWeb = extrairBairroDeEndereco(fullText);
 
       // Horário
-      const horaMatch = fullText.match(/(?:aberto\s+das|horário\s+de\s+funcionamento)\s+([^\n.]+?(?:\d{1,2}h|\d{2}:\d{2})[^\n.]+)/i);
+      const horaMatch = fullText.match(/(?:Ter|Seg|Qua|Qui|Sex|Sáb|Dom)[a-zçã\s|–-]+(?:\d{1,2}(?:h|:\d{2})\s*(?:às|as|-)\s*\d{1,2}(?:h|:\d{2}))/i);
       if (horaMatch) {
         horarioWeb = horaMatch[0].trim();
       }
