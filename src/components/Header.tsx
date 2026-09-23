@@ -14,12 +14,15 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
+import { ClimaAtual } from "@/lib/weather";
 
 interface HeaderProps {
   busca: string;
   onBuscaChange: (novaBusca: string) => void;
   onAbrirDivulgacao?: () => void;
   onAbrirTelefones?: () => void;
+  onAbrirClima?: () => void;
+  clima?: ClimaAtual | null;
   onLogoClick?: () => void;
 }
 
@@ -28,6 +31,8 @@ export function Header({
   onBuscaChange,
   onAbrirDivulgacao,
   onAbrirTelefones,
+  onAbrirClima,
+  clima,
   onLogoClick,
 }: HeaderProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -100,6 +105,18 @@ export function Header({
           </Link>
 
           <div className="flex items-center gap-1.5 flex-shrink-0">
+            {onAbrirClima && clima && (
+              <button
+                type="button"
+                onClick={onAbrirClima}
+                className="inline-flex items-center gap-1 bg-sky-900/80 hover:bg-sky-800 text-sky-100 hover:text-white px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all border border-sky-600/50 cursor-pointer"
+                title={`Clima no Jd. Regente: ${clima.temperatura}°C (${clima.descricao}). Toque para ver a previsão dos próximos dias.`}
+              >
+                <span className="text-sm select-none">{clima.icone}</span>
+                <span className="font-black text-white">{clima.temperatura}°</span>
+              </button>
+            )}
+
             {onAbrirTelefones && (
               <button
                 type="button"

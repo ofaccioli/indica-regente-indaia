@@ -127,6 +127,11 @@ export function mapearGoogleParaCategoriaApp(types: string[] = [], nome = ""): s
 
   // Verificações prioritárias por nome
   if (nomeLower.includes("pizza") || nomeLower.includes("hamburg") || nomeLower.includes("burger") || nomeLower.includes("pastel") || nomeLower.includes("espeto") || nomeLower.includes("lanche")) return "Restaurante / Lanche";
+  if (nomeLower.includes("barbearia") || nomeLower.includes("barbeiro") || nomeLower.includes("cabeleireir")) return "Barbearia / Cabeleireiro";
+  if (nomeLower.includes("lava rápido") || nomeLower.includes("lava rapido") || nomeLower.includes("estética automotiva") || nomeLower.includes("polimento") || nomeLower.includes("lavacar")) return "Lava Rápido / Estética Automotiva";
+  if (nomeLower.includes("dentista") || nomeLower.includes("odonto") || nomeLower.includes("ortodontia") || nomeLower.includes("implante")) return "Dentista / Odontologia";
+  if (nomeLower.includes("açougue") || nomeLower.includes("acougue") || nomeLower.includes("casa de carnes") || (nomeLower.includes("carnes") && !nomeLower.includes("churrasqueiro"))) return "Açougue / Casa de Carnes";
+  if (nomeLower.includes("sorvete") || nomeLower.includes("sorveteria") || nomeLower.includes("açaí") || nomeLower.includes("acai") || nomeLower.includes("gelato") || nomeLower.includes("gelateria")) return "Sorveteria / Açaí";
   if (nomeLower.includes("padaria") || nomeLower.includes("confeitaria") || nomeLower.includes("bolo") || nomeLower.includes("café") || nomeLower.includes("doceria") || nomeLower.includes("chocolate")) return "Bolos / Doces / Salgados";
   if (nomeLower.includes("chaveiro") || nomeLower.includes("fechadura")) return "Chaveiro / Fechaduras";
   if (nomeLower.includes("veterinári") || nomeLower.includes("pet") || nomeLower.includes("banho e tosa") || nomeLower.includes("agropecuária") || nomeLower.includes("ração")) return "Pet / Veterinário";
@@ -134,8 +139,8 @@ export function mapearGoogleParaCategoriaApp(types: string[] = [], nome = ""): s
   if (nomeLower.includes("ar condicionado") || nomeLower.includes("climatiz") || nomeLower.includes("refrigera")) return "Ar Condicionado";
   if (nomeLower.includes("vidraçaria") || nomeLower.includes("box") || nomeLower.includes("espelho")) return "Vidraçaria / Box & Espelhos";
   if (nomeLower.includes("biciclet") || nomeLower.includes("bike") || nomeLower.includes("ciclo")) return "Bicicletaria / Bike";
-  if (nomeLower.includes("farmácia") || nomeLower.includes("drogaria") || nomeLower.includes("dentista") || nomeLower.includes("odonto") || nomeLower.includes("fisioterapia") || nomeLower.includes("clínica") || nomeLower.includes("hospital")) return "Saúde / Terapia";
-  if (nomeLower.includes("barbearia") || nomeLower.includes("cabeleireir") || nomeLower.includes("estética") || nomeLower.includes("unha") || nomeLower.includes("manicure") || nomeLower.includes("depila")) return "Beleza / Estética";
+  if (nomeLower.includes("farmácia") || nomeLower.includes("drogaria") || nomeLower.includes("fisioterapia") || nomeLower.includes("clínica") || nomeLower.includes("hospital")) return "Saúde / Terapia";
+  if (nomeLower.includes("estética") || nomeLower.includes("unha") || nomeLower.includes("manicure") || nomeLower.includes("depila")) return "Beleza / Estética";
   if (nomeLower.includes("eletricista") || nomeLower.includes("elétrica")) return "Eletricista";
   if (nomeLower.includes("encanador") || nomeLower.includes("hidráulic") || nomeLower.includes("desentupidora")) return "Encanador";
   if (nomeLower.includes("lavanderia") || nomeLower.includes("passadeira") || nomeLower.includes("limpeza") || nomeLower.includes("faxina")) return "Diarista / Limpeza";
@@ -145,7 +150,7 @@ export function mapearGoogleParaCategoriaApp(types: string[] = [], nome = ""): s
   if (nomeLower.includes("jardim") || nomeLower.includes("piscina") || nomeLower.includes("grama")) return "Jardinagem / Piscina";
   if (nomeLower.includes("eletrodoméstico") || nomeLower.includes("geladeira") || nomeLower.includes("máquina de lavar") || nomeLower.includes("fogão")) return "Conserto de Eletrodomésticos";
   if (nomeLower.includes("tapeçaria") || nomeLower.includes("estofado") || nomeLower.includes("sofá")) return "Tapeçaria / Estofados";
-  if (nomeLower.includes("churrasco") || nomeLower.includes("açougue") || nomeLower.includes("carnes")) return "Churrasqueiro";
+  if (nomeLower.includes("churrasco")) return "Churrasqueiro";
   if (nomeLower.includes("gás") || nomeLower.includes("água mineral")) return "Gás & Água Mineral";
   if (nomeLower.includes("frete") || nomeLower.includes("mudança") || nomeLower.includes("carreto")) return "Fretes / Mudanças";
   if (nomeLower.includes("segurança") || nomeLower.includes("câmera") || nomeLower.includes("alarme")) return "Segurança / Câmeras & Alarmes";
@@ -154,15 +159,17 @@ export function mapearGoogleParaCategoriaApp(types: string[] = [], nome = ""): s
   // Verificações por tipos do Google Places
   const typesSet = new Set(types);
 
+  if (typesSet.has("car_wash")) return "Lava Rápido / Estética Automotiva";
+  if (typesSet.has("dentist")) return "Dentista / Odontologia";
   if (typesSet.has("locksmith")) return "Chaveiro / Fechaduras";
   if (typesSet.has("veterinary_care") || typesSet.has("pet_store")) return "Pet / Veterinário";
-  if (typesSet.has("car_repair") || typesSet.has("car_dealer") || typesSet.has("car_wash")) return "Mecânico";
+  if (typesSet.has("car_repair") || typesSet.has("car_dealer")) return "Mecânico";
   if (typesSet.has("bakery")) return "Bolos / Doces / Salgados";
   if (typesSet.has("restaurant") || typesSet.has("meal_takeaway") || typesSet.has("cafe")) return "Restaurante / Lanche";
   if (typesSet.has("electrician")) return "Eletricista";
   if (typesSet.has("plumber")) return "Encanador";
   if (typesSet.has("hair_care") || typesSet.has("beauty_salon") || typesSet.has("spa")) return "Beleza / Estética";
-  if (typesSet.has("dentist") || typesSet.has("physiotherapist") || typesSet.has("doctor") || typesSet.has("pharmacy")) return "Saúde / Terapia";
+  if (typesSet.has("physiotherapist") || typesSet.has("doctor") || typesSet.has("pharmacy")) return "Saúde / Terapia";
   if (typesSet.has("bicycle_store")) return "Bicicletaria / Bike";
   if (typesSet.has("laundry")) return "Lavanderia / Passadeira";
   if (typesSet.has("moving_company")) return "Fretes / Mudanças";
@@ -804,6 +811,174 @@ export const LUGARES_CURADOS_INDAIATUBA: GooglePlaceResult[] = [
     nota_media: 4.8,
     total_avaliacoes: 190,
     horario_funcionamento: "Seg a Sex: 08h às 18h | Sáb: 08h às 12h",
+    origem: "google",
+  },
+  // ==========================================
+  // NOVAS CATEGORIAS: BARBEARIA, LAVA RÁPIDO, DENTISTA, AÇOUGUE & SORVETERIA/AÇAÍ
+  // ==========================================
+  {
+    google_place_id: "ind-valenca-barbearia-1",
+    nome: "Barbearia Dom Barba - Cortes & Barboterapia",
+    categoria: "Barbearia / Cabeleireiro",
+    telefone: "19998221144",
+    telefone_formatado: "(19) 99822-1144",
+    bairro: "Jd. Valença",
+    endereco: "Av. Pres. Vargas, 890 - Jd. Valença, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.9,
+    total_avaliacoes: 210,
+    horario_funcionamento: "Ter a Sáb: 09h às 20h",
+    foto_url: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-regente-barbearia-1",
+    nome: "Salão & Barbearia Estilo Regente",
+    categoria: "Barbearia / Cabeleireiro",
+    telefone: "19997442288",
+    telefone_formatado: "(19) 99744-2288",
+    bairro: "Jd. Regente",
+    endereco: "R. Antônio Barnabé, 410 - Jd. Regente, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.8,
+    total_avaliacoes: 145,
+    horario_funcionamento: "Ter a Sáb: 08h30 às 19h30",
+    foto_url: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-centro-barbearia-1",
+    nome: "Studio & Barbearia Vip Indaiatuba",
+    categoria: "Barbearia / Cabeleireiro",
+    telefone: "19996335522",
+    telefone_formatado: "(19) 99633-5522",
+    bairro: "Centro",
+    endereco: "R. Candelária, 740 - Centro, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.9,
+    total_avaliacoes: 380,
+    horario_funcionamento: "Seg a Sáb: 09h às 20h",
+    foto_url: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-valenca-lavarapido-1",
+    nome: "Lava Rápido & Estética Automotiva Valença Detail",
+    categoria: "Lava Rápido / Estética Automotiva",
+    telefone: "19998553311",
+    telefone_formatado: "(19) 99855-3311",
+    bairro: "Jd. Valença",
+    endereco: "R. das Orquídeas, 140 - Jd. Valença, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.9,
+    total_avaliacoes: 195,
+    horario_funcionamento: "Seg a Sáb: 08h às 18h",
+    foto_url: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-regente-lavarapido-1",
+    nome: "Auto Brilho Lavagem Ecológica & Polimento Regente",
+    categoria: "Lava Rápido / Estética Automotiva",
+    telefone: "19997116644",
+    telefone_formatado: "(19) 99711-6644",
+    bairro: "Jd. Regente",
+    endereco: "R. Antônio Barnabé, 195 - Jd. Regente, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.8,
+    total_avaliacoes: 120,
+    horario_funcionamento: "Seg a Sáb: 08h às 17h30",
+    foto_url: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-valenca-dentista-1",
+    nome: "OdontoClean Clínica Odontológica & Implantes",
+    categoria: "Dentista / Odontologia",
+    telefone: "1938947700",
+    telefone_formatado: "(19) 3894-7700",
+    bairro: "Jd. Valença",
+    endereco: "Av. Pres. Vargas, 1020 - Jd. Valença, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 5.0,
+    total_avaliacoes: 165,
+    horario_funcionamento: "Seg a Sex: 08h às 19h | Sáb: 08h às 12h",
+    foto_url: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-centro-dentista-1",
+    nome: "Clínica OdontoCompany Centro Indaiatuba",
+    categoria: "Dentista / Odontologia",
+    telefone: "1938341122",
+    telefone_formatado: "(19) 3834-1122",
+    bairro: "Centro",
+    endereco: "R. Pedro de Toledo, 540 - Centro, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.8,
+    total_avaliacoes: 420,
+    horario_funcionamento: "Seg a Sex: 08h às 20h | Sáb: 08h às 13h",
+    foto_url: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-valenca-acougue-1",
+    nome: "Casa de Carnes & Boutique do Churrasco Valença",
+    categoria: "Açougue / Casa de Carnes",
+    telefone: "19998448833",
+    telefone_formatado: "(19) 99844-8833",
+    bairro: "Jd. Valença",
+    endereco: "Av. Pres. Vargas, 615 - Jd. Valença, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.9,
+    total_avaliacoes: 280,
+    horario_funcionamento: "Seg a Sáb: 07h30 às 19h30 | Dom: 07h30 às 13h",
+    foto_url: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-regente-acougue-1",
+    nome: "Açougue & Empório Bovino Regente",
+    categoria: "Açougue / Casa de Carnes",
+    telefone: "19996551122",
+    telefone_formatado: "(19) 99655-1122",
+    bairro: "Jd. Regente",
+    endereco: "R. Antônio Barnabé, 280 - Jd. Regente, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.8,
+    total_avaliacoes: 175,
+    horario_funcionamento: "Seg a Sáb: 07h30 às 19h | Dom: 07h30 às 12h30",
+    foto_url: "https://images.unsplash.com/photo-1551028150-64b9f398f678?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-valenca-acai-1",
+    nome: "Açaí do Vale & Gelateria Artesanal",
+    categoria: "Sorveteria / Açaí",
+    telefone: "19997883355",
+    telefone_formatado: "(19) 99788-3355",
+    bairro: "Jd. Valença",
+    endereco: "Av. Pres. Vargas, 940 - Jd. Valença, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.9,
+    total_avaliacoes: 310,
+    horario_funcionamento: "Todos os dias: 12h às 22h",
+    foto_url: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=600&auto=format&fit=crop&q=80",
+    origem: "google",
+  },
+  {
+    google_place_id: "ind-cidade-sorveteria-1",
+    nome: "Sorvetes Sergel & Taças Especiais Indaiatuba",
+    categoria: "Sorveteria / Açaí",
+    telefone: "1938942255",
+    telefone_formatado: "(19) 3894-2255",
+    bairro: "Cidade Nova",
+    endereco: "Av. Itororó, 310 - Cidade Nova, Indaiatuba - SP",
+    cidade: "Indaiatuba",
+    nota_media: 4.9,
+    total_avaliacoes: 580,
+    horario_funcionamento: "Ter a Dom: 12h às 22h30",
+    foto_url: "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600&auto=format&fit=crop&q=80",
     origem: "google",
   },
 ];

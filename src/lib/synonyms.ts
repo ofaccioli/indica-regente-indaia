@@ -182,13 +182,54 @@ export const SINONIMOS_BUSCA: Record<string, string[]> = {
   ração: ["Pet / Veterinário"],
   racao: ["Pet / Veterinário"],
 
-  // Beleza, Aulas, Gráfica, Ar
-  cabelo: ["Beleza / Estética"],
-  barba: ["Beleza / Estética"],
+  // Barbearia e Beleza
+  cabelo: ["Barbearia / Cabeleireiro", "Beleza / Estética"],
+  barba: ["Barbearia / Cabeleireiro"],
+  barbearia: ["Barbearia / Cabeleireiro"],
+  barbeiro: ["Barbearia / Cabeleireiro"],
+  corte: ["Barbearia / Cabeleireiro"],
+  degrade: ["Barbearia / Cabeleireiro"],
+  degradê: ["Barbearia / Cabeleireiro"],
+  escova: ["Barbearia / Cabeleireiro", "Beleza / Estética"],
   unha: ["Beleza / Estética"],
   manicure: ["Beleza / Estética"],
   pedicure: ["Beleza / Estética"],
   sobrancelha: ["Beleza / Estética"],
+
+  // Lava Rápido & Carro
+  "lava rápido": ["Lava Rápido / Estética Automotiva"],
+  "lavarapido": ["Lava Rápido / Estética Automotiva"],
+  "lavar carro": ["Lava Rápido / Estética Automotiva"],
+  polimento: ["Lava Rápido / Estética Automotiva"],
+  cristalização: ["Lava Rápido / Estética Automotiva"],
+  cristalizacao: ["Lava Rápido / Estética Automotiva"],
+
+  // Dentista & Odonto
+  dentista: ["Dentista / Odontologia", "Saúde / Terapia"],
+  dente: ["Dentista / Odontologia"],
+  odonto: ["Dentista / Odontologia"],
+  odontologia: ["Dentista / Odontologia"],
+  canal: ["Dentista / Odontologia"],
+  aparelho: ["Dentista / Odontologia"],
+  clareamento: ["Dentista / Odontologia"],
+
+  // Açougue & Carnes
+  açougue: ["Açougue / Casa de Carnes", "Churrasqueiro"],
+  acougue: ["Açougue / Casa de Carnes", "Churrasqueiro"],
+  picanha: ["Açougue / Casa de Carnes", "Churrasqueiro"],
+  costela: ["Açougue / Casa de Carnes", "Churrasqueiro"],
+  linguiça: ["Açougue / Casa de Carnes", "Churrasqueiro"],
+  linguica: ["Açougue / Casa de Carnes", "Churrasqueiro"],
+
+  // Sorveteria & Açaí
+  sorvete: ["Sorveteria / Açaí", "Bolos / Doces / Salgados"],
+  sorveteria: ["Sorveteria / Açaí"],
+  picolé: ["Sorveteria / Açaí"],
+  picole: ["Sorveteria / Açaí"],
+  açaí: ["Sorveteria / Açaí"],
+  acai: ["Sorveteria / Açaí"],
+  gelato: ["Sorveteria / Açaí"],
+
   ar: ["Ar Condicionado"],
   "ar-condicionado": ["Ar Condicionado"],
   climatizador: ["Ar Condicionado"],

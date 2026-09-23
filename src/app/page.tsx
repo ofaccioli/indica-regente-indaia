@@ -10,6 +10,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { ShareCommunityModal } from "@/components/ShareCommunityModal";
 import { TelefonesUteisModal } from "@/components/TelefonesUteisModal";
+import { PrevisaoTempoModal } from "@/components/PrevisaoTempoModal";
 import { MuralView } from "@/components/MuralView";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { ToastContainer } from "@/components/Toast";
@@ -18,6 +19,7 @@ import { listarServicos, listarPedidosMural } from "@/lib/supabase";
 import { ordenarServicos } from "@/lib/ranking";
 import { getFavorites, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
 import { buscarCategoriasPorSinonimos } from "@/lib/synonyms";
+import { obterPrevisaoTempoJdRegente, ClimaAtual } from "@/lib/weather";
 import {
   Sparkles,
   PlusCircle,
@@ -47,6 +49,8 @@ export default function Home() {
   const [ordenacao, setOrdenacao] = useState<TipoOrdenacao>("melhores");
   const [modalDivulgacaoAberto, setModalDivulgacaoAberto] = useState(false);
   const [modalTelefonesAberto, setModalTelefonesAberto] = useState(false);
+  const [modalClimaAberto, setModalClimaAberto] = useState(false);
+  const [clima, setClima] = useState<ClimaAtual | null>(null);
   const [favoritosIds, setFavoritosIds] = useState<string[]>([]);
 
   // Sincroniza favoritos salvos localmente
@@ -59,6 +63,13 @@ export default function Home() {
 
     window.addEventListener(FAVORITES_EVENT, handleFavChange);
     return () => window.removeEventListener(FAVORITES_EVENT, handleFavChange);
+  }, []);
+
+  // Carrega previsão do tempo para o Jardim Regente
+  useEffect(() => {
+    obterPrevisaoTempoJdRegente().then((dados) => {
+      if (dados) setClima(dados);
+    });
   }, []);
 
   // Carrega serviços e mural
@@ -205,6 +216,8 @@ export default function Home() {
         onAbrirDivulgacao={() => setModalDivulgacaoAberto(true)}
         onAbrirTelefones={() => setModalTelefonesAberto(true)}
         onLogoClick={irParaGuiaServicos}
+        clima={clima}
+        onAbrirClima={() => setModalClimaAberto(true)}
       />
 
       {/* Alternador de Modo: Catálogo de Serviços vs. Mural "Alguém Indica?" */}
@@ -469,6 +482,13 @@ export default function Home() {
       <TelefonesUteisModal
         isOpen={modalTelefonesAberto}
         onClose={() => setModalTelefonesAberto(false)}
+      />
+
+      {/* Modal de Previsão do Tempo Hyper-Local para o Jd. Regente */}
+      <PrevisaoTempoModal
+        isOpen={modalClimaAberto}
+        onClose={() => setModalClimaAberto(false)}
+        clima={clima}
       />
 
       {/* Botão Flutuante Voltar ao Topo */}
