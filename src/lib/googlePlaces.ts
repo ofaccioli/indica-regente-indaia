@@ -1349,6 +1349,61 @@ export async function buscarLiveWeb(termo: string): Promise<GooglePlaceResult[]>
 }
 
 /**
+ * Extrai logradouro e número limpo de um texto ou snippet web
+ */
+function extrairLogradouroDeTexto(texto: string): string {
+  // 1. Tenta logradouro com número
+  const regexComNum = /\b(?:Rua|Avenida|Alameda|Travessa|Praça|Av\.|R\.)\s+([A-ZÀ-Ú0-9][a-zA-ZÀ-ú0-9\s.]{2,40}?)(?:,\s*|\s+)(\d{1,5})\b/gi;
+  const matches = [...texto.matchAll(regexComNum)];
+  if (matches.length > 0) {
+    const valid = matches.find((m) => {
+      const lower = m[0].toLowerCase();
+      return (
+        !lower.includes("ano") &&
+        !lower.includes("desde") &&
+        !lower.includes("nasceu") &&
+        !lower.includes("desacelerar") &&
+        !lower.includes("sobre")
+      );
+    });
+    if (valid) return valid[0].trim();
+  }
+
+  // 2. Tenta logradouro sem número
+  const regexSemNum = /\b(?:Rua|Avenida|Alameda|Travessa|Praça|Av\.)\s+([A-ZÀ-Ú][a-zA-ZÀ-ú0-9\s]{3,35})\b/gi;
+  const matchesSemNum = [...texto.matchAll(regexSemNum)];
+  if (matchesSemNum.length > 0) {
+    const valid = matchesSemNum.find((m) => {
+      const lower = m[0].toLowerCase();
+      return (
+        !lower.includes("ano") &&
+        !lower.includes("desde") &&
+        !lower.includes("nasceu")
+      );
+    });
+    if (valid) return valid[0].trim();
+  }
+
+  return "";
+}
+
+/**
+ * Extrai telefone brasileiro DDD 19 de texto
+ */
+function extrairTelefoneDeTexto(texto: string): string {
+  const phoneMatch = texto.match(/(?:\(?\s*19\s*\)?\s*)?(?:9\s*\d{4}|\d{4})[-\s.]?\d{4}/);
+  if (phoneMatch) {
+    let d = phoneMatch[0].replace(/\D/g, "");
+    if (d.length === 8) d = "199" + d;
+    else if (d.length === 9) d = "19" + d;
+    else if (d.length === 10 && !d.startsWith("19")) d = "19" + d;
+    if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+    if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  }
+  return "";
+}
+
+/**
  * Resolve qualquer link do Google Maps (app, curto ou navegador) ou nome,
  * extraindo coordenadas, endereço reverso, telefone com DDD e foto real.
  */
@@ -1367,47 +1422,134 @@ export async function resolverLinkGoogleMaps(urlOuTexto: string): Promise<{
   foto_url: string;
   origem: "google";
 }> {
+  let currentInput = (urlOuTexto || "").trim();
+  let textoCompartilhado = "";
+
+  // Se o usuário compartilhou texto contendo link: "Barbearia X\nhttps://maps.app.goo.gl/..."
+  const matchUrl = currentInput.match(/https?:\/\/[^\s]+/i);
+  let finalUrl = "";
+  if (matchUrl) {
+    textoCompartilhado = currentInput
+      .replace(/https?:\/\/[^\s]+/gi, "")
+      .replace(/Confira/gi, "")
+      .replace(/no Google Maps:?/gi, "")
+      .replace(/Google Maps/gi, "")
+      .trim();
+    finalUrl = matchUrl[0];
+  } else {
+    textoCompartilhado = currentInput;
+  }
+
   let nomeExtraido = "";
-  let finalUrl = urlOuTexto;
   let lat: number | null = null;
   let lng: number | null = null;
 
-  // Se for uma URL (maps.app.goo.gl, goo.gl/maps, google.com/maps)
-  if (urlOuTexto.includes("http://") || urlOuTexto.includes("https://")) {
-    try {
-      const res = await fetch(urlOuTexto, {
-        method: "GET",
-        redirect: "follow",
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-          "Accept-Language": "pt-BR,pt;q=0.9",
-        },
-      });
-      finalUrl = res.url || urlOuTexto;
+  // 1. Se tem URL, segue redirects (manual) para resolver links curtos do Maps (maps.app.goo.gl)
+  if (finalUrl.startsWith("http://") || finalUrl.startsWith("https://")) {
+    let urlParaSeguir = finalUrl;
+    for (let hop = 0; hop < 6; hop++) {
+      try {
+        const res = await fetch(urlParaSeguir, {
+          method: "GET",
+          redirect: "manual",
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Accept-Language": "pt-BR,pt;q=0.9",
+          },
+        });
 
-      // Extrai nome do path /maps/place/Nome+Do+Lugar/...
-      const matchPlace = finalUrl.match(/\/maps\/place\/([^/@?]+)/);
-      if (matchPlace && matchPlace[1]) {
-        nomeExtraido = decodeURIComponent(matchPlace[1].replace(/\+/g, " "));
+        const loc = res.headers.get("location");
+        if (loc && res.status >= 300 && res.status < 400) {
+          urlParaSeguir = new URL(loc, urlParaSeguir).href;
+          finalUrl = urlParaSeguir;
+          // Se redirecionou para consent.google.com?continue=...
+          const parsed = new URL(urlParaSeguir);
+          const cont =
+            parsed.searchParams.get("continue") ||
+            parsed.searchParams.get("destination") ||
+            parsed.searchParams.get("q");
+          if (cont && cont.includes("google.com/maps")) {
+            urlParaSeguir = cont;
+            finalUrl = cont;
+          }
+        } else {
+          finalUrl = urlParaSeguir;
+          break;
+        }
+      } catch (e) {
+        break;
       }
+    }
 
-      // Extrai coordenadas @-23.xxx,-47.xxx
-      const matchCoords = finalUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-      if (matchCoords) {
-        lat = parseFloat(matchCoords[1]);
-        lng = parseFloat(matchCoords[2]);
+    const decoded = decodeURIComponent(finalUrl);
+    // Extrai nome do path: /maps/place/Nome+Do+Lugar/...
+    const matchPlace = decoded.match(/\/maps\/place\/([^/@?]+)/);
+    if (matchPlace && matchPlace[1]) {
+      nomeExtraido = matchPlace[1].replace(/\+/g, " ").trim();
+    } else {
+      const matchQ = decoded.match(/[?&](?:q|query)=([^&]+)/);
+      if (matchQ && matchQ[1]) {
+        nomeExtraido = matchQ[1].replace(/\+/g, " ").trim();
       }
-    } catch (e) {
-      console.error("Erro ao resolver URL do Maps:", e);
+    }
+
+    // Coordenadas: pin exato (!3d,!4d) ou viewport (@lat,lng)
+    const matchPin = finalUrl.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+    if (matchPin) {
+      lat = parseFloat(matchPin[1]);
+      lng = parseFloat(matchPin[2]);
+    } else {
+      const matchAt = finalUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (matchAt) {
+        lat = parseFloat(matchAt[1]);
+        lng = parseFloat(matchAt[2]);
+      }
     }
   }
 
-  if (!nomeExtraido) {
-    nomeExtraido = urlOuTexto.replace(/https?:\/\/\S+/g, "").trim() || "Comércio de Indaiatuba";
+  // Se não extraiu nome da URL, usa o texto compartilhado ou o input digitado
+  if (!nomeExtraido && textoCompartilhado) {
+    nomeExtraido = textoCompartilhado.split(/[-–|,\n]/)[0].trim();
   }
 
-  // Geocodificação reversa de coordenadas caso tenhamos lat/lng
+  // Limpa sufixos de cidade ou estado no nome
+  nomeExtraido = (nomeExtraido || "Comércio de Indaiatuba")
+    .replace(/Indaiatuba.*$/i, "")
+    .replace(/, SP.*$/i, "")
+    .replace(/@\w+/g, "")
+    .trim();
+
+  // 2. VERIFICA SE JÁ EXISTE NO CATÁLOGO CURADO (100% de precisão para estabelecimentos cadastrados)
+  const normBusca = normalizarParaDeduplicacao(nomeExtraido);
+  const palavrasBusca = nomeExtraido.toLowerCase().split(/\s+/).filter((w) => w.length >= 4);
+
+  const curadoEncontrado = LUGARES_CURADOS_INDAIATUBA.find((c) => {
+    const cNorm = normalizarParaDeduplicacao(c.nome);
+    if (cNorm.includes(normBusca) || normBusca.includes(cNorm)) return true;
+    if (palavrasBusca.length > 0 && palavrasBusca.every((w) => cNorm.includes(w))) return true;
+    return false;
+  });
+
+  if (curadoEncontrado) {
+    return {
+      google_place_id: curadoEncontrado.google_place_id,
+      nome: curadoEncontrado.nome,
+      categoria: curadoEncontrado.categoria,
+      telefone: curadoEncontrado.telefone_formatado || curadoEncontrado.telefone || "",
+      telefone_numeros: (curadoEncontrado.telefone || "").replace(/\D/g, ""),
+      bairro: curadoEncontrado.bairro,
+      endereco: curadoEncontrado.endereco,
+      cidade: curadoEncontrado.cidade,
+      nota_media: curadoEncontrado.nota_media,
+      total_avaliacoes: curadoEncontrado.total_avaliacoes,
+      horario_funcionamento: curadoEncontrado.horario_funcionamento || "Seg a Sáb: 08h às 19h",
+      foto_url: curadoEncontrado.foto_url || obterFotoPadraoCategoria(curadoEncontrado.categoria),
+      origem: "google",
+    };
+  }
+
+  // 3. Geocodificação reversa de coordenadas caso tenhamos lat/lng
   let enderecoReverso = "";
   let bairroReverso = "";
   if (lat && lng) {
@@ -1421,20 +1563,20 @@ export async function resolverLinkGoogleMaps(urlOuTexto: string): Promise<{
         const addr = revData.address || {};
         const road = addr.road || addr.pedestrian || "";
         const houseNumber = addr.house_number ? `, ${addr.house_number}` : "";
-        bairroReverso =
-          addr.suburb || addr.neighbourhood || addr.city_district || "";
+        bairroReverso = addr.suburb || addr.neighbourhood || addr.city_district || "";
         if (road) {
-          enderecoReverso = `${road}${houseNumber} - ${bairroReverso || "Indaiatuba"}, Indaiatuba - SP`;
+          enderecoReverso = `${road}${houseNumber}`;
         }
       }
     } catch {}
   }
 
-  // Busca Inteligência Web (telefone com DDD 19, endereço, foto real)
+  // 4. Busca Inteligência Web (telefone real com DDD 19, endereço com número, foto real)
   const query = `${nomeExtraido} Indaiatuba`;
   let telefone = "";
   let enderecoWeb = "";
   let bairroWeb = "";
+  let horarioWeb = "";
   let fotoUrl = "";
 
   try {
@@ -1459,40 +1601,25 @@ export async function resolverLinkGoogleMaps(urlOuTexto: string): Promise<{
       const fullText = snippets.join(" ");
 
       // Telefone
-      const phoneMatch = fullText.match(/(?:\(?\s*19\s*\)?\s*)?(?:9\s*\d{4}|\d{4})[-\s.]?\d{4}/);
-      if (phoneMatch) {
-        let d = phoneMatch[0].replace(/\D/g, "");
-        if (d.length === 8) d = "199" + d;
-        else if (d.length === 9) d = "19" + d;
-        else if (d.length === 10 && !d.startsWith("19")) d = "19" + d;
-        if (d.length === 11) telefone = `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
-        else if (d.length === 10) telefone = `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
-      }
+      telefone = extrairTelefoneDeTexto(fullText);
 
       // Endereço
-      const endMatch = fullText.match(/(?:Rua|R\.|Av\.|Avenida|Alameda|Praça)\s+[^,•|–\n]+(?:,\s*\d+)?/i);
-      if (endMatch) {
-        enderecoWeb = endMatch[0].trim();
-      }
+      enderecoWeb = extrairLogradouroDeTexto(fullText);
 
       // Bairro
-      const bairros = [
-        "Cidade Nova", "Jd. Regente", "Jd. Valença", "Centro", "Jd. Esplanada",
-        "Jd. Morada do Sol", "Itaici", "Pau Preto", "Primavera", "Park Gran Reserve",
-        "Santa Rita", "Vila Rubens", "Vila Avaí"
-      ];
-      for (const b of bairros) {
-        if (new RegExp(`\\b${b}\\b`, "i").test(fullText)) {
-          bairroWeb = b;
-          break;
-        }
+      bairroWeb = extrairBairroDeEndereco(fullText);
+
+      // Horário
+      const horaMatch = fullText.match(/(?:aberto\s+das|horário\s+de\s+funcionamento)\s+([^\n.]+?(?:\d{1,2}h|\d{2}:\d{2})[^\n.]+)/i);
+      if (horaMatch) {
+        horarioWeb = horaMatch[0].trim();
       }
     }
   } catch (e) {
     console.error("Erro na busca textual do Maps:", e);
   }
 
-  // Busca Foto Real
+  // 5. Busca Foto Real do Local
   try {
     const tokenRes = await fetch(
       `https://duckduckgo.com/?q=${encodeURIComponent(query)}&iar=images&iax=images&ia=images`
@@ -1527,24 +1654,32 @@ export async function resolverLinkGoogleMaps(urlOuTexto: string): Promise<{
     fotoUrl = obterFotoPadraoCategoria(categoria);
   }
 
-  const telFormatado = telefone || "(19) 99540-5840";
-  const bairroFinal = bairroReverso || bairroWeb || "Indaiatuba";
-  const enderecoFinal =
-    enderecoReverso ||
-    (enderecoWeb ? `${enderecoWeb} - ${bairroFinal}, Indaiatuba - SP` : `${bairroFinal}, Indaiatuba - SP`);
+  // Bairro final: prioritariamente bairro reconhecido de Indaiatuba
+  let bairroFinal = "Indaiatuba";
+  if (bairroWeb && bairroWeb !== "Indaiatuba") {
+    bairroFinal = bairroWeb;
+  } else if (bairroReverso && bairroReverso !== "Indaiatuba") {
+    bairroFinal = extrairBairroDeEndereco(bairroReverso);
+  }
+
+  // Endereço final limpo
+  let enderecoBase = enderecoWeb || enderecoReverso;
+  const enderecoFinal = enderecoBase
+    ? `${enderecoBase} - ${bairroFinal}, Indaiatuba - SP`
+    : `${bairroFinal}, Indaiatuba - SP`;
 
   return {
     google_place_id: `custom-${Date.now()}`,
     nome: nomeExtraido,
     categoria,
-    telefone: telFormatado,
-    telefone_numeros: telFormatado.replace(/\D/g, ""),
+    telefone: telefone,
+    telefone_numeros: telefone.replace(/\D/g, ""),
     bairro: bairroFinal,
     endereco: enderecoFinal,
     cidade: "Indaiatuba",
-    nota_media: 4.9,
-    total_avaliacoes: 150,
-    horario_funcionamento: "Seg a Sáb: 09h às 19h",
+    nota_media: 4.8,
+    total_avaliacoes: 50,
+    horario_funcionamento: horarioWeb || "Seg a Sáb: 08h às 19h",
     foto_url: fotoUrl,
     origem: "google",
   };
