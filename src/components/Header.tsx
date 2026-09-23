@@ -1,8 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
-import { Search, X, Plus, Share2, Sparkles, Download, ShieldAlert } from "lucide-react";
+import {
+  Search,
+  X,
+  Plus,
+  Share2,
+  Sparkles,
+  Download,
+  ShieldAlert,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import Link from "next/link";
 
 interface HeaderProps {
@@ -20,6 +30,38 @@ export function Header({
   onAbrirTelefones,
   onLogoClick,
 }: HeaderProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 5);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => window.removeEventListener("resize", checkScroll);
+  }, []);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const amount = direction === "left" ? -220 : 220;
+      scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
+      setTimeout(checkScroll, 250);
+    }
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (scrollRef.current && Math.abs(e.deltaY) > 0) {
+      scrollRef.current.scrollLeft += e.deltaY;
+      checkScroll();
+    }
+  };
   return (
     <header className="sticky top-0 z-30 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-md border-b border-emerald-700/40 backdrop-blur-md">
       <div className="max-w-4xl mx-auto px-4 pt-3.5 pb-3">
@@ -127,44 +169,76 @@ export function Header({
           )}
         </div>
 
-        {/* Tags de Atalho Rápido de Busca */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2.5 pb-0.5 text-[11px] font-medium">
-          <span className="text-emerald-200/80 font-bold text-[10px] uppercase tracking-wider flex-shrink-0">
+        {/* Tags de Atalho Rápido de Busca com Botões de Navegação Desktop */}
+        <div className="relative flex items-center pt-2.5 pb-0.5">
+          <span className="text-emerald-200/90 font-bold text-[10px] uppercase tracking-wider flex-shrink-0 mr-1.5 select-none">
             Sugestões:
           </span>
-          {[
-            { rotulo: "🔥 Churrasco", termo: "Churrasqueiro" },
-            { rotulo: "⚡ Eletricista", termo: "Eletricista" },
-            { rotulo: "🧹 Diarista", termo: "Diarista" },
-            { rotulo: "🚖 Uber / Táxi", termo: "Uber" },
-            { rotulo: "🎂 Bolos & Doces", termo: "Bolos" },
-            { rotulo: "🎉 Buffet", termo: "Buffet" },
-            { rotulo: "🔑 Chaveiro", termo: "Chaveiro" },
-            { rotulo: "🌲 Jardinagem", termo: "Jardinagem" },
-            { rotulo: "🚚 Fretes", termo: "Fretes" },
-          ].map((tag) => {
-            const ativo = busca.toLowerCase() === tag.termo.toLowerCase();
-            return (
-              <button
-                key={tag.termo}
-                type="button"
-                onClick={() => {
-                  if (ativo) {
-                    onBuscaChange("");
-                  } else {
-                    onBuscaChange(tag.termo);
-                  }
-                }}
-                className={`px-2.5 py-1 rounded-full whitespace-nowrap transition-all cursor-pointer flex-shrink-0 active:scale-95 ${
-                  ativo
-                    ? "bg-amber-400 text-emerald-950 font-black shadow-xs ring-2 ring-amber-300"
-                    : "bg-white/15 hover:bg-white/25 text-white/90 border border-white/20"
-                }`}
-              >
-                {tag.rotulo}
-              </button>
-            );
-          })}
+
+          {/* Botão Rolar para Esquerda (Desktop) */}
+          {canScrollLeft && (
+            <button
+              type="button"
+              onClick={() => scroll("left")}
+              aria-label="Rolar sugestões para a esquerda"
+              className="hidden sm:flex flex-shrink-0 mr-1 w-5 h-5 rounded-full bg-emerald-950/90 hover:bg-emerald-800 text-amber-300 items-center justify-center border border-emerald-600/60 shadow-xs transition-all active:scale-90 cursor-pointer"
+            >
+              <ChevronLeft className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
+          )}
+
+          <div
+            ref={scrollRef}
+            onScroll={checkScroll}
+            onWheel={handleWheel}
+            className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth flex-1 py-0.5"
+          >
+            {[
+              { rotulo: "🔥 Churrasco", termo: "Churrasqueiro" },
+              { rotulo: "⚡ Eletricista", termo: "Eletricista" },
+              { rotulo: "🧹 Diarista", termo: "Diarista" },
+              { rotulo: "🚖 Uber / Táxi", termo: "Uber" },
+              { rotulo: "🎂 Bolos & Doces", termo: "Bolos" },
+              { rotulo: "🎉 Buffet", termo: "Buffet" },
+              { rotulo: "🔑 Chaveiro", termo: "Chaveiro" },
+              { rotulo: "🌲 Jardinagem", termo: "Jardinagem" },
+              { rotulo: "🚚 Fretes", termo: "Fretes" },
+            ].map((tag) => {
+              const ativo = busca.toLowerCase() === tag.termo.toLowerCase();
+              return (
+                <button
+                  key={tag.termo}
+                  type="button"
+                  onClick={() => {
+                    if (ativo) {
+                      onBuscaChange("");
+                    } else {
+                      onBuscaChange(tag.termo);
+                    }
+                  }}
+                  className={`px-2.5 py-1 rounded-full whitespace-nowrap transition-all cursor-pointer flex-shrink-0 active:scale-95 ${
+                    ativo
+                      ? "bg-amber-400 text-emerald-950 font-black shadow-xs ring-2 ring-amber-300"
+                      : "bg-white/15 hover:bg-white/25 text-white/90 border border-white/20"
+                  }`}
+                >
+                  {tag.rotulo}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Botão Rolar para Direita (Desktop) */}
+          {canScrollRight && (
+            <button
+              type="button"
+              onClick={() => scroll("right")}
+              aria-label="Rolar sugestões para a direita"
+              className="hidden sm:flex flex-shrink-0 ml-1 w-5 h-5 rounded-full bg-emerald-950/90 hover:bg-emerald-800 text-amber-300 items-center justify-center border border-emerald-600/60 shadow-xs transition-all active:scale-90 cursor-pointer"
+            >
+              <ChevronRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
+          )}
         </div>
       </div>
     </header>
