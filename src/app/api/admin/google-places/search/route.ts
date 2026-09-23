@@ -13,9 +13,10 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const termo = searchParams.get("termo") || "";
     const categoria = searchParams.get("categoria") || "Todos";
-    const minRating = parseFloat(searchParams.get("minRating") || "4.5");
+    const minRating = parseFloat(searchParams.get("minRating") || "0");
+    const proximidade = searchParams.get("proximidade") || "todas";
 
-    const { lugares, isApiKeyAtiva } = await buscarLugaresGoogle(termo, categoria, minRating);
+    const { lugares, isApiKeyAtiva } = await buscarLugaresGoogle(termo, categoria, minRating, proximidade);
 
     // Carrega serviços já existentes para cruzar duplicidades por nome e telefone
     const servicosExistentes = await listarServicos();

@@ -32,7 +32,8 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
   // Estado da Busca em Massa
   const [categoria, setCategoria] = useState("Todos");
   const [termoBusca, setTermoBusca] = useState("");
-  const [minRating, setMinRating] = useState("4.5");
+  const [minRating, setMinRating] = useState("0");
+  const [proximidade, setProximidade] = useState<"todas" | "regente" | "centro" | "morada">("todas");
   const [carregandoBusca, setCarregandoBusca] = useState(false);
   const [lugares, setLugares] = useState<GooglePlaceResult[]>([]);
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
@@ -48,10 +49,10 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
   const [salvandoLink, setSalvandoLink] = useState(false);
   const [erroLink, setErroLink] = useState<string | null>(null);
 
-  // Carrega catálogo inicial ao abrir
+  // Carrega catálogo inicial ao abrir ou mudar filtros rápidos
   useEffect(() => {
     handleBuscar();
-  }, []);
+  }, [categoria, minRating, proximidade]);
 
   const handleBuscar = async () => {
     setCarregandoBusca(true);
@@ -61,6 +62,7 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
         categoria,
         termo: termoBusca,
         minRating,
+        proximidade,
       });
 
       const res = await fetch(`/api/admin/google-places/search?${params.toString()}`);
@@ -69,7 +71,6 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
       if (data.sucesso) {
         setLugares(data.lugares || []);
         setIsApiKeyAtiva(Boolean(data.isApiKeyAtiva));
-        // Limpa seleção
         setSelecionados(new Set());
       }
     } catch (err) {
@@ -298,22 +299,22 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
         <div className="space-y-4">
           {/* Barra de Filtros */}
           <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 text-xs">
               {/* Termo */}
-              <div className="sm:col-span-5 relative">
+              <div className="sm:col-span-4 relative">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={termoBusca}
                   onChange={(e) => setTermoBusca(e.target.value)}
-                  placeholder="Nome, palavra-chave (Ex: pizza, padaria, chaveiro)..."
+                  placeholder="Nome, palavra ou serviço (Ex: farmácia, mercado, pizza)..."
                   className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition font-medium"
                   onKeyDown={(e) => e.key === "Enter" && handleBuscar()}
                 />
               </div>
 
               {/* Categoria */}
-              <div className="sm:col-span-4">
+              <div className="sm:col-span-3">
                 <select
                   value={categoria}
                   onChange={(e) => setCategoria(e.target.value)}
@@ -324,33 +325,141 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
                   <option value="Bolos / Doces / Salgados">Padarias & Doces</option>
                   <option value="Chaveiro / Fechaduras">Chaveiros 24h</option>
                   <option value="Pet / Veterinário">Pet Shop & Veterinários</option>
-                  <option value="Mecânico">Mecânica & Auto</option>
+                  <option value="Mecânico">Mecânica, Auto & Pneus</option>
                   <option value="Ar Condicionado">Ar Condicionado</option>
                   <option value="Conserto de Eletrodomésticos">Eletrodomésticos</option>
                   <option value="Bicicletaria / Bike">Bicicletarias</option>
                   <option value="Beleza / Estética">Barbearia & Salão</option>
                   <option value="Vidraçaria / Box & Espelhos">Vidraçarias</option>
-                  <option value="Saúde / Terapia">Saúde & Farmácias</option>
+                  <option value="Saúde / Terapia">Farmácias & Saúde</option>
+                  <option value="Eletricista">Eletricistas</option>
+                  <option value="Encanador">Encanadores</option>
+                  <option value="Jardinagem / Piscina">Jardim & Piscina</option>
+                  <option value="Serralheria / Portões">Serralheria</option>
+                  <option value="Gás & Água Mineral">Gás & Água</option>
+                  <option value="Lavanderia / Passadeira">Lavanderias</option>
+                </select>
+              </div>
+
+              {/* Filtro de Proximidade / Bairro */}
+              <div className="sm:col-span-3">
+                <select
+                  value={proximidade}
+                  onChange={(e: any) => setProximidade(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl border border-emerald-300 bg-emerald-50/40 text-emerald-950 font-bold focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition"
+                >
+                  <option value="todas">📍 Toda Indaiatuba (Mais perto primeiro)</option>
+                  <option value="regente">🏡 Só Vizinhos ao Jd. Regente (Até 1.5 km)</option>
+                  <option value="centro">🏙️ Só Região Central (2 a 4 km)</option>
+                  <option value="morada">🏠 Só Morada do Sol / Região Sul</option>
                 </select>
               </div>
 
               {/* Filtro de Nota */}
-              <div className="sm:col-span-3">
+              <div className="sm:col-span-2">
                 <select
                   value={minRating}
                   onChange={(e) => setMinRating(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition font-medium"
                 >
-                  <option value="4.5">⭐ Mínimo 4.5 estrelas</option>
-                  <option value="4.7">⭐ Mínimo 4.7 estrelas</option>
-                  <option value="4.8">⭐ Mínimo 4.8 estrelas</option>
+                  <option value="0">⭐ Todas as notas</option>
+                  <option value="4.0">⭐ 4.0+ estrelas</option>
+                  <option value="4.5">⭐ 4.5+ estrelas</option>
+                  <option value="4.8">⭐ 4.8+ estrelas</option>
                 </select>
               </div>
             </div>
 
+            {/* Chips Rápidos de Filtro */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px] pt-1">
+              <button
+                type="button"
+                onClick={() => setProximidade(proximidade === "regente" ? "todas" : "regente")}
+                className={`px-3 py-1 rounded-full font-bold transition flex items-center gap-1 cursor-pointer flex-shrink-0 ${
+                  proximidade === "regente"
+                    ? "bg-emerald-600 text-white shadow-xs"
+                    : "bg-emerald-50 text-emerald-900 border border-emerald-300 hover:bg-emerald-100"
+                }`}
+              >
+                <span>🏡 Só Pertinho do Jd. Regente</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Restaurante / Lanche" ? "Todos" : "Restaurante / Lanche")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Restaurante / Lanche"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                🍕 Pizzas & Lanches
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Bolos / Doces / Salgados" ? "Todos" : "Bolos / Doces / Salgados")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Bolos / Doces / Salgados"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                🥖 Padarias
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Chaveiro / Fechaduras" ? "Todos" : "Chaveiro / Fechaduras")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Chaveiro / Fechaduras"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                🔑 Chaveiros 24h
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Pet / Veterinário" ? "Todos" : "Pet / Veterinário")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Pet / Veterinário"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                🐶 Pets & Vet
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Mecânico" ? "Todos" : "Mecânico")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Mecânico"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                🔧 Mecânicas
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Saúde / Terapia" ? "Todos" : "Saúde / Terapia")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Saúde / Terapia"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                💊 Farmácias
+              </button>
+            </div>
+
             <div className="flex items-center justify-between pt-1 flex-wrap gap-2">
               <span className="text-xs text-slate-500 font-medium">
-                {lugares.length} locais encontrados em Indaiatuba
+                {lugares.length} estabelecimentos encontrados em Indaiatuba (priorizando os mais próximos ao Jd. Regente)
               </span>
 
               <button
@@ -495,6 +604,21 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
                       {/* Info do Local */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
+                          {lugar.proximidade_tier === 1 ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
+                              <MapPin className="w-3 h-3 text-emerald-700" />
+                              <span>Pertinho do Jd. Regente</span>
+                            </span>
+                          ) : lugar.proximidade_tier === 2 ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+                              <span>Centro (2 a 4 km)</span>
+                            </span>
+                          ) : lugar.proximidade_tier === 4 ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                              <span>Morada do Sol</span>
+                            </span>
+                          ) : null}
+
                           <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
                             {lugar.categoria}
                           </span>
