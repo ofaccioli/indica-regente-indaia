@@ -66,6 +66,7 @@ export function ServiceCard({
   const [modalSugerirEdicaoAberto, setModalSugerirEdicaoAberto] = useState(false);
   const [souAutor, setSouAutor] = useState(false);
   const [copiado, setCopiado] = useState(false);
+  const [expandirDescricao, setExpandirDescricao] = useState(false);
 
   const statusAberto = verificarAbertoAgora(servico.horario_funcionamento);
 
@@ -392,11 +393,22 @@ export function ServiceCard({
             </div>
           )}
 
-          {/* Descrição dos Serviços */}
+          {/* Descrição dos Serviços com Ver Mais / Ver Menos */}
           {servico.descricao && (
-            <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3 bg-slate-50 p-2.5 rounded-2xl border border-slate-100 font-normal">
-              {servico.descricao}
-            </p>
+            <div className="mb-3 bg-slate-50 p-2.5 rounded-2xl border border-slate-100 text-xs text-gray-600 leading-relaxed font-normal">
+              <p className={expandirDescricao ? "" : "line-clamp-2"}>
+                {servico.descricao}
+              </p>
+              {servico.descricao.length > 80 && (
+                <button
+                  type="button"
+                  onClick={() => setExpandirDescricao(!expandirDescricao)}
+                  className="mt-1.5 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer inline-flex items-center gap-0.5"
+                >
+                  {expandirDescricao ? "Ver menos" : "Ver descrição completa..."}
+                </button>
+              )}
+            </div>
           )}
 
           {/* Quem indicou */}
