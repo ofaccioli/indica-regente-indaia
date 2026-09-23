@@ -166,7 +166,7 @@ export default function CadastrarPage() {
     }
 
     if (!isTelefoneValido(telefone)) {
-      alert("Por favor, informe um telefone/WhatsApp válido com DDD (Ex: (18) 99712-4040).");
+      alert("Por favor, informe um telefone/WhatsApp válido com DDD (Ex: (19) 99395-2651).");
       return;
     }
 
@@ -366,7 +366,7 @@ export default function CadastrarPage() {
                 required
                 value={telefone}
                 onChange={handleTelefoneChange}
-                placeholder="(18) 99712-3456 ou (19) 98765-4321"
+                placeholder="(19) 99395-2651 ou (19) 98765-4321"
                 maxLength={15}
                 className={`w-full px-3 py-2.5 rounded-xl border text-sm font-medium focus:ring-2 outline-none ${
                   contatoDuplicado

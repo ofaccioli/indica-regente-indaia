@@ -27,9 +27,8 @@ export function SugerirEdicaoModal({
       `Seguem as informações atualizadas:`
   );
 
-  // Contato do desenvolvedor / moderador (Otavio Faccioli)
-  // Caso tenha o número do dev ou e-mail, direciona para o WhatsApp de suporte comunitário
-  const zapModeradorUrl = `https://wa.me/5519997124040?text=${textoWhatsApp}`;
+  // Contato do desenvolvedor / moderador (Otavio Faccioli - 19 99395-2651)
+  const zapModeradorUrl = `https://wa.me/5519993952651?text=${textoWhatsApp}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-fade-in">
@@ -93,7 +92,7 @@ export function SugerirEdicaoModal({
               <span>É o proprietário ou vizinho? Fale com a moderação:</span>
             </div>
             <p className="text-slate-600 text-[11px] leading-relaxed">
-              Envie uma mensagem direta no WhatsApp para o desenvolvedor <strong>Otavio Faccioli</strong> com o que precisa ser corrigido (telefone, horário, remoção ou fotos). A atualização é feita de imediato!
+              Envie uma mensagem direta no WhatsApp para <strong>Otavio Faccioli</strong> (19 99395-2651) com o que precisa ser corrigido (telefone, horário, remoção ou fotos). A atualização é feita de imediato!
             </p>
             <a
               href={zapModeradorUrl}

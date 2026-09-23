@@ -29,6 +29,18 @@ import {
   Key,
   HeartHandshake,
   Briefcase,
+  Navigation,
+  Wrench,
+  Shield,
+  Tv,
+  Sofa,
+  Droplet,
+  Cctv,
+  Bug,
+  Waves,
+  Camera,
+  Bike,
+  Printer,
 } from "lucide-react";
 
 interface CategoryFilterProps {
@@ -127,6 +139,30 @@ export function CategoryFilter({
         return <Smartphone className="w-3.5 h-3.5 text-blue-600" />;
       case "Contabilidade / Advocacia":
         return <Briefcase className="w-3.5 h-3.5 text-slate-700" />;
+      case "Uber / Táxi / Motorista":
+        return <Navigation className="w-3.5 h-3.5 text-emerald-600" />;
+      case "Serralheria / Portões":
+        return <Wrench className="w-3.5 h-3.5 text-slate-700" />;
+      case "Vidraçaria / Box & Espelhos":
+        return <Shield className="w-3.5 h-3.5 text-cyan-600" />;
+      case "Conserto de Eletrodomésticos":
+        return <Tv className="w-3.5 h-3.5 text-indigo-600" />;
+      case "Tapeçaria / Estofados":
+        return <Sofa className="w-3.5 h-3.5 text-amber-700" />;
+      case "Gás & Água Mineral":
+        return <Droplet className="w-3.5 h-3.5 text-blue-500" />;
+      case "Segurança / Câmeras & Alarmes":
+        return <Cctv className="w-3.5 h-3.5 text-rose-600" />;
+      case "Dedetização / Pragas":
+        return <Bug className="w-3.5 h-3.5 text-lime-700" />;
+      case "Desentupidora / Fossa":
+        return <Waves className="w-3.5 h-3.5 text-blue-700" />;
+      case "Fotografia / Filmagem":
+        return <Camera className="w-3.5 h-3.5 text-pink-600" />;
+      case "Bicicletaria / Bike":
+        return <Bike className="w-3.5 h-3.5 text-orange-600" />;
+      case "Gráfica / Papelaria":
+        return <Printer className="w-3.5 h-3.5 text-purple-600" />;
       default:
         return <Sparkles className="w-3.5 h-3.5 text-gray-500" />;
     }

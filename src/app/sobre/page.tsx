@@ -209,6 +209,17 @@ export default function SobrePage() {
                 <strong className="text-white text-sm">Otavio Faccioli</strong>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-emerald-300 font-semibold">WhatsApp:</span>
+                <a
+                  href="https://wa.me/5519993952651?text=Ol%C3%A1%20Otavio!%20Peguei%20seu%20contato%20no%20Indica%20Jd.%20Regente."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-300 hover:text-amber-200 hover:underline font-bold transition-colors"
+                >
+                  (19) 99395-2651
+                </a>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-emerald-300 font-semibold">E-mail:</span>
                 <a
                   href="mailto:otavio.faccioli@gmail.com"
