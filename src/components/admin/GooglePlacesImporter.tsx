@@ -321,6 +321,11 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
                   className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition font-medium"
                 >
                   <option value="Todos">Todas as Categorias</option>
+                  <option value="Barbearia / Cabeleireiro">Barbearias & Salões</option>
+                  <option value="Lava Rápido / Estética Automotiva">Lava Rápido & Estética</option>
+                  <option value="Dentista / Odontologia">Dentistas & Odontologia</option>
+                  <option value="Açougue / Casa de Carnes">Açougues & Carnes</option>
+                  <option value="Sorveteria / Açaí">Sorveterias & Açaí</option>
                   <option value="Restaurante / Lanche">Pizzarias & Lanchonetes</option>
                   <option value="Bolos / Doces / Salgados">Padarias & Doces</option>
                   <option value="Chaveiro / Fechaduras">Chaveiros 24h</option>
@@ -329,7 +334,7 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
                   <option value="Ar Condicionado">Ar Condicionado</option>
                   <option value="Conserto de Eletrodomésticos">Eletrodomésticos</option>
                   <option value="Bicicletaria / Bike">Bicicletarias</option>
-                  <option value="Beleza / Estética">Barbearia & Salão</option>
+                  <option value="Beleza / Estética">Estética & Beleza</option>
                   <option value="Vidraçaria / Box & Espelhos">Vidraçarias</option>
                   <option value="Saúde / Terapia">Farmácias & Saúde</option>
                   <option value="Eletricista">Eletricistas</option>
@@ -382,6 +387,66 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
                 }`}
               >
                 <span>🏡 Só Pertinho do Jd. Regente</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Barbearia / Cabeleireiro" ? "Todos" : "Barbearia / Cabeleireiro")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Barbearia / Cabeleireiro"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                💈 Barbearias
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Lava Rápido / Estética Automotiva" ? "Todos" : "Lava Rápido / Estética Automotiva")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Lava Rápido / Estética Automotiva"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                🚗 Lava Rápido
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Dentista / Odontologia" ? "Todos" : "Dentista / Odontologia")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Dentista / Odontologia"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                🦷 Dentistas
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Açougue / Casa de Carnes" ? "Todos" : "Açougue / Casa de Carnes")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Açougue / Casa de Carnes"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                🥩 Açougues
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCategoria(categoria === "Sorveteria / Açaí" ? "Todos" : "Sorveteria / Açaí")}
+                className={`px-2.5 py-1 rounded-full font-medium transition cursor-pointer flex-shrink-0 ${
+                  categoria === "Sorveteria / Açaí"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                🍦 Sorvetes & Açaí
               </button>
 
               <button
@@ -790,6 +855,43 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
                     onChange={(e) => setLugarLink({ ...lugarLink, endereco: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium outline-none"
                   />
+                </div>
+
+                {/* Preview e URL da Imagem do Estabelecimento */}
+                <div className="p-3 bg-white rounded-xl border border-slate-200 flex items-center gap-3">
+                  {lugarLink.foto_url ? (
+                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={lugarLink.foto_url}
+                        alt={lugarLink.nome}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-2xl flex-shrink-0">
+                      🏬
+                    </div>
+                  )}
+
+                  <div className="flex-1 min-w-0">
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Foto do Local (URL da Imagem)
+                    </label>
+                    <input
+                      type="url"
+                      value={lugarLink.foto_url || ""}
+                      onChange={(e) => setLugarLink({ ...lugarLink, foto_url: e.target.value })}
+                      placeholder="https://exemplo.com/foto.jpg"
+                      className="w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:bg-white focus:border-indigo-500"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      {lugarLink.foto_url ? "✓ Foto carregada automaticamente." : "Cole um link de foto ou deixe em branco para usar a foto padrão da categoria."}
+                    </p>
+                  </div>
                 </div>
               </div>
 

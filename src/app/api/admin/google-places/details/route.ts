@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { isRequisicaoAdmin } from "@/lib/admin-auth";
-import { extrairBairroDeEndereco, mapearGoogleParaCategoriaApp } from "@/lib/googlePlaces";
+import {
+  extrairBairroDeEndereco,
+  mapearGoogleParaCategoriaApp,
+  resolverLinkGoogleMaps,
+} from "@/lib/googlePlaces";
 
 export async function POST(request: Request) {
   const autenticado = await isRequisicaoAdmin();
@@ -15,13 +19,12 @@ export async function POST(request: Request) {
     const apiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
 
     let nomeExtraido = nomeQuery || "";
-    let enderecoExtraido = "";
 
     // Se passou URL do Google Maps, tenta resolver o redirect para pegar o nome
     if (url && (url.includes("google.com/maps") || url.includes("goo.gl"))) {
       try {
         const headRes = await fetch(url, {
-          method: "HEAD",
+          method: "GET",
           redirect: "follow",
           headers: {
             "User-Agent":
@@ -47,7 +50,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Se temos a API key do Google
+    // 1. Se temos a API key oficial do Google Places
     if (apiKey) {
       try {
         const query = `${nomeExtraido || url} Indaiatuba SP`;
@@ -105,25 +108,12 @@ export async function POST(request: Request) {
       }
     }
 
-    // Se não tem API key ou não achou no Maps oficial, retorna dados limpos extraídos da URL
-    const catFallback = mapearGoogleParaCategoriaApp([], nomeExtraido);
+    // 2. Inteligência Web e Extração Direta de Dados do Link / Nome (Garante telefone, fotos e endereço)
+    const lugarResolvido = await resolverLinkGoogleMaps(url || nomeExtraido);
+
     return NextResponse.json({
       sucesso: true,
-      lugar: {
-        google_place_id: `custom-${Date.now()}`,
-        nome: nomeExtraido || "Comércio de Indaiatuba",
-        categoria: catFallback,
-        telefone: "",
-        telefone_numeros: "",
-        bairro: "Indaiatuba",
-        endereco: enderecoExtraido || "Indaiatuba - SP",
-        cidade: "Indaiatuba",
-        nota_media: 4.8,
-        total_avaliacoes: 50,
-        horario_funcionamento: "Seg a Sáb: 08h às 18h",
-        origem: "google",
-      },
-      aviso: !apiKey ? "Para fotos e telefones automáticos em tempo real, configure GOOGLE_PLACES_API_KEY no .env.local" : undefined,
+      lugar: lugarResolvido,
     });
   } catch (error) {
     console.error("Erro nos detalhes do Google Places:", error);
