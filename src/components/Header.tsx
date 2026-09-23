@@ -126,6 +126,46 @@ export function Header({
             </button>
           )}
         </div>
+
+        {/* Tags de Atalho Rápido de Busca */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2.5 pb-0.5 text-[11px] font-medium">
+          <span className="text-emerald-200/80 font-bold text-[10px] uppercase tracking-wider flex-shrink-0">
+            Sugestões:
+          </span>
+          {[
+            { rotulo: "🔥 Churrasco", termo: "Churrasqueiro" },
+            { rotulo: "⚡ Eletricista", termo: "Eletricista" },
+            { rotulo: "🧹 Diarista", termo: "Diarista" },
+            { rotulo: "🚖 Uber / Táxi", termo: "Uber" },
+            { rotulo: "🎂 Bolos & Doces", termo: "Bolos" },
+            { rotulo: "🎉 Buffet", termo: "Buffet" },
+            { rotulo: "🔑 Chaveiro", termo: "Chaveiro" },
+            { rotulo: "🌲 Jardinagem", termo: "Jardinagem" },
+            { rotulo: "🚚 Fretes", termo: "Fretes" },
+          ].map((tag) => {
+            const ativo = busca.toLowerCase() === tag.termo.toLowerCase();
+            return (
+              <button
+                key={tag.termo}
+                type="button"
+                onClick={() => {
+                  if (ativo) {
+                    onBuscaChange("");
+                  } else {
+                    onBuscaChange(tag.termo);
+                  }
+                }}
+                className={`px-2.5 py-1 rounded-full whitespace-nowrap transition-all cursor-pointer flex-shrink-0 active:scale-95 ${
+                  ativo
+                    ? "bg-amber-400 text-emerald-950 font-black shadow-xs ring-2 ring-amber-300"
+                    : "bg-white/15 hover:bg-white/25 text-white/90 border border-white/20"
+                }`}
+              >
+                {tag.rotulo}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </header>
   );

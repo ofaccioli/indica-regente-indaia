@@ -11,6 +11,8 @@ import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { ShareCommunityModal } from "@/components/ShareCommunityModal";
 import { TelefonesUteisModal } from "@/components/TelefonesUteisModal";
 import { MuralView } from "@/components/MuralView";
+import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { ToastContainer } from "@/components/Toast";
 import { Servico, TipoOrdenacao, PedidoMural } from "@/types";
 import { listarServicos, listarPedidosMural } from "@/lib/supabase";
 import { ordenarServicos } from "@/lib/ranking";
@@ -375,27 +377,48 @@ export default function Home() {
                 <p className="text-xs font-medium">Carregando recomendações do Jd. Regente...</p>
               </div>
             ) : servicosOrdenados.length === 0 ? (
-              /* Estado Vazio */
-              <div className="py-14 text-center px-4 bg-white rounded-3xl border border-gray-200/70 shadow-xs my-4">
-                <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
-                  <Sparkles className="w-7 h-7" />
+              /* Estado Vazio Inteligente com Ações */
+              <div className="py-12 px-5 text-center bg-white rounded-3xl border border-slate-200/90 shadow-2xs my-4 max-w-lg mx-auto">
+                <div className="w-16 h-16 rounded-3xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3.5 border border-amber-200/80 shadow-2xs">
+                  <Sparkles className="w-8 h-8 text-amber-500" />
                 </div>
-                <h3 className="text-base font-bold text-gray-900">
-                  Nenhuma indicação encontrada
+                <h3 className="text-base font-black text-gray-900 leading-tight">
+                  {busca ? `Nenhum resultado para "${busca}"` : "Nenhuma indicação encontrada"}
                 </h3>
-                <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                <p className="text-xs text-gray-500 mt-2 max-w-sm mx-auto leading-relaxed">
                   {apenasFavoritos
-                    ? "Você ainda não salvou nenhum contato como favorito. Clique no coração dos cards para salvar!"
-                    : "Não encontramos nenhum serviço com os filtros selecionados. Seja o primeiro a indicar um bom profissional!"}
+                    ? "Você ainda não salvou nenhum profissional como favorito. Toque no coração dos cards para guardar seus contatos aqui!"
+                    : busca
+                    ? `Ainda não temos essa indicação no catálogo. Você pode pedir no Mural do Bairro ou indicar alguém que você conheça!`
+                    : "Não encontramos nenhum serviço com essa combinação de filtros."}
                 </p>
-                <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2">
+
+                {/* Ações Rápidas do Empty State */}
+                <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAbaPrincipal("mural");
+                      if (typeof window !== "undefined") {
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }
+                    }}
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-emerald-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-xs transition active:scale-95 cursor-pointer"
+                  >
+                    <Megaphone className="w-4 h-4 text-emerald-950" />
+                    <span>Pedir no Mural do Bairro</span>
+                  </button>
+
                   <Link
-                    href="/cadastrar"
-                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm"
+                    href={`/cadastrar${busca ? `?nome=${encodeURIComponent(busca)}` : ""}`}
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition active:scale-95"
                   >
                     <PlusCircle className="w-4 h-4" />
-                    <span>Indicar esse contato agora</span>
+                    <span>Indicar um profissional</span>
                   </Link>
+                </div>
+
+                <div className="mt-3.5">
                   <button
                     onClick={() => {
                       setBusca("");
@@ -404,9 +427,10 @@ export default function Home() {
                       setApenasFimDeSemana(false);
                       setApenasFavoritos(false);
                       setApenasMorador(false);
+                      setApenasOfertas(false);
                       setFiltroAtendimento("todos");
                     }}
-                    className="text-xs text-gray-500 hover:text-gray-900 underline py-1 cursor-pointer"
+                    className="text-xs text-emerald-700 hover:text-emerald-900 font-bold underline py-1 cursor-pointer transition-colors"
                   >
                     Limpar todos os filtros
                   </button>
@@ -443,6 +467,12 @@ export default function Home() {
         isOpen={modalTelefonesAberto}
         onClose={() => setModalTelefonesAberto(false)}
       />
+
+      {/* Botão Flutuante Voltar ao Topo */}
+      <ScrollToTopButton />
+
+      {/* Container Global de Notificações Toast */}
+      <ToastContainer />
 
       {/* Footer */}
       <footer className="w-full text-center py-6 text-xs text-gray-500 border-t border-gray-200/70 mt-8 mb-4">

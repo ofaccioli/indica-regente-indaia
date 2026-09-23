@@ -27,6 +27,7 @@ import { SugerirEdicaoModal } from "./SugerirEdicaoModal";
 import { gerarLinkLigacao, verificarAbertoAgora } from "@/lib/utils";
 import { isFavorite, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
 import { isMyCreatedService, MY_SERVICES_EVENT } from "@/lib/my-services";
+import { showToast } from "./Toast";
 
 interface ServiceCardProps {
   servico: Servico;
@@ -98,6 +99,10 @@ export function ServiceCard({
     e.stopPropagation();
     const novoStatus = toggleFavorite(servico.id);
     setSalvoLocal(novoStatus);
+    showToast(
+      novoStatus ? "Salvo nos seus Favoritos!" : "Removido dos Favoritos",
+      novoStatus ? "❤️" : "🤍"
+    );
     if (onToggleFavorito) {
       onToggleFavorito(servico.id);
     }
@@ -113,6 +118,7 @@ export function ServiceCard({
           title: `Indicação: ${servico.nome}`,
           text: texto,
         });
+        showToast("Indicação compartilhada com sucesso!", "🚀");
         return;
       } catch {
         // Fallback
@@ -122,11 +128,12 @@ export function ServiceCard({
     try {
       await navigator.clipboard.writeText(texto);
       setCopiado(true);
+      showToast("Texto copiado! Cole no WhatsApp", "📋");
       setTimeout(() => setCopiado(false), 2500);
 
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`, "_blank");
     } catch {
-      alert("Texto da indicação copiado! Cole no seu grupo de WhatsApp.");
+      showToast("Texto copiado para a área de transferência", "📋");
     }
   };
 
@@ -140,54 +147,12 @@ export function ServiceCard({
     <>
       <article className="bg-white rounded-3xl p-4 sm:p-5 shadow-xs hover:shadow-md border border-slate-200/80 hover:border-emerald-200 transition-all duration-200 flex flex-col justify-between relative overflow-hidden group">
         <div>
-          {/* Topo: Categoria + Badges em Pílulas Modernas */}
-          <div className="flex items-center justify-between gap-1.5 mb-3 flex-wrap">
+          {/* Topo: Categoria + Status Aberto/FDS + Top Recomendado */}
+          <div className="flex items-center justify-between gap-1.5 mb-2.5">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/70">
                 {servico.categoria}
               </span>
-
-              {servico.eh_morador && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-950 border border-emerald-300">
-                  🏡 Vizinho do Bairro
-                </span>
-              )}
-
-              {servico.tipo_atendimento === "domicilio" && (
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                  🛵 Domicílio
-                </span>
-              )}
-              {servico.tipo_atendimento === "local" && (
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                  🏢 No Local
-                </span>
-              )}
-              {servico.tipo_atendimento === "ambos" && (
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                  🛵 & 🏢 Ambos
-                </span>
-              )}
-
-              {servico.verificado_admin && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                  <CheckCircle2 className="w-3 h-3 text-blue-600" />
-                  Verificado
-                </span>
-              )}
-
-              {servico.atende_fim_de_semana && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-300">
-                  <AlertCircle className="w-3 h-3 text-amber-600" />
-                  🚨 Plantão FDS
-                </span>
-              )}
-
-              {servico.oferta_vizinho && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-950 border border-amber-400">
-                  🏷️ Com Oferta
-                </span>
-              )}
 
               {statusAberto && (
                 <span
@@ -207,18 +172,15 @@ export function ServiceCard({
                 </span>
               )}
 
-              {servico.fotos_trabalhos && servico.fotos_trabalhos.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setModalFotosAberto(true)}
-                  className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 transition cursor-pointer"
-                  title="Ver fotos dos serviços realizados"
-                >
-                  <Camera className="w-3 h-3 text-emerald-600" />
-                  <span>Fotos ({servico.fotos_trabalhos.length})</span>
-                </button>
+              {servico.atende_fim_de_semana && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-300">
+                  <AlertCircle className="w-3 h-3 text-amber-600" />
+                  🚨 Plantão FDS
+                </span>
               )}
+            </div>
 
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               {souAutor && (
                 <button
                   type="button"
@@ -233,15 +195,14 @@ export function ServiceCard({
                   <span>Editar</span>
                 </button>
               )}
-            </div>
 
-            {/* Selo Top Recomendado */}
-            {servico.selo_destaque && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 shadow-2xs">
-                <Award className="w-3 h-3 fill-amber-950" />
-                TOP RECOMENDADO
-              </span>
-            )}
+              {servico.selo_destaque && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 shadow-2xs">
+                  <Award className="w-3 h-3 fill-amber-950" />
+                  TOP RECOMENDADO
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Cabeçalho com Avatar de Iniciais ou Foto de Perfil, Nome e Ações Rápidas */}
@@ -317,10 +278,41 @@ export function ServiceCard({
             </div>
           </div>
 
-          {/* Localização e Bairro */}
-          <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1.5">
-            <MapPin className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-            <span className="font-semibold text-gray-700">{servico.cidade_bairro}</span>
+          {/* Localização, Bairro e Badges Complementares */}
+          <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1.5 flex-wrap">
+            <div className="flex items-center gap-1 font-semibold text-gray-700">
+              <MapPin className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+              <span>{servico.cidade_bairro}</span>
+            </div>
+
+            {servico.eh_morador && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-950 border border-emerald-300">
+                🏡 Vizinho do Bairro
+              </span>
+            )}
+
+            {servico.tipo_atendimento === "domicilio" && (
+              <span className="inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                🛵 Domicílio
+              </span>
+            )}
+            {servico.tipo_atendimento === "local" && (
+              <span className="inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                🏢 No Local
+              </span>
+            )}
+            {servico.tipo_atendimento === "ambos" && (
+              <span className="inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                🛵 & 🏢 Ambos
+              </span>
+            )}
+
+            {servico.verificado_admin && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                <CheckCircle2 className="w-3 h-3 text-blue-600" />
+                Verificado
+              </span>
+            )}
           </div>
 
           {/* Horário de Funcionamento se cadastrado */}
@@ -356,6 +348,46 @@ export function ServiceCard({
                 <p className="text-xs font-bold text-amber-950 leading-snug mt-0.5">
                   {servico.oferta_vizinho}
                 </p>
+              </div>
+            </div>
+          )}
+
+          {/* Mini-Galeria / Pré-visualização dos Trabalhos em Destaque */}
+          {servico.fotos_trabalhos && servico.fotos_trabalhos.length > 0 && (
+            <div
+              onClick={() => setModalFotosAberto(true)}
+              className="mb-3 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 cursor-pointer group/galeria relative shadow-2xs hover:border-emerald-300 transition-all"
+              title="Toque para abrir as fotos dos trabalhos em tela cheia"
+            >
+              <div
+                className={`grid gap-1 ${
+                  servico.fotos_trabalhos.length === 1
+                    ? "grid-cols-1"
+                    : servico.fotos_trabalhos.length === 2
+                    ? "grid-cols-2"
+                    : "grid-cols-3"
+                } h-28 sm:h-32`}
+              >
+                {servico.fotos_trabalhos.slice(0, 3).map((foto, idx) => (
+                  <div key={idx} className="relative w-full h-full overflow-hidden bg-slate-200">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={foto}
+                      alt={`Trabalho ${idx + 1} de ${servico.nome}`}
+                      className="w-full h-full object-cover group-hover/galeria:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                    {idx === 2 && servico.fotos_trabalhos!.length > 3 && (
+                      <div className="absolute inset-0 bg-slate-950/65 flex items-center justify-center text-white font-black text-xs">
+                        +{servico.fotos_trabalhos!.length - 2} fotos
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="absolute bottom-2 right-2 bg-slate-900/85 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+                <Camera className="w-3 h-3 text-amber-300" />
+                <span>Ver fotos ({servico.fotos_trabalhos.length})</span>
               </div>
             </div>
           )}
