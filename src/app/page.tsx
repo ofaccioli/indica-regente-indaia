@@ -332,6 +332,14 @@ export default function Home() {
               <span>🗺️ Ver no Mapa</span>
             </button>
 
+            {/* Botão Coleta & Feiras */}
+            <button
+              onClick={() => setModalColetaAberto(true)}
+              className="px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer bg-white text-teal-900 border border-teal-300 hover:bg-teal-50 shadow-2xs"
+            >
+              <span>🚚 Coleta & Feiras</span>
+            </button>
+
             {/* Filtro de Ofertas da Vizinhança */}
             <button
               onClick={() => setApenasOfertas(!apenasOfertas)}

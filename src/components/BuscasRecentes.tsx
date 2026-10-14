@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Clock, X, Trash2 } from "lucide-react";
+import { Clock, X } from "lucide-react";
 
 interface BuscasRecentesProps {
   buscaAtual: string;
@@ -63,9 +63,9 @@ export function BuscasRecentes({ buscaAtual, onSelecionarBusca }: BuscasRecentes
   if (historico.length === 0) return null;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 pt-1.5 pb-0.5 flex items-center gap-1.5 overflow-x-auto scrollbar-none text-[11px]">
-      <span className="text-slate-400 font-semibold flex items-center gap-1 flex-shrink-0">
-        <Clock className="w-3 h-3 text-slate-400" />
+    <div className="w-full pt-1.5 pb-0.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[11px]">
+      <span className="text-emerald-200/80 font-bold text-[10px] uppercase tracking-wider flex items-center gap-1 flex-shrink-0 select-none">
+        <Clock className="w-3 h-3 text-emerald-300" />
         Recentes:
       </span>
 
@@ -74,13 +74,13 @@ export function BuscasRecentes({ buscaAtual, onSelecionarBusca }: BuscasRecentes
           key={item}
           type="button"
           onClick={() => onSelecionarBusca(item)}
-          className="inline-flex items-center gap-1 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-900 px-2.5 py-1 rounded-full border border-slate-200/90 shadow-2xs font-medium transition cursor-pointer flex-shrink-0 group"
+          className="inline-flex items-center gap-1 bg-emerald-800/60 hover:bg-emerald-700/80 text-emerald-100 hover:text-white px-2.5 py-0.5 rounded-full border border-emerald-600/50 shadow-2xs font-medium transition cursor-pointer flex-shrink-0 group active:scale-95"
           title={`Buscar "${item}"`}
         >
           <span>{item}</span>
           <span
             onClick={(e) => removerItem(e, item)}
-            className="text-slate-300 hover:text-rose-500 rounded-full p-0.5 transition"
+            className="text-emerald-300/60 hover:text-rose-300 rounded-full p-0.5 transition"
             title="Remover do histórico"
           >
             <X className="w-2.5 h-2.5" />
@@ -91,7 +91,7 @@ export function BuscasRecentes({ buscaAtual, onSelecionarBusca }: BuscasRecentes
       <button
         type="button"
         onClick={limparTudo}
-        className="text-[10px] text-slate-400 hover:text-slate-600 underline font-semibold ml-1 cursor-pointer flex-shrink-0"
+        className="text-[10px] text-emerald-300/70 hover:text-amber-300 underline font-semibold ml-1 cursor-pointer flex-shrink-0"
         title="Limpar histórico de buscas"
       >
         Limpar
