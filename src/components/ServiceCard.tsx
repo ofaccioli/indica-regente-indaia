@@ -70,6 +70,22 @@ export function ServiceCard({
 
   const statusAberto = verificarAbertoAgora(servico.horario_funcionamento);
 
+  const handleWhatsAppDireto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    let digitos = (servico.telefone || "").replace(/\D/g, "");
+    if (digitos.length === 10 || digitos.length === 11) {
+      digitos = `55${digitos}`;
+    }
+    if (!digitos) {
+      setModalZapAberto(true);
+      return;
+    }
+    const msg = encodeURIComponent(
+      `Olá! Vi o contato de ${servico.nome} no Indica Jd. Regente e gostaria de mais informações.`
+    );
+    window.open(`https://wa.me/${digitos}?text=${msg}`, "_blank");
+  };
+
   // Checa se este aparelho foi quem cadastrou o serviço
   useEffect(() => {
     setSouAutor(isMyCreatedService(servico.id));
@@ -327,9 +343,26 @@ export function ServiceCard({
 
           {/* Horário de Funcionamento se cadastrado */}
           {servico.horario_funcionamento && (
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1.5">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1.5 flex-wrap">
               <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-              <span className="text-[11px] text-slate-600">{servico.horario_funcionamento}</span>
+              <span className="text-[11px] text-slate-600 font-medium">{servico.horario_funcionamento}</span>
+              {statusAberto && (
+                <span
+                  className={`inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                    statusAberto.aberto
+                      ? "bg-emerald-100 text-emerald-900 border-emerald-300"
+                      : "bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                  title={statusAberto.aberto ? "Estabelecimento aberto no momento" : "Estabelecimento fechado agora"}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      statusAberto.aberto ? "bg-emerald-500 animate-pulse" : "bg-slate-400"
+                    }`}
+                  />
+                  {statusAberto.texto}
+                </span>
+              )}
             </div>
           )}
 
@@ -433,15 +466,26 @@ export function ServiceCard({
 
         {/* Botões de Ação */}
         <div className="pt-3 border-t border-slate-100 mt-1">
-          {/* Botão Principal: WhatsApp Inteligente */}
-          <button
-            type="button"
-            onClick={() => setModalZapAberto(true)}
-            className="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-98 transition-all mb-2 cursor-pointer"
-          >
-            <MessageCircle className="w-4 h-4 fill-white" />
-            <span>Chamar no WhatsApp</span>
-          </button>
+          {/* Botão Principal: WhatsApp Direto 1-Clique + Modelos de Mensagem */}
+          <div className="flex items-center gap-1.5 mb-2">
+            <button
+              type="button"
+              onClick={handleWhatsAppDireto}
+              className="flex-1 py-2.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-98 transition-all cursor-pointer"
+              title="Abrir WhatsApp direto em 1 clique com mensagem pronta"
+            >
+              <MessageCircle className="w-4 h-4 fill-white" />
+              <span>Chamar no WhatsApp</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setModalZapAberto(true)}
+              className="py-2.5 px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 font-bold text-xs flex items-center justify-center gap-1 shadow-2xs active:scale-98 transition-all cursor-pointer"
+              title="Personalizar mensagem (orçamento, emergência, etc.)"
+            >
+              <span>Opções</span>
+            </button>
+          </div>
 
           {/* Linha de botões secundários */}
           <div className="grid grid-cols-3 gap-1.5 text-xs">

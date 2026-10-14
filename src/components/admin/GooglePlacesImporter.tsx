@@ -99,6 +99,29 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
     }
   };
 
+  const selecionarTopDoBairro = () => {
+    const topDoBairro = lugares
+      .filter((l) => !l.ja_cadastrado && (l.proximidade_tier === 1 || l.nota_media >= 4.8))
+      .map((l) => l.google_place_id);
+    setSelecionados(new Set(topDoBairro));
+  };
+
+  const handleTermoBuscaChange = (val: string) => {
+    setTermoBusca(val);
+    const trimmed = val.trim();
+    if (
+      trimmed.includes("maps.app.goo.gl") ||
+      trimmed.includes("google.com/maps") ||
+      trimmed.startsWith("http://") ||
+      trimmed.startsWith("https://")
+    ) {
+      setAbaInterna("link");
+      setUrlMaps(trimmed);
+      setTermoBusca("");
+      handleConsultarLink(trimmed);
+    }
+  };
+
   const handleImportarSelecionados = async () => {
     if (selecionados.size === 0) return;
 
@@ -156,8 +179,9 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
   };
 
   // Importar por Link do Google Maps
-  const handleConsultarLink = async () => {
-    if (!urlMaps.trim()) {
+  const handleConsultarLink = async (urlEspecifica?: any) => {
+    const alvo = (typeof urlEspecifica === "string" ? urlEspecifica : urlMaps).trim();
+    if (!alvo) {
       setErroLink("Por favor, cole um link ou nome do local.");
       return;
     }
@@ -170,7 +194,7 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
       const res = await fetch("/api/admin/google-places/details", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: urlMaps.trim() }),
+        body: JSON.stringify({ url: alvo }),
       });
 
       const data = await res.json();
@@ -309,8 +333,20 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
                 <input
                   type="text"
                   value={termoBusca}
-                  onChange={(e) => setTermoBusca(e.target.value)}
-                  placeholder="Nome, palavra ou serviço (Ex: farmácia, mercado, pizza)..."
+                  onChange={(e) => handleTermoBuscaChange(e.target.value)}
+                  onPaste={(e) => {
+                    const pasted = e.clipboardData.getData("text");
+                    if (
+                      pasted &&
+                      (pasted.includes("maps.app.goo.gl") ||
+                        pasted.includes("google.com/maps") ||
+                        pasted.startsWith("http"))
+                    ) {
+                      e.preventDefault();
+                      handleTermoBuscaChange(pasted);
+                    }
+                  }}
+                  placeholder="Nome, serviço ou cole link do Google Maps..."
                   className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition font-medium"
                   onKeyDown={(e) => e.key === "Enter" && handleBuscar()}
                 />
@@ -591,7 +627,7 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
           {/* Barra de Ação em Lote */}
           {lugares.length > 0 && (
             <div className="bg-slate-900 text-white rounded-2xl p-3.5 flex items-center justify-between flex-wrap gap-3 shadow-md">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <button
                   type="button"
                   onClick={selecionarTodosDisponiveis}
@@ -601,6 +637,17 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
                     ? "Desmarcar todos"
                     : "Selecionar todos disponíveis"}
                 </button>
+
+                <button
+                  type="button"
+                  onClick={selecionarTopDoBairro}
+                  className="text-xs font-bold text-amber-300 hover:text-amber-200 flex items-center gap-1.5 cursor-pointer bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-amber-400/40 transition active:scale-95 shadow-xs"
+                  title="Seleciona de uma vez estabelecimentos vizinhos ao Jd. Regente ou nota 4.8+"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>1-Clique: Top do Bairro</span>
+                </button>
+
                 <span className="text-xs bg-slate-800 text-amber-300 px-2.5 py-1 rounded-full font-bold">
                   {selecionados.size} selecionado(s)
                 </span>
@@ -784,7 +831,7 @@ export function GooglePlacesImporter({ onImportado }: GooglePlacesImporterProps)
             />
             <button
               type="button"
-              onClick={handleConsultarLink}
+              onClick={() => handleConsultarLink()}
               disabled={carregandoLink}
               className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-xs cursor-pointer flex-shrink-0"
             >

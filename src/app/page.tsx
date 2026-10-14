@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useDeferredValue } from "react";
 import { Header } from "@/components/Header";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { NeighborhoodFilter } from "@/components/NeighborhoodFilter";
@@ -20,6 +20,7 @@ import { ordenarServicos } from "@/lib/ranking";
 import { getFavorites, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
 import { buscarCategoriasPorSinonimos } from "@/lib/synonyms";
 import { obterPrevisaoTempoJdRegente, ClimaAtual } from "@/lib/weather";
+import { verificarAbertoAgora } from "@/lib/utils";
 import {
   Sparkles,
   PlusCircle,
@@ -39,9 +40,11 @@ export default function Home() {
   const [pedidosMural, setPedidosMural] = useState<PedidoMural[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [busca, setBusca] = useState("");
+  const buscaDeferred = useDeferredValue(busca);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("Todos");
   const [bairroSelecionado, setBairroSelecionado] = useState("Todos os Bairros");
   const [apenasFimDeSemana, setApenasFimDeSemana] = useState(false);
+  const [apenasAbertos, setApenasAbertos] = useState(false);
   const [apenasFavoritos, setApenasFavoritos] = useState(false);
   const [apenasMorador, setApenasMorador] = useState(false);
   const [apenasOfertas, setApenasOfertas] = useState(false);
@@ -102,12 +105,18 @@ export default function Home() {
     return mapa;
   }, [servicos]);
 
-  // Filtra por categoria, bairro, plantão, morador, atendimento, favoritos e busca
+  // Filtra por categoria, bairro, plantão, morador, atendimento, favoritos, abertos agora e busca
   const servicosFiltrados = useMemo(() => {
-    const termo = busca.toLowerCase().trim();
+    const termo = buscaDeferred.toLowerCase().trim();
     const categoriasSinonimos = termo ? buscarCategoriasPorSinonimos(termo) : [];
 
     return servicos.filter((item) => {
+      // Filtro de Abertos Agora
+      if (apenasAbertos) {
+        const st = verificarAbertoAgora(item.horario_funcionamento);
+        if (!st?.aberto) return false;
+      }
+
       // Filtro de Meus Salvos / Favoritos
       if (apenasFavoritos && !favoritosIds.includes(item.id)) {
         return false;
@@ -182,12 +191,13 @@ export default function Home() {
     categoriaSelecionada,
     bairroSelecionado,
     apenasFimDeSemana,
+    apenasAbertos,
     apenasFavoritos,
     favoritosIds,
     apenasMorador,
     apenasOfertas,
     filtroAtendimento,
-    busca,
+    buscaDeferred,
   ]);
 
   // Aplica inteligência de ordenação
@@ -286,7 +296,7 @@ export default function Home() {
             onToggleFimDeSemana={() => setApenasFimDeSemana(!apenasFimDeSemana)}
           />
 
-          {/* Filtros Rápidos Comunitários (Ofertas, Moradores, Favoritos, Domicílio) */}
+          {/* Filtros Rápidos Comunitários (Abertos Agora, Ofertas, Moradores, Favoritos, Domicílio) */}
           <div
             onWheel={(e) => {
               if (Math.abs(e.deltaY) > 0) {
@@ -295,6 +305,19 @@ export default function Home() {
             }}
             className="max-w-4xl w-full mx-auto px-4 pt-2 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs scroll-smooth"
           >
+            {/* Filtro de Abertos Agora */}
+            <button
+              onClick={() => setApenasAbertos(!apenasAbertos)}
+              className={`px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer ${
+                apenasAbertos
+                  ? "bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-400/40"
+                  : "bg-white text-gray-700 border border-slate-200 hover:bg-emerald-50 hover:text-emerald-800"
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${apenasAbertos ? "bg-white" : "bg-emerald-500 animate-pulse"}`} />
+              <span>Abertos Agora</span>
+            </button>
+
             {/* Filtro de Ofertas da Vizinhança */}
             <button
               onClick={() => setApenasOfertas(!apenasOfertas)}
