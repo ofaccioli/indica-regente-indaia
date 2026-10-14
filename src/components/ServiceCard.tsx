@@ -16,6 +16,8 @@ import {
   Clock,
   Camera,
   Edit3,
+  QrCode,
+  UtensilsCrossed,
 } from "lucide-react";
 import { Servico } from "@/types";
 import { WhatsAppOptionsModal } from "./WhatsAppOptionsModal";
@@ -24,6 +26,7 @@ import { VerAvaliacoesModal } from "./VerAvaliacoesModal";
 import { FotosTrabalhosModal } from "./FotosTrabalhosModal";
 import { EditarServicoModal } from "./EditarServicoModal";
 import { SugerirEdicaoModal } from "./SugerirEdicaoModal";
+import { GerarCartaoModal } from "./GerarCartaoModal";
 import { gerarLinkLigacao, verificarAbertoAgora } from "@/lib/utils";
 import { isFavorite, toggleFavorite, FAVORITES_EVENT } from "@/lib/favorites";
 import { isMyCreatedService, MY_SERVICES_EVENT } from "@/lib/my-services";
@@ -64,6 +67,7 @@ export function ServiceCard({
   const [modalLigarAberto, setModalLigarAberto] = useState(false);
   const [modalEditarAberto, setModalEditarAberto] = useState(false);
   const [modalSugerirEdicaoAberto, setModalSugerirEdicaoAberto] = useState(false);
+  const [modalCartaoAberto, setModalCartaoAberto] = useState(false);
   const [souAutor, setSouAutor] = useState(false);
   const [copiado, setCopiado] = useState(false);
   const [expandirDescricao, setExpandirDescricao] = useState(false);
@@ -466,6 +470,20 @@ export function ServiceCard({
 
         {/* Botões de Ação */}
         <div className="pt-3 border-t border-slate-100 mt-1">
+          {/* Botão Ver Cardápio / Preços se cadastrado */}
+          {servico.cardapio_url && (
+            <a
+              href={servico.cardapio_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full mb-2 py-2 px-3 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-xs flex items-center justify-center gap-1.5 transition active:scale-98 shadow-2xs cursor-pointer"
+              title="Abrir Cardápio / Tabela de Preços Digital"
+            >
+              <UtensilsCrossed className="w-3.5 h-3.5 text-amber-700" />
+              <span>Ver Cardápio / Preços</span>
+            </a>
+          )}
+
           {/* Botão Principal: WhatsApp Direto 1-Clique + Modelos de Mensagem */}
           <div className="flex items-center gap-1.5 mb-2">
             <button
@@ -527,8 +545,18 @@ export function ServiceCard({
             </button>
           </div>
 
-          {/* Link discreto para Atualizar Dados / Sugerir Edição */}
-          <div className="pt-2 text-center border-t border-slate-100/70 mt-2">
+          {/* Links de Utilidade: Gerar Cartão & Atualizar Dados */}
+          <div className="pt-2 text-center border-t border-slate-100/70 mt-2 flex items-center justify-between text-[11px] px-1">
+            <button
+              type="button"
+              onClick={() => setModalCartaoAberto(true)}
+              className="text-emerald-700 hover:text-emerald-900 font-bold inline-flex items-center gap-1 hover:underline transition cursor-pointer"
+              title="Gerar cartão de balcão com QR Code pronto para imprimir"
+            >
+              <QrCode className="w-3 h-3 text-emerald-600" />
+              <span>Cartão & QR</span>
+            </button>
+
             <button
               type="button"
               onClick={() => {
@@ -538,10 +566,10 @@ export function ServiceCard({
                   setModalSugerirEdicaoAberto(true);
                 }
               }}
-              className="text-[11px] text-slate-400 hover:text-emerald-700 font-medium inline-flex items-center gap-1 hover:underline transition cursor-pointer"
+              className="text-slate-400 hover:text-emerald-700 font-medium inline-flex items-center gap-1 hover:underline transition cursor-pointer"
             >
               <Edit3 className="w-3 h-3 text-slate-400" />
-              <span>{souAutor ? "Editar informações deste cadastro" : "É o dono? Atualizar informações"}</span>
+              <span>{souAutor ? "Editar" : "Atualizar"}</span>
             </button>
           </div>
         </div>
@@ -637,6 +665,13 @@ export function ServiceCard({
           </div>
         </div>
       )}
+
+      {/* Modal de Gerador de Cartão de Balcão & Divulgação com QR Code */}
+      <GerarCartaoModal
+        servico={servico}
+        isOpen={modalCartaoAberto}
+        onClose={() => setModalCartaoAberto(false)}
+      />
     </>
   );
 }

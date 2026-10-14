@@ -77,6 +77,19 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
     }
   };
 
+  const handleCompartilharMural = (p: PedidoMural) => {
+    const isPet = p.tipo_post === "pet_perdido";
+    const emoji = isPet
+      ? "🚨🐶 ALERTA: PET PERDIDO NO BAIRRO!"
+      : p.tipo_post === "desapego"
+      ? "📦 DESAPEGO / DOAÇÃO NO BAIRRO:"
+      : "📢 ALGUÉM INDICA NO BAIRRO?";
+    const texto = `${emoji}\n*${p.titulo}*\nBairro: ${p.bairro}\n\n"${p.descricao}"\n\nContato: ${
+      p.whatsapp_contato ? p.whatsapp_contato : p.morador_nome
+    }\nVeja mais no Mural do Indica Jd. Regente:\nhttps://indica-regente-indaia.vercel.app`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`, "_blank");
+  };
+
   const handleEnviarResposta = async (pedidoId: string) => {
     if (!mensagemResposta.trim()) {
       alert("Por favor, escreva uma mensagem ou indicação.");
@@ -410,6 +423,16 @@ export function MuralView({ pedidos, servicosCadastrados, onAtualizar }: MuralVi
                         <span>{isPet ? "Pet encontrado" : "Já resolvi"}</span>
                       </button>
                     )}
+
+                    <button
+                      type="button"
+                      onClick={() => handleCompartilharMural(pedido)}
+                      className="text-slate-600 hover:text-emerald-700 font-semibold text-[11px] flex items-center gap-1 px-2.5 py-1 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
+                      title="Compartilhar nos grupos de WhatsApp do bairro"
+                    >
+                      <Share2 className="w-3 h-3 text-blue-600" />
+                      <span>Grupo do Bairro</span>
+                    </button>
                   </div>
                 </div>
 

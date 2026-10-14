@@ -27,6 +27,7 @@ export function EditarServicoModal({
   const [descricao, setDescricao] = useState("");
   const [instagram, setInstagram] = useState("");
   const [ofertaVizinho, setOfertaVizinho] = useState("");
+  const [cardapioUrl, setCardapioUrl] = useState("");
   const [horarioFuncionamento, setHorarioFuncionamento] = useState("");
   const [atendeFimDeSemana, setAtendeFimDeSemana] = useState(false);
   const [ehMorador, setEhMorador] = useState(false);
@@ -46,6 +47,7 @@ export function EditarServicoModal({
       setDescricao(servico.descricao || "");
       setInstagram(servico.instagram || "");
       setOfertaVizinho(servico.oferta_vizinho || "");
+      setCardapioUrl(servico.cardapio_url || "");
       setHorarioFuncionamento(servico.horario_funcionamento || "");
       setAtendeFimDeSemana(Boolean(servico.atende_fim_de_semana));
       setEhMorador(Boolean(servico.eh_morador));
@@ -114,6 +116,7 @@ export function EditarServicoModal({
         descricao: descricao.trim(),
         instagram: instagram.trim() ? (instagram.startsWith("@") ? instagram : `@${instagram.trim()}`) : undefined,
         oferta_vizinho: ofertaVizinho.trim() || undefined,
+        cardapio_url: cardapioUrl.trim() || undefined,
         horario_funcionamento: horarioFuncionamento.trim() || undefined,
         atende_fim_de_semana: atendeFimDeSemana,
         eh_morador: ehMorador,
@@ -247,6 +250,19 @@ export function EditarServicoModal({
               onChange={(e) => setOfertaVizinho(e.target.value)}
               placeholder="Ex: 10% de desconto ou entrega grátis no Jd. Regente / Valença"
               className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs focus:ring-2 focus:ring-amber-500 outline-none bg-white text-gray-800"
+            />
+          </div>
+
+          <div>
+            <label className="block font-bold text-slate-700 mb-1">
+              🍽️ Link do Cardápio / Catálogo Digital (Opcional)
+            </label>
+            <input
+              type="url"
+              value={cardapioUrl}
+              onChange={(e) => setCardapioUrl(e.target.value)}
+              placeholder="Ex: https://meucardapio.com ou link do iFood / PDF / Instagram"
+              className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500 outline-none"
             />
           </div>
 

@@ -12,9 +12,12 @@ import {
   ShieldAlert,
   ChevronLeft,
   ChevronRight,
+  Truck,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 import { ClimaAtual } from "@/lib/weather";
+import { BuscasRecentes } from "./BuscasRecentes";
 
 interface HeaderProps {
   busca: string;
@@ -22,6 +25,8 @@ interface HeaderProps {
   onAbrirDivulgacao?: () => void;
   onAbrirTelefones?: () => void;
   onAbrirClima?: () => void;
+  onAbrirColeta?: () => void;
+  onAbrirMapa?: () => void;
   clima?: ClimaAtual | null;
   onLogoClick?: () => void;
 }
@@ -32,6 +37,8 @@ export function Header({
   onAbrirDivulgacao,
   onAbrirTelefones,
   onAbrirClima,
+  onAbrirColeta,
+  onAbrirMapa,
   clima,
   onLogoClick,
 }: HeaderProps) {
@@ -129,6 +136,30 @@ export function Header({
               </button>
             )}
 
+            {onAbrirMapa && (
+              <button
+                type="button"
+                onClick={onAbrirMapa}
+                className="inline-flex items-center gap-1 bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 hover:text-white px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all border border-emerald-600/50 cursor-pointer"
+                title="Ver Estabelecimentos no Mapa do Jd. Regente & Indaiatuba"
+              >
+                <MapPin className="w-3.5 h-3.5 text-amber-300" />
+                <span className="hidden xs:inline">Mapa</span>
+              </button>
+            )}
+
+            {onAbrirColeta && (
+              <button
+                type="button"
+                onClick={onAbrirColeta}
+                className="inline-flex items-center gap-1 bg-teal-800/80 hover:bg-teal-700 text-teal-100 hover:text-white px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all border border-teal-600/50 cursor-pointer"
+                title="Horários de Coleta de Lixo, Reciclável & Feiras de Indaiatuba"
+              >
+                <Truck className="w-3.5 h-3.5 text-amber-300" />
+                <span className="hidden xs:inline">Coleta</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => {
@@ -185,6 +216,9 @@ export function Header({
             </button>
           )}
         </div>
+
+        {/* Histórico de Buscas Recentes em Chips */}
+        <BuscasRecentes buscaAtual={busca} onSelecionarBusca={onBuscaChange} />
 
         {/* Tags de Atalho Rápido de Busca com Botões de Navegação Desktop */}
         <div className="relative flex items-center pt-2.5 pb-0.5">

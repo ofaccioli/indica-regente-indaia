@@ -11,6 +11,8 @@ import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { ShareCommunityModal } from "@/components/ShareCommunityModal";
 import { TelefonesUteisModal } from "@/components/TelefonesUteisModal";
 import { PrevisaoTempoModal } from "@/components/PrevisaoTempoModal";
+import { ColetaLixoModal } from "@/components/ColetaLixoModal";
+import { MapaServicosModal } from "@/components/MapaServicosModal";
 import { MuralView } from "@/components/MuralView";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { ToastContainer } from "@/components/Toast";
@@ -53,6 +55,8 @@ export default function Home() {
   const [modalDivulgacaoAberto, setModalDivulgacaoAberto] = useState(false);
   const [modalTelefonesAberto, setModalTelefonesAberto] = useState(false);
   const [modalClimaAberto, setModalClimaAberto] = useState(false);
+  const [modalColetaAberto, setModalColetaAberto] = useState(false);
+  const [modalMapaAberto, setModalMapaAberto] = useState(false);
   const [clima, setClima] = useState<ClimaAtual | null>(null);
   const [favoritosIds, setFavoritosIds] = useState<string[]>([]);
 
@@ -225,6 +229,8 @@ export default function Home() {
         onBuscaChange={setBusca}
         onAbrirDivulgacao={() => setModalDivulgacaoAberto(true)}
         onAbrirTelefones={() => setModalTelefonesAberto(true)}
+        onAbrirColeta={() => setModalColetaAberto(true)}
+        onAbrirMapa={() => setModalMapaAberto(true)}
         onLogoClick={irParaGuiaServicos}
         clima={clima}
         onAbrirClima={() => setModalClimaAberto(true)}
@@ -316,6 +322,14 @@ export default function Home() {
             >
               <span className={`w-2 h-2 rounded-full ${apenasAbertos ? "bg-white" : "bg-emerald-500 animate-pulse"}`} />
               <span>Abertos Agora</span>
+            </button>
+
+            {/* Botão Ver no Mapa */}
+            <button
+              onClick={() => setModalMapaAberto(true)}
+              className="px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer bg-white text-emerald-900 border border-emerald-300 hover:bg-emerald-50 shadow-2xs"
+            >
+              <span>🗺️ Ver no Mapa</span>
             </button>
 
             {/* Filtro de Ofertas da Vizinhança */}
@@ -512,6 +526,19 @@ export default function Home() {
         isOpen={modalClimaAberto}
         onClose={() => setModalClimaAberto(false)}
         clima={clima}
+      />
+
+      {/* Modal de Coleta de Lixo, Reciclável & Feiras */}
+      <ColetaLixoModal
+        isOpen={modalColetaAberto}
+        onClose={() => setModalColetaAberto(false)}
+      />
+
+      {/* Modal de Mapa Interativo dos Serviços do Bairro */}
+      <MapaServicosModal
+        isOpen={modalMapaAberto}
+        onClose={() => setModalMapaAberto(false)}
+        servicos={servicos}
       />
 
       {/* Botão Flutuante Voltar ao Topo */}

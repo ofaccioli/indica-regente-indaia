@@ -61,6 +61,7 @@ export default function CadastrarPage() {
   const [detectandoGps, setDetectandoGps] = useState(false);
   const [descricao, setDescricao] = useState("");
   const [ofertaVizinho, setOfertaVizinho] = useState("");
+  const [cardapioUrl, setCardapioUrl] = useState("");
   const [quemIndicou, setQuemIndicou] = useState("");
   const [instagram, setInstagram] = useState("");
   const [atendeFimDeSemana, setAtendeFimDeSemana] = useState(false);
@@ -200,6 +201,7 @@ export default function CadastrarPage() {
         quem_indicou: quemIndicou.trim() || "Vizinho da Comunidade",
         instagram: instagram.trim() ? (instagram.startsWith("@") ? instagram : `@${instagram.trim()}`) : undefined,
         oferta_vizinho: ofertaVizinho.trim() || undefined,
+        cardapio_url: cardapioUrl.trim() || undefined,
         atende_fim_de_semana: atendeFimDeSemana,
         eh_morador: ehMorador,
         tipo_atendimento: tipoAtendimento,
@@ -536,6 +538,23 @@ export default function CadastrarPage() {
               />
               <p className="text-[11px] text-gray-400 mt-1">
                 Os moradores poderão ver fotos de serviços realizados diretamente no Instagram dele.
+              </p>
+            </div>
+
+            {/* Cardápio / Catálogo Digital */}
+            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+              <label className="block text-xs font-bold text-gray-800 mb-1.5 flex items-center gap-1.5">
+                <span>🍽️ Link do Cardápio / Catálogo Digital <span className="text-gray-400 font-normal">(opcional)</span></span>
+              </label>
+              <input
+                type="url"
+                value={cardapioUrl}
+                onChange={(e) => setCardapioUrl(e.target.value)}
+                placeholder="Ex: link do iFood, Anota AI, PDF ou site de pedidos"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              />
+              <p className="text-[11px] text-gray-400 mt-1">
+                Para lanchonetes, pizzarias, confeitarias ou salões: os vizinhos poderão ver preços e cardápio direto.
               </p>
             </div>
 

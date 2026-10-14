@@ -40,6 +40,7 @@ export default function AdminDashboardPage() {
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [abaAtiva, setAbaAtiva] = useState<"servicos" | "avaliacoes" | "google">("servicos");
   const [busca, setBusca] = useState("");
+  const [filtroIrregulares, setFiltroIrregulares] = useState(false);
 
   // Modal de edição
   const [servicoParaEditar, setServicoParaEditar] = useState<Servico | null>(null);
@@ -230,7 +231,15 @@ export default function AdminDashboardPage() {
     );
   }
 
+  const telefonesIrregulares = servicos.filter(
+    (s) => !s.telefone || s.telefone.replace(/\D/g, "").length < 10
+  );
+
   const servicosFiltrados = servicos.filter((s) => {
+    if (filtroIrregulares) {
+      const digitos = (s.telefone || "").replace(/\D/g, "");
+      if (digitos.length >= 10) return false;
+    }
     const termo = busca.toLowerCase().trim();
     if (!termo) return true;
     return (
@@ -443,15 +452,33 @@ export default function AdminDashboardPage() {
           <div>
             {/* Barra de pesquisa da lista de contatos */}
             <div className="mb-4 flex flex-col sm:flex-row gap-2 justify-between items-stretch sm:items-center">
-              <div className="relative flex-1 max-w-md">
-                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                  placeholder="Pesquisar por nome, categoria, bairro ou telefone..."
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-white border border-gray-300 text-xs focus:ring-2 focus:ring-gray-900 outline-none"
-                />
+              <div className="flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={busca}
+                    onChange={(e) => setBusca(e.target.value)}
+                    placeholder="Pesquisar por nome, categoria, bairro ou telefone..."
+                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-white border border-gray-300 text-xs focus:ring-2 focus:ring-gray-900 outline-none"
+                  />
+                </div>
+
+                {telefonesIrregulares.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setFiltroIrregulares(!filtroIrregulares)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border ${
+                      filtroIrregulares
+                        ? "bg-amber-500 text-white border-amber-600 shadow-xs"
+                        : "bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100"
+                    }`}
+                    title="Exibir apenas contatos com telefone ausente ou com menos de 10 dígitos"
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>{telefonesIrregulares.length} telefones para revisar</span>
+                  </button>
+                )}
               </div>
 
               <div className="text-xs text-gray-500 font-medium self-end sm:self-center">
@@ -501,7 +528,18 @@ export default function AdminDashboardPage() {
                             </span>
                           </td>
                           <td className="px-4 py-3 font-mono text-[11px] text-gray-900">
-                            {s.telefone}
+                            <div className="flex items-center gap-1.5">
+                              <span>{s.telefone || "Sem telefone"}</span>
+                              {(!s.telefone || s.telefone.replace(/\D/g, "").length < 10) && (
+                                <span
+                                  className="bg-amber-100 text-amber-800 text-[9px] px-1.5 py-0.5 rounded font-sans font-bold flex items-center gap-0.5"
+                                  title="Número incompleto ou não informado"
+                                >
+                                  <AlertTriangle className="w-2.5 h-2.5 text-amber-600" />
+                                  Revisar
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="px-4 py-3 text-gray-600 truncate max-w-[150px]">
                             {s.cidade_bairro}

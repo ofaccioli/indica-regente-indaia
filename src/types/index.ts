@@ -27,6 +27,9 @@ export interface Servico {
   google_user_ratings_total?: number;
   google_place_id?: string;
   endereco?: string;
+  cardapio_url?: string;
+  latitude?: number;
+  longitude?: number;
   created_at: string;
 }
 
